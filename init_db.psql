@@ -1,0 +1,230 @@
+/* windows */
+/* psql -h localhost -p 5432 -U postgres postgres < c:\node\social-network-framework\init_db.psql */
+
+/* ubuntu */
+/* psql -h localhost -p 5432 -U postgres postgres < /var/www/social-network-framework/init_db.psql */
+
+CREATE DATABASE social_network;
+\c social_network;
+
+/* -------------------------------------------------- */
+/* авторизация */
+CREATE TABLE tokens (
+	ID serial primary key,
+	TOKEN_KEY character varying (32) NOT NULL,
+	USER_ID bigint  NOT NULL,
+	IP character varying (50) NOT NULL,
+	BROWSER character varying (255),
+	ROOT bool,
+	CREATE_DATE timestamp with time zone DEFAULT NOW()
+);
+
+/* -------------------------------------------------- */
+/* пользователи */
+CREATE TABLE users (
+    ID	serial primary key,	/* ID пользователя. */
+    TIMESTAMP_X	TIMESTAMP WITH TIME ZONE,	/* Последнее изменение. */
+    LOGIN   character varying (50) not null,	/* Имя входа. */
+    PASSWORD	character varying (60) not null,	/* Хеш от пароля. */
+    STORED_HASH	character varying (32),	/* Хеш от пароля хранимый в куках пользователя. */
+    CHECKWORD	character varying (50),	/* Контрольная строка для смены пароля. */
+    ACTIVE	boolean,	/* Активен (Y|N). */
+    NAME	character varying (50),	/* Имя. */
+    LAST_NAME	character varying (50),	/* Фамилия. */
+    SECOND_NAME	character varying (50),	/* Отчество. */
+    EMAIL	character varying (255) not null,	 /* E-mail адрес. */
+    LAST_LOGIN	TIMESTAMP WITH TIME ZONE,	/* Дата последней авторизации. */
+    LAST_ACTIVITY_DATE	TIMESTAMP WITH TIME ZONE,	/* Дата последнего хита на сайте. */
+    ADMIN_NOTES	character varying (2000),	/* Заметки администратора. */
+    EXTERNAL_AUTH_SITE	character varying (255), /* Сайт Внешней авторизации. */
+    EXTERNAL_AUTH_ID	character varying (255), /* Код источника Внешней авторизации. */
+    ROOT boolean, /* Системный пользователь */
+    BAN timestamp with time zone, /* Время, до которого получен бан */
+
+    /* Личные данные: */
+    PERSONAL_PROFESSION	character varying (255),	/* Профессия. */
+    PERSONAL_WWW	character varying (255),	/* WWW-страница. */
+    PERSONAL_ICQ	character varying (255),	/* ICQ. */
+    PERSONAL_GENDER	character varying (1),	/* Пол. */
+    PERSONAL_BIRTHDAY	date,	/* Дата рождения. */
+    PERSONAL_PHOTO	int,	/* Фотография. */
+    PERSONAL_PHONE	character varying (255),	/* Телефон. */
+    PERSONAL_FAX	character varying (255),	/* Факс. */
+    PERSONAL_MOBILE	character varying (255),	/* Мобильный телефон. */
+    PERSONAL_PAGER	character varying (255),	/* Пэйджер. */
+    PERSONAL_STREET	character varying (2000),	/* Улица, дом. */
+    PERSONAL_MAILBOX	character varying (255),	/* Почтовый ящик. */
+    PERSONAL_CITY	character varying (255),	/* Город. */
+    PERSONAL_STATE	character varying (255),	/* Область / край. */
+    PERSONAL_ZIP	character varying (255),	/* Индекс. */
+    PERSONAL_COUNTRY	character varying (255),	/* Страна. */
+    PERSONAL_NOTES	character varying (2000),	/* Дополнительные заметки. */
+
+    /* Информация о работе: */
+    WORK_COMPANY	character varying (255),	/* Наименование компании. */
+    WORK_DEPARTMENT	character varying (255),	/* Департамент / Отдел. */
+    WORK_POSITION	character varying (255),	/* Должность. */
+    WORK_WWW	character varying (255),	/* WWW-страница. */
+    WORK_PHONE	character varying (255),	/* Телефон. */
+    WORK_FAX	character varying (255),	/* Факс. */
+    WORK_PAGER	character varying (255),	/* Пэйджер. */
+    WORK_STREET	character varying (2000),	/* Улица, дом. */
+    WORK_MAILBOX	character varying (255),	/* Почтовый ящик. */
+    WORK_CITY	character varying (255),	/* Город. */
+    WORK_STATE	character varying (255),	/* Область / край. */
+    WORK_ZIP	character varying (255),	/* Индекс. */
+    WORK_COUNTRY	character varying (255),	/* Страна. */
+    WORK_PROFILE	character varying (2000),	/* Направления деятельности. */
+    WORK_LOGO	bigint,	/* Логотип. */
+    WORK_NOTES	character varying (2000),	/* Дополнительные заметки. */
+
+    DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
+
+
+ALTER TABLE public.users ADD CONSTRAINT LOGIN UNIQUE (LOGIN);
+ALTER TABLE public.users ADD CONSTRAINT EMAIL UNIQUE (EMAIL);
+
+CREATE UNIQUE INDEX unique_users_login ON users(LOGIN);
+
+INSERT INTO users (LOGIN, PASSWORD, EMAIL, NAME, ROOT, DATE_CREATE) VALUES ('admin', '$2b$10$zdWLdO9rHZgTiTkPKQYsY.6TBAMH.pTt6MZcZcb7i85.2vCA7uUkq', 'stronggenius@mail.ru', 'admin', true, NOW());
+INSERT INTO users (LOGIN, PASSWORD, EMAIL, NAME, ROOT, DATE_CREATE) VALUES ('test1', '$2b$10$zdWLdO9rHZgTiTkPKQYsY.6TBAMH.pTt6MZcZcb7i85.2vCA7uUkq', 'test1@mail.ru', 'test1', true, NOW());
+INSERT INTO users (LOGIN, PASSWORD, EMAIL, NAME, ROOT, DATE_CREATE) VALUES ('test2', '$2b$10$zdWLdO9rHZgTiTkPKQYsY.6TBAMH.pTt6MZcZcb7i85.2vCA7uUkq', 'test2@mail.ru', 'test2', true, NOW());
+
+/* -------------------------------------------------- */
+/* сообщения */
+CREATE TABLE messages (
+    ID	serial primary key,	/* ID пользователя. */
+    FROM_USER_ID bigint, /* от кого (обязательное поле) */
+    TO_USER_ID bigint, /* кому (обязательное поле), */
+    MESSAGE text, /* сообщение (обязательное поле), */
+    MESSAGE_TYPE character varying (1), /* тип сообщения: P - персональное, S - системное. */
+    READ boolean,
+    DELETE_FROM_USER boolean,
+    DELETE_TO_USER boolean,
+    DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
+
+/* -------------------------------------------------- */
+/* группы */
+CREATE TABLE groups (
+    ID	serial primary key,	/* ID группы. */
+    USER_ID bigint, /* от кого (обязательное поле) */
+
+    NAME character varying (255),
+    DESCRIPTION character varying (2000),
+    ACTIVE boolean,	/* Активен (Y|N). */
+    VISIBLE boolean, /* Видна в списках */
+    OPENED boolean, /* Открытая группа */
+    TYPE smallint,
+    DELETE boolean,
+    BAN timestamp with time zone,
+
+    ICQ	character varying (255),	/* ICQ. */
+    PHOTO	int,	/* Фотография. */
+    WWW	character varying (255),	/* WWW-страница. */
+    PHONE	character varying (255),	/* Телефон. */
+    FAX	character varying (255),	/* Факс. */
+    PAGER	character varying (255),	/* Пэйджер. */
+    STREET	character varying (2000),	/* Улица, дом. */
+    MAILBOX	character varying (255),	/* Почтовый ящик. */
+    CITY	character varying (255),	/* Город. */
+    STATE	character varying (255),	/* Область / край. */
+    ZIP	character varying (255),	/* Индекс. */
+    COUNTRY	character varying (255),	/* Страна. */
+    PROFILE	character varying (2000),	/* Направления деятельности. */
+    LOGO	bigint,	/* Логотип. */
+    NOTES	character varying (2000),	/* Дополнительные заметки. */
+
+    DATE_UPDATE timestamp with time zone,
+    DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
+
+/* -------------------------------------------------- */
+/* файлы */
+CREATE TABLE files (
+    ID	serial primary key,	/* ID пользователя. */
+    USER_ID bigint, /* от кого (обязательное поле), */
+    GROUP_ID bigint, /* от кого, */
+
+    SIZE bigint,
+    PATH character varying (255),
+    TYPE character varying (100),
+    URL character varying (255),
+
+    NAME character varying (255),
+    DESCRIPTION text,
+
+    DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
+
+/* -------------------------------------------------- */
+/* фото */
+CREATE TABLE photo (
+    ID	serial primary key,	/* ID пользователя */
+    USER_ID bigint NOT NULL, /* от кого (обязательное поле) */
+    GROUP_ID bigint, /* от кого, */
+    TITLE character varying (255) NOT NULL, /* название видео */
+    TEXT text, /* текст */
+
+    FILES jsonb, /* массив id файлов */
+
+    DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
+
+/* -------------------------------------------------- */
+/* видео */
+CREATE TABLE video (
+    ID	serial primary key,	/* ID пользователя */
+    USER_ID bigint NOT NULL, /* от кого (обязательное поле) */
+    GROUP_ID bigint, /* может принадлежать группе */
+    TITLE character varying (255) NOT NULL, /* название видео */
+    TEXT text, /* текст */
+
+    FILE bigint, /* id файла */
+
+    DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
+
+/* -------------------------------------------------- */
+/* ФОРУМ */
+/* обсуждения */
+CREATE TABLE topic (
+    ID	serial primary key,	/* ID пользователя */
+    USER_ID bigint NOT NULL, /* от кого (обязательное поле) */
+    GROUP_ID bigint, /* может принадлежать группе */
+    TITLE character varying (255) NOT NULL, /* название дискусии */
+    TEXT text NOT NULL, /* текст */
+
+    FILES jsonb, /* массив id файлов */
+
+    DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
+
+/* -------------------------------------------------- */
+/* БЛОГ */
+/* посты */
+CREATE TABLE posts (
+    ID	serial primary key,	/* ID пользователя */
+    USER_ID bigint NOT NULL, /* от кого (обязательное поле) */
+    GROUP_ID bigint, /* может принадлежать группе */
+    TEXT text, /* текст */
+
+    FILES jsonb, /* массив id файлов */
+
+    DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
+
+/* -------------------------------------------------- */
+/* комментарии */
+CREATE TABLE comments (
+    ID	serial primary key,	/* ID пользователя */
+    USER_ID bigint NOT NULL, /* от кого (обязательное поле) */
+    OBJECT_ID bigint NOT NULL, /* какому видео принадлежит */
+    MODULE character varying (100) NOT NULL,
+    TEXT text, /* текст */
+
+    FILES jsonb, /* массив id файлов */
+
+    DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
