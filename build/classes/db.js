@@ -7,6 +7,8 @@ exports.DB = void 0;
 
 var _pg = require("pg");
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
@@ -142,8 +144,9 @@ var DB = /*#__PURE__*/function () {
 
                 for (key in arData) {
                   field.push(key);
-                  fieldValue.push("$".concat(i));
-                  value.push(arData[key]);
+                  fieldValue.push("$".concat(i)); //если содержимое является массивом, но не null
+
+                  if (_typeof(arData[key]) === "object" && arData[key] !== null) value.push(JSON.stringify(arData[key]));else value.push(arData[key]);
                   i++;
                 } //в стоку для SQL
 

@@ -36,8 +36,7 @@ export default class {
 
             result = await Promise.all(result.map(async (item, i) => {
                 if (item.files) {
-                    item.files = await CFile.GetById(item.files, true);
-                    item.files = item.files
+                    item.files = await CFile.GetById(item.files);
                 }
 
                 return item;

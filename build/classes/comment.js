@@ -97,21 +97,20 @@ var _default = /*#__PURE__*/function () {
                         switch (_context2.prev = _context2.next) {
                           case 0:
                             if (!item.files) {
-                              _context2.next = 5;
+                              _context2.next = 4;
                               break;
                             }
 
                             _context2.next = 3;
-                            return _file["default"].GetById(item.files, true);
+                            return _file["default"].GetById(item.files);
 
                           case 3:
                             item.files = _context2.sent;
-                            item.files = item.files;
 
-                          case 5:
+                          case 4:
                             return _context2.abrupt("return", item);
 
-                          case 6:
+                          case 5:
                           case "end":
                             return _context2.stop();
                         }

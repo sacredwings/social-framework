@@ -64,12 +64,17 @@ export class DB {
             if (typeof arReturn === "array")
                 arReturn = arReturn.join(',')
 
-
             //из ассоциативного массива по массивам
             for(let key in arData){
                 field.push(key)
                 fieldValue.push(`$${i}`)
-                value.push(arData[key])
+
+                //если содержимое является массивом, но не null
+                if ((typeof arData[key] === "object") && (arData[key] !== null))
+                    value.push(JSON.stringify(arData[key]));
+                else
+                    value.push(arData[key])
+
                 i++
             }
 
