@@ -37,18 +37,27 @@ var _default = /*#__PURE__*/function () {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.prev = 0;
-                if (fields.owner_id > 0) fields.user_id = fields.owner_id;else fields.group_id = fields.owner_id; //удаляем лишний
+
+                if (fields.from_id > 0) {
+                  fields.from_user_id = fields.from_id;
+                  fields.from_group_id = null;
+                } else {
+                  fields.from_user_id = null;
+                  fields.from_group_id = fields.from_id;
+                } //удаляем лишний
+
 
                 delete fields.owner_id;
-                _context.next = 5;
+                delete fields.from_id;
+                _context.next = 6;
                 return _db.DB.Init.Insert('comments', fields, "ID");
 
-              case 5:
+              case 6:
                 result = _context.sent;
                 return _context.abrupt("return", result[0]);
 
-              case 9:
-                _context.prev = 9;
+              case 10:
+                _context.prev = 10;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
@@ -56,12 +65,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CComment Add'
                 };
 
-              case 13:
+              case 14:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[0, 9]]);
+        }, _callee, null, [[0, 10]]);
       }));
 
       function Add(_x) {
@@ -83,34 +92,42 @@ var _default = /*#__PURE__*/function () {
                 _context3.prev = 0;
                 sql = "SELECT * FROM comments WHERE module=$1 AND object_id=$2 ";
                 sql += " LIMIT $3 OFFSET $4 ";
-                console.log(sql);
-                _context3.next = 6;
+                _context3.next = 5;
                 return _db.DB.Init.Query(sql, [fields.module, fields.object_id, fields.count, fields.offset]);
 
-              case 6:
+              case 5:
                 result = _context3.sent;
-                _context3.next = 9;
+                _context3.next = 8;
                 return Promise.all(result.map( /*#__PURE__*/function () {
                   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(item, i) {
                     return regeneratorRuntime.wrap(function _callee2$(_context2) {
                       while (1) {
                         switch (_context2.prev = _context2.next) {
                           case 0:
+                            if (item.owner_user_id) item.owner_id = Number(item.owner_user_id);
+                            if (item.owner_group_id) item.owner_id = -Number(item.owner_group_id);
+                            if (item.from_user_id) item.from_id = Number(item.from_user_id);
+                            if (item.from_group_id) item.from_id = -Number(item.from_group_id);
+                            delete item.owner_user_id;
+                            delete item.owner_group_id;
+                            delete item.from_user_id;
+                            delete item.from_group_id;
+
                             if (!item.files) {
-                              _context2.next = 4;
+                              _context2.next = 12;
                               break;
                             }
 
-                            _context2.next = 3;
+                            _context2.next = 11;
                             return _file["default"].GetById(item.files);
 
-                          case 3:
+                          case 11:
                             item.files = _context2.sent;
 
-                          case 4:
+                          case 12:
                             return _context2.abrupt("return", item);
 
-                          case 5:
+                          case 13:
                           case "end":
                             return _context2.stop();
                         }
@@ -123,12 +140,12 @@ var _default = /*#__PURE__*/function () {
                   };
                 }()));
 
-              case 9:
+              case 8:
                 result = _context3.sent;
                 return _context3.abrupt("return", result);
 
-              case 13:
-                _context3.prev = 13;
+              case 12:
+                _context3.prev = 12;
                 _context3.t0 = _context3["catch"](0);
                 console.log(_context3.t0);
                 throw {
@@ -136,12 +153,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CComment Get'
                 };
 
-              case 17:
+              case 16:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[0, 13]]);
+        }, _callee3, null, [[0, 12]]);
       }));
 
       function Get(_x2) {
@@ -162,17 +179,15 @@ var _default = /*#__PURE__*/function () {
               case 0:
                 _context4.prev = 0;
                 sql = "SELECT COUNT(*) FROM comments WHERE module=$1 AND object_id=$2";
-                console.log(sql);
-                _context4.next = 5;
+                _context4.next = 4;
                 return _db.DB.Init.Query(sql, [fields.module, fields.object_id]);
 
-              case 5:
+              case 4:
                 result = _context4.sent;
-                console.log(result);
                 return _context4.abrupt("return", Number(result[0].count));
 
-              case 10:
-                _context4.prev = 10;
+              case 8:
+                _context4.prev = 8;
                 _context4.t0 = _context4["catch"](0);
                 console.log(_context4.t0);
                 throw {
@@ -180,12 +195,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CComment Count'
                 };
 
-              case 14:
+              case 12:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, null, [[0, 10]]);
+        }, _callee4, null, [[0, 8]]);
       }));
 
       function Count(_x5) {
@@ -214,13 +229,13 @@ var _default = /*#__PURE__*/function () {
                 return _context6.abrupt("return", []);
 
               case 3:
-                arUsersId = items.map(function (comment, i) {
-                  return comment.user_id;
+                console.log(items);
+                arUsersId = items.map(function (item, i) {
+                  return item.from_id;
                 }); //удаление одинаковых id из массива
 
                 arUsersId = Array.from(new Set(arUsersId));
                 sql = "SELECT id,login,name,date_create,personal_birthday,personal_photo FROM users WHERE id in (".concat(arUsersId, ")");
-                console.log(sql);
                 _context6.next = 9;
                 return _db.DB.Init.Query(sql);
 

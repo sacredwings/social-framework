@@ -31,27 +31,43 @@ var _default = /*#__PURE__*/function () {
     //добавить новое видео
     value: function () {
       var _Add = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields) {
-        var arFields, result;
+        var result;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.prev = 0;
-                arFields = {
-                  user_id: fields.user_id,
-                  group_id: fields.group_id,
-                  text: fields.text,
-                  file: fields.file
-                };
-                _context.next = 4;
+                //если владелец не указан
+                if (!fields.owner_id) fields.owner_id = fields.from_id;
+
+                if (fields.owner_id > 0) {
+                  fields.owner_user_id = fields.owner_id;
+                  fields.owner_group_id = null;
+                } else {
+                  fields.owner_user_id = null;
+                  fields.owner_group_id = fields.owner_id;
+                }
+
+                if (fields.from_id > 0) {
+                  fields.from_user_id = fields.from_id;
+                  fields.from_group_id = null;
+                } else {
+                  fields.from_user_id = null;
+                  fields.from_group_id = fields.from_id;
+                } //удаляем лишний
+
+
+                delete fields.owner_id;
+                delete fields.from_id;
+                _context.next = 8;
                 return _db.DB.Init.Insert("video", fields, "ID");
 
-              case 4:
+              case 8:
                 result = _context.sent;
                 return _context.abrupt("return", result[0]);
 
-              case 8:
-                _context.prev = 8;
+              case 12:
+                _context.prev = 12;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
@@ -59,12 +75,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CVideo Add'
                 };
 
-              case 12:
+              case 16:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[0, 8]]);
+        }, _callee, null, [[0, 12]]);
       }));
 
       function Add(_x) {
@@ -78,7 +94,7 @@ var _default = /*#__PURE__*/function () {
     key: "GetById",
     value: function () {
       var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(ids) {
-        var arVideo;
+        var result;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
@@ -89,30 +105,39 @@ var _default = /*#__PURE__*/function () {
                 return _db.DB.Init.Query("SELECT * FROM video WHERE id in (".concat(ids, ")"));
 
               case 4:
-                arVideo = _context3.sent;
+                result = _context3.sent;
                 _context3.next = 7;
-                return Promise.all(arVideo.map( /*#__PURE__*/function () {
-                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(video, i) {
+                return Promise.all(result.map( /*#__PURE__*/function () {
+                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(item, i) {
                     return regeneratorRuntime.wrap(function _callee2$(_context2) {
                       while (1) {
                         switch (_context2.prev = _context2.next) {
                           case 0:
-                            if (!video.file) {
-                              _context2.next = 5;
+                            if (item.owner_user_id) item.owner_id = -Number(item.owner_user_id);
+                            if (item.owner_group_id) item.owner_id = -Number(item.owner_group_id);
+                            if (item.from_user_id) item.from_id = -Number(item.from_user_id);
+                            if (item.from_group_id) item.from_id = -Number(item.from_group_id);
+                            delete item.owner_user_id;
+                            delete item.owner_group_id;
+                            delete item.from_user_id;
+                            delete item.from_group_id;
+
+                            if (!item.file) {
+                              _context2.next = 13;
                               break;
                             }
 
-                            _context2.next = 3;
-                            return _file["default"].GetById([video.file]);
+                            _context2.next = 11;
+                            return _file["default"].GetById([item.file]);
 
-                          case 3:
-                            video.file = _context2.sent;
-                            video.file = video.file[0];
+                          case 11:
+                            item.file = _context2.sent;
+                            item.file = item.file[0];
 
-                          case 5:
-                            return _context2.abrupt("return", video);
+                          case 13:
+                            return _context2.abrupt("return", item);
 
-                          case 6:
+                          case 14:
                           case "end":
                             return _context2.stop();
                         }
@@ -126,8 +151,8 @@ var _default = /*#__PURE__*/function () {
                 }()));
 
               case 7:
-                arVideo = _context3.sent;
-                return _context3.abrupt("return", arVideo);
+                result = _context3.sent;
+                return _context3.abrupt("return", result);
 
               case 11:
                 _context3.prev = 11;
@@ -163,37 +188,45 @@ var _default = /*#__PURE__*/function () {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                sql = "SELECT * FROM video WHERE ".concat(fields.user_id ? "user_id=".concat(fields.user_id) : "group_id=".concat(fields.group_id));
+                sql = "SELECT * FROM video WHERE ".concat(fields.owner_id > 0 ? "owner_user_id=".concat(fields.owner_id) : "owner_group_id=".concat(fields.owner_id));
                 sql += " LIMIT $1 OFFSET $2 ";
-                console.log(sql);
-                _context5.next = 6;
+                _context5.next = 5;
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
 
-              case 6:
+              case 5:
                 result = _context5.sent;
-                _context5.next = 9;
+                _context5.next = 8;
                 return Promise.all(result.map( /*#__PURE__*/function () {
                   var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(item, i) {
                     return regeneratorRuntime.wrap(function _callee4$(_context4) {
                       while (1) {
                         switch (_context4.prev = _context4.next) {
                           case 0:
+                            if (item.owner_user_id) item.owner_id = Number(item.owner_user_id);
+                            if (item.owner_group_id) item.owner_id = -Number(item.owner_group_id);
+                            if (item.from_user_id) item.from_id = Number(item.from_user_id);
+                            if (item.from_group_id) item.from_id = -Number(item.from_group_id);
+                            delete item.owner_user_id;
+                            delete item.owner_group_id;
+                            delete item.from_user_id;
+                            delete item.from_group_id;
+
                             if (!item.file) {
-                              _context4.next = 5;
+                              _context4.next = 13;
                               break;
                             }
 
-                            _context4.next = 3;
+                            _context4.next = 11;
                             return _file["default"].GetById([item.file]);
 
-                          case 3:
+                          case 11:
                             item.file = _context4.sent;
                             item.file = item.file[0];
 
-                          case 5:
+                          case 13:
                             return _context4.abrupt("return", item);
 
-                          case 6:
+                          case 14:
                           case "end":
                             return _context4.stop();
                         }
@@ -206,12 +239,12 @@ var _default = /*#__PURE__*/function () {
                   };
                 }()));
 
-              case 9:
+              case 8:
                 result = _context5.sent;
                 return _context5.abrupt("return", result);
 
-              case 13:
-                _context5.prev = 13;
+              case 12:
+                _context5.prev = 12;
                 _context5.t0 = _context5["catch"](0);
                 console.log(_context5.t0);
                 throw {
@@ -219,12 +252,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CVideo Get'
                 };
 
-              case 17:
+              case 16:
               case "end":
                 return _context5.stop();
             }
           }
-        }, _callee5, null, [[0, 13]]);
+        }, _callee5, null, [[0, 12]]);
       }));
 
       function Get(_x5) {
@@ -244,18 +277,16 @@ var _default = /*#__PURE__*/function () {
             switch (_context6.prev = _context6.next) {
               case 0:
                 _context6.prev = 0;
-                sql = "SELECT COUNT(*) FROM video WHERE ".concat(fields.owner_id > 0 ? "user_id=".concat(fields.owner_id) : "group_id=".concat(fields.owner_id));
-                console.log(sql);
-                _context6.next = 5;
+                sql = "SELECT COUNT(*) FROM video WHERE ".concat(fields.owner_id > 0 ? "owner_user_id=".concat(fields.owner_id) : "owner_group_id=".concat(fields.owner_id));
+                _context6.next = 4;
                 return _db.DB.Init.Query(sql);
 
-              case 5:
+              case 4:
                 result = _context6.sent;
-                console.log(result);
                 return _context6.abrupt("return", Number(result[0].count));
 
-              case 10:
-                _context6.prev = 10;
+              case 8:
+                _context6.prev = 8;
                 _context6.t0 = _context6["catch"](0);
                 console.log(_context6.t0);
                 throw {
@@ -263,12 +294,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CVideo Count'
                 };
 
-              case 14:
+              case 12:
               case "end":
                 return _context6.stop();
             }
           }
-        }, _callee6, null, [[0, 10]]);
+        }, _callee6, null, [[0, 8]]);
       }));
 
       function Count(_x8) {
@@ -297,22 +328,21 @@ var _default = /*#__PURE__*/function () {
                 return _context7.abrupt("return", []);
 
               case 3:
-                arUsersId = items.map(function (comment, i) {
-                  return comment.user_id;
+                arUsersId = items.map(function (item, i) {
+                  return item.from_id;
                 }); //удаление одинаковых id из массива
 
                 arUsersId = Array.from(new Set(arUsersId));
                 sql = "SELECT id,login,name,date_create,personal_birthday FROM users WHERE id in (".concat(arUsersId, ")");
-                console.log(sql);
-                _context7.next = 9;
+                _context7.next = 8;
                 return _db.DB.Init.Query(sql);
 
-              case 9:
+              case 8:
                 users = _context7.sent;
                 return _context7.abrupt("return", users);
 
-              case 13:
-                _context7.prev = 13;
+              case 12:
+                _context7.prev = 12;
                 _context7.t0 = _context7["catch"](0);
                 console.log(_context7.t0);
                 throw {
@@ -320,12 +350,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CVideo GetUsers'
                 };
 
-              case 17:
+              case 16:
               case "end":
                 return _context7.stop();
             }
           }
-        }, _callee7, null, [[0, 13]]);
+        }, _callee7, null, [[0, 12]]);
       }));
 
       function GetUsers(_x9) {

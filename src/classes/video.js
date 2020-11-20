@@ -6,13 +6,28 @@ export default class {
     //добавить новое видео
     static async Add ( fields ) {
         try {
-            let arFields = {
-                user_id: fields.user_id,
-                group_id: fields.group_id,
+            //если владелец не указан
+            if (!fields.owner_id) fields.owner_id = fields.from_id
 
-                text: fields.text,
-                file: fields.file,
+            if (fields.owner_id > 0) {
+                fields.owner_user_id = fields.owner_id
+                fields.owner_group_id = null
+            } else {
+                fields.owner_user_id = null
+                fields.owner_group_id = fields.owner_id
             }
+
+            if (fields.from_id > 0) {
+                fields.from_user_id = fields.from_id
+                fields.from_group_id = null
+            } else {
+                fields.from_user_id = null
+                fields.from_group_id = fields.from_id
+            }
+
+            //удаляем лишний
+            delete fields.owner_id
+            delete fields.from_id
 
             let result = await DB.Init.Insert(`video`, fields, `ID`)
             return result[0]
@@ -27,36 +42,20 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let arVideo = await DB.Init.Query(`SELECT * FROM video WHERE id in (${ids})`)
-
-            arVideo = await Promise.all(arVideo.map(async (video, i) => {
-                if (video.file) {
-                    video.file = await CFile.GetById([video.file]);
-                    video.file = video.file[0]
-                }
-
-                return video;
-            }));
-
-            return arVideo
-
-        } catch (err) {
-            console.log(err)
-            throw ({err: 2001000, msg: 'CVideo GetById'})
-        }
-    }
-
-    //загрузка
-    static async Get ( fields ) {
-        try {
-
-            let sql = `SELECT * FROM video WHERE ${(fields.user_id) ? `user_id=${fields.user_id}` : `group_id=${fields.group_id}`}`
-            sql += ` LIMIT $1 OFFSET $2 `
-            console.log(sql)
-
-            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
+            let result = await DB.Init.Query(`SELECT * FROM video WHERE id in (${ids})`)
 
             result = await Promise.all(result.map(async (item, i) => {
+                if (item.owner_user_id) item.owner_id = - Number (item.owner_user_id)
+                if (item.owner_group_id) item.owner_id = - Number (item.owner_group_id)
+
+                if (item.from_user_id) item.from_id = - Number (item.from_user_id)
+                if (item.from_group_id) item.from_id = - Number (item.from_group_id)
+
+                delete item.owner_user_id
+                delete item.owner_group_id
+                delete item.from_user_id
+                delete item.from_group_id
+
                 if (item.file) {
                     item.file = await CFile.GetById([item.file]);
                     item.file = item.file[0]
@@ -69,6 +68,40 @@ export default class {
 
         } catch (err) {
             console.log(err)
+            throw ({err: 2001000, msg: 'CVideo GetById'})
+        }
+    }
+
+    //загрузка
+    static async Get ( fields ) {
+        try {
+            let sql = `SELECT * FROM video WHERE ${(fields.owner_id > 0) ? `owner_user_id=${fields.owner_id}` : `owner_group_id=${fields.owner_id}`}`
+            sql += ` LIMIT $1 OFFSET $2 `
+
+            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
+            result = await Promise.all(result.map(async (item, i) => {
+                if (item.owner_user_id) item.owner_id = Number (item.owner_user_id)
+                if (item.owner_group_id) item.owner_id = - Number (item.owner_group_id)
+
+                if (item.from_user_id) item.from_id = Number (item.from_user_id)
+                if (item.from_group_id) item.from_id = - Number (item.from_group_id)
+
+                delete item.owner_user_id
+                delete item.owner_group_id
+                delete item.from_user_id
+                delete item.from_group_id
+
+                if (item.file) {
+                    item.file = await CFile.GetById([item.file]);
+                    item.file = item.file[0]
+                }
+
+                return item;
+            }));
+            return result
+
+        } catch (err) {
+            console.log(err)
             throw ({err: 2001000, msg: 'CVideo Get'})
         }
     }
@@ -76,11 +109,8 @@ export default class {
     //количество
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM video WHERE ${(fields.owner_id > 0) ? `user_id=${fields.owner_id}` : `group_id=${fields.owner_id}`}`
-            console.log(sql)
-
+            let sql = `SELECT COUNT(*) FROM video WHERE ${(fields.owner_id > 0) ? `owner_user_id=${fields.owner_id}` : `owner_group_id=${fields.owner_id}`}`
             let result = await DB.Init.Query(sql)
-            console.log(result)
 
             return Number (result[0].count)
 
@@ -98,16 +128,14 @@ export default class {
             if ((!items) || (!items.length))
                 return []
 
-            let arUsersId = items.map((comment, i) => {
-                return comment.user_id
+            let arUsersId = items.map((item, i) => {
+                return item.from_id
             })
 
             //удаление одинаковых id из массива
             arUsersId = Array.from(new Set(arUsersId))
 
             let sql = `SELECT id,login,name,date_create,personal_birthday FROM users WHERE id in (${arUsersId})`
-            console.log(sql)
-
             let users = await DB.Init.Query(sql)
             return users
 

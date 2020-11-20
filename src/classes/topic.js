@@ -6,20 +6,32 @@ export default class {
     //новая тема для обсуждений
     static async Add ( fields ) {
         try {
-            console.log('fields')
-            console.log(fields)
-            if (fields.files.length)
-                fields.files = JSON.stringify(fields.files);
-            else
-                fields.files = null
+            //если владелец не указан
+            if (!fields.owner_id) fields.owner_id = fields.from_id
 
-            console.log(fields)
+            if (fields.owner_id > 0) {
+                fields.owner_user_id = fields.owner_id
+                fields.owner_group_id = null
+            } else {
+                fields.owner_user_id = null
+                fields.owner_group_id = fields.owner_id
+            }
+
+            if (fields.from_id > 0) {
+                fields.from_user_id = fields.from_id
+                fields.from_group_id = null
+            } else {
+                fields.from_user_id = null
+                fields.from_group_id = fields.from_id
+            }
+
+            //удаляем лишний
+            delete fields.owner_id
+            delete fields.from_id
 
             //запись
             let result = await DB.Init.Insert(`topic`, fields, `ID`)
             return result[0]
-
-            //let result = await CFile.SaveFile(arFields, `${global.__basedir}/`)
 
         } catch (err) {
             console.log(err)
@@ -31,18 +43,27 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let arTopic = await DB.Init.Query(`SELECT * FROM topic WHERE id in (${ids})`)
+            let result = await DB.Init.Query(`SELECT * FROM topic WHERE id in (${ids})`)
 
-            arTopic = await Promise.all(arTopic.map(async (topic, i) => {
+            result = await Promise.all(result.map(async (item, i) => {
+                if (item.owner_user_id) item.owner_id = - Number (item.owner_user_id)
+                if (item.owner_group_id) item.owner_id = - Number (item.owner_group_id)
 
-                if (topic.files) {
-                    topic.files = await CFile.GetById(topic.files);
-                }
+                if (item.from_user_id) item.from_id = - Number (item.from_user_id)
+                if (item.from_group_id) item.from_id = - Number (item.from_group_id)
 
-                return topic;
+                delete item.owner_user_id
+                delete item.owner_group_id
+                delete item.from_user_id
+                delete item.from_group_id
+
+                if (item.files)
+                    item.files = await CFile.GetById(item.files);
+
+                return item;
             }));
 
-            return arTopic
+            return result
 
         } catch (err) {
             console.log(err)
@@ -54,16 +75,25 @@ export default class {
     static async Get ( fields ) {
         try {
 
-            let sql = `SELECT * FROM topic WHERE ${(fields.user_id) ? `user_id=${fields.user_id}` : `group_id=${fields.group_id}`}`
+            let sql = `SELECT * FROM topic WHERE ${(fields.owner_id > 0) ? `owner_user_id=${fields.owner_id}` : `owner_group_id=${fields.owner_id}`}`
             sql += ` LIMIT $1 OFFSET $2 `
-            console.log(sql)
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
 
             result = await Promise.all(result.map(async (item, i) => {
-                if (item.files) {
+                if (item.owner_user_id) item.owner_id = Number (item.owner_user_id)
+                if (item.owner_group_id) item.owner_id = - Number (item.owner_group_id)
+
+                if (item.from_user_id) item.from_id = Number (item.from_user_id)
+                if (item.from_group_id) item.from_id = - Number (item.from_group_id)
+
+                delete item.owner_user_id
+                delete item.owner_group_id
+                delete item.from_user_id
+                delete item.from_group_id
+
+                if (item.files)
                     item.files = await CFile.GetById(item.files);
-                }
 
                 return item;
             }));
@@ -78,14 +108,10 @@ export default class {
     //количество
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM topic WHERE ${(fields.owner_id > 0) ? `user_id=${fields.owner_id}` : `group_id=${fields.owner_id}`}`
-            console.log(sql)
-
+            let sql = `SELECT COUNT(*) FROM topic WHERE ${(fields.owner_id > 0) ? `owner_user_id=${fields.owner_id}` : `owner_group_id=${fields.owner_id}`}`
             let result = await DB.Init.Query(sql)
-            console.log(result)
 
             return Number (result[0].count)
-
         } catch (err) {
             console.log(err)
             throw ({err: 2001000, msg: 'CTopic Count'})
@@ -95,20 +121,18 @@ export default class {
     //пользователи
     static async GetUsers ( items ) {
         try {
-
             //нет массива для обработки
             if ((!items) || (!items.length))
                 return []
 
-            let arUsersId = items.map((comment, i) => {
-                return comment.user_id
+            let arUsersId = items.map((item, i) => {
+                return item.from_id
             })
 
             //удаление одинаковых id из массива
             arUsersId = Array.from(new Set(arUsersId))
 
             let sql = `SELECT id,login,name,date_create,personal_birthday FROM users WHERE id in (${arUsersId})`
-            console.log(sql)
 
             let users = await DB.Init.Query(sql)
             return users

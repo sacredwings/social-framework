@@ -39,16 +39,35 @@ var _default = /*#__PURE__*/function () {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.prev = 0;
+                //если владелец не указан
+                if (!fields.owner_id) fields.owner_id = fields.from_id;
+
+                if (fields.owner_id > 0) {
+                  fields.owner_user_id = fields.owner_id;
+                  fields.owner_group_id = null;
+                } else {
+                  fields.owner_user_id = null;
+                  fields.owner_group_id = fields.owner_id;
+                }
+
+                if (fields.from_id > 0) {
+                  fields.from_user_id = fields.from_id;
+                  fields.from_group_id = null;
+                } else {
+                  fields.from_user_id = null;
+                  fields.from_group_id = fields.from_id;
+                } //удаление файла с диска и базы
+
 
                 if (!fields.old_file) {
-                  _context.next = 4;
+                  _context.next = 7;
                   break;
                 }
 
-                _context.next = 4;
+                _context.next = 7;
                 return this.Delete(fields.old_file, true);
 
-              case 4:
+              case 7:
                 //хеш размера и имени файла
                 hash = _crypto["default"].createHash('md5').update(fields.file.size + fields.file.name).digest("hex"); //вытаскиваем расширение
 
@@ -58,30 +77,32 @@ var _default = /*#__PURE__*/function () {
 
                 savePath = "".concat(savePath, "files/").concat(fields.module_id, "/").concat(hash, ".").concat(type); //копирование файла в постоянную папку
 
-                _context.next = 11;
+                _context.next = 14;
                 return _fsExtra["default"].copy(fields.file.path, savePath);
 
-              case 11:
+              case 14:
                 //добавление записи о файле в таблицу
                 arFields = {
-                  user_id: fields.user_id,
-                  group_id: fields.group_id,
+                  owner_user_id: fields.owner_user_id,
+                  owner_group_id: fields.owner_group_id,
+                  from_user_id: fields.from_user_id,
+                  from_group_id: fields.from_group_id,
                   size: fields.file.size,
                   path: savePath,
                   type: fields.file.type,
                   url: url,
-                  name: fields.name ? fields.name : fields.file.name,
-                  description: fields.description ? fields.description : null
+                  title: fields.title ? fields.title : fields.file.title,
+                  text: fields.text ? fields.text : null
                 };
-                _context.next = 14;
+                _context.next = 17;
                 return _db.DB.Init.Insert("files", arFields, "id");
 
-              case 14:
+              case 17:
                 result = _context.sent;
                 return _context.abrupt("return", result[0].id);
 
-              case 18:
-                _context.prev = 18;
+              case 21:
+                _context.prev = 21;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
@@ -89,12 +110,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CFile SaveFile'
                 };
 
-              case 22:
+              case 25:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[0, 18]]);
+        }, _callee, this, [[0, 21]]);
       }));
 
       function SaveFile(_x, _x2) {
@@ -193,25 +214,26 @@ var _default = /*#__PURE__*/function () {
 
               case 3:
                 ids = ids.join(',');
-                console.log("SELECT * FROM files WHERE id in (".concat(ids, ")"));
-                _context3.next = 7;
+                _context3.next = 6;
                 return _db.DB.Init.Query("SELECT * FROM files WHERE id in (".concat(ids, ")"));
 
-              case 7:
+              case 6:
                 result = _context3.sent;
-
-                if (result[0]) {
-                  _context3.next = 10;
-                  break;
-                }
-
-                return _context3.abrupt("return", false);
-
-              case 10:
+                result = result.map(function (item, i) {
+                  if (item.owner_user_id) item.owner_id = -Number(item.owner_user_id);
+                  if (item.owner_group_id) item.owner_id = -Number(item.owner_group_id);
+                  if (item.from_user_id) item.from_id = -Number(item.from_user_id);
+                  if (item.from_group_id) item.from_id = -Number(item.from_group_id);
+                  delete item.owner_user_id;
+                  delete item.owner_group_id;
+                  delete item.from_user_id;
+                  delete item.from_group_id;
+                  return item;
+                });
                 return _context3.abrupt("return", result);
 
-              case 13:
-                _context3.prev = 13;
+              case 11:
+                _context3.prev = 11;
                 _context3.t0 = _context3["catch"](0);
                 console.log(_context3.t0);
                 throw {
@@ -219,12 +241,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CFile GetById'
                 };
 
-              case 17:
+              case 15:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[0, 13]]);
+        }, _callee3, null, [[0, 11]]);
       }));
 
       function GetById(_x5) {
