@@ -37,27 +37,15 @@ var _default = /*#__PURE__*/function () {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.prev = 0;
-
-                if (fields.from_id > 0) {
-                  fields.from_user_id = fields.from_id;
-                  fields.from_group_id = null;
-                } else {
-                  fields.from_user_id = null;
-                  fields.from_group_id = fields.from_id;
-                } //удаляем лишний
-
-
-                delete fields.owner_id;
-                delete fields.from_id;
-                _context.next = 6;
+                _context.next = 3;
                 return _db.DB.Init.Insert('comments', fields, "ID");
 
-              case 6:
+              case 3:
                 result = _context.sent;
                 return _context.abrupt("return", result[0]);
 
-              case 10:
-                _context.prev = 10;
+              case 7:
+                _context.prev = 7;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
@@ -65,12 +53,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CComment Add'
                 };
 
-              case 14:
+              case 11:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[0, 10]]);
+        }, _callee, null, [[0, 7]]);
       }));
 
       function Add(_x) {
@@ -104,30 +92,21 @@ var _default = /*#__PURE__*/function () {
                       while (1) {
                         switch (_context2.prev = _context2.next) {
                           case 0:
-                            if (item.owner_user_id) item.owner_id = Number(item.owner_user_id);
-                            if (item.owner_group_id) item.owner_id = -Number(item.owner_group_id);
-                            if (item.from_user_id) item.from_id = Number(item.from_user_id);
-                            if (item.from_group_id) item.from_id = -Number(item.from_group_id);
-                            delete item.owner_user_id;
-                            delete item.owner_group_id;
-                            delete item.from_user_id;
-                            delete item.from_group_id;
-
                             if (!item.files) {
-                              _context2.next = 12;
+                              _context2.next = 4;
                               break;
                             }
 
-                            _context2.next = 11;
+                            _context2.next = 3;
                             return _file["default"].GetById(item.files);
 
-                          case 11:
+                          case 3:
                             item.files = _context2.sent;
 
-                          case 12:
+                          case 4:
                             return _context2.abrupt("return", item);
 
-                          case 13:
+                          case 5:
                           case "end":
                             return _context2.stop();
                         }
@@ -149,7 +128,7 @@ var _default = /*#__PURE__*/function () {
                 _context3.t0 = _context3["catch"](0);
                 console.log(_context3.t0);
                 throw {
-                  err: 2001000,
+                  err: 2002000,
                   msg: 'CComment Get'
                 };
 
@@ -191,7 +170,7 @@ var _default = /*#__PURE__*/function () {
                 _context4.t0 = _context4["catch"](0);
                 console.log(_context4.t0);
                 throw {
-                  err: 2001000,
+                  err: 2003000,
                   msg: 'CComment Count'
                 };
 
@@ -229,19 +208,19 @@ var _default = /*#__PURE__*/function () {
                 return _context6.abrupt("return", []);
 
               case 3:
-                console.log(items);
+                /* выгрузка индентификаторов из объектов / пользователей */
                 arUsersId = items.map(function (item, i) {
                   return item.from_id;
                 }); //удаление одинаковых id из массива
 
                 arUsersId = Array.from(new Set(arUsersId));
                 sql = "SELECT id,login,name,date_create,personal_birthday,personal_photo FROM users WHERE id in (".concat(arUsersId, ")");
-                _context6.next = 9;
+                _context6.next = 8;
                 return _db.DB.Init.Query(sql);
 
-              case 9:
+              case 8:
                 users = _context6.sent;
-                _context6.next = 12;
+                _context6.next = 11;
                 return Promise.all(users.map( /*#__PURE__*/function () {
                   var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(user, i) {
                     return regeneratorRuntime.wrap(function _callee5$(_context5) {
@@ -276,25 +255,25 @@ var _default = /*#__PURE__*/function () {
                   };
                 }()));
 
-              case 12:
+              case 11:
                 users = _context6.sent;
                 return _context6.abrupt("return", users);
 
-              case 16:
-                _context6.prev = 16;
+              case 15:
+                _context6.prev = 15;
                 _context6.t0 = _context6["catch"](0);
                 console.log(_context6.t0);
                 throw {
-                  err: 2001000,
+                  err: 2004000,
                   msg: 'CComment GetUsers'
                 };
 
-              case 20:
+              case 19:
               case "end":
                 return _context6.stop();
             }
           }
-        }, _callee6, null, [[0, 16]]);
+        }, _callee6, null, [[0, 15]]);
       }));
 
       function GetUsers(_x6) {

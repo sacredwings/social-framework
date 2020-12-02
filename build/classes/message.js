@@ -55,7 +55,7 @@ var _default = /*#__PURE__*/function () {
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
-                  err: 2001000,
+                  err: 5001000,
                   msg: 'CMessage Add'
                 };
 
@@ -84,7 +84,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.prev = 0;
-                sql = "SELECT messages.*,\n\nfrom_user.login as from_user_login,\nfrom_user.personal_photo as from_user_personal_photo,\nfrom_user.personal_gender as from_user_personal_gender,\nfrom_user.name as from_user_name,\n\nto_user.login as to_user_login,\nto_user.personal_photo as to_user_personal_photo,\nto_user.personal_gender as to_user_personal_gender,\nto_user.name as to_user_name\n\nFROM messages \nLEFT JOIN users AS from_user ON messages.from_user_id=from_user.id \nLEFT JOIN users AS to_user ON messages.to_user_id=to_user.id \nWHERE (from_user_id=$1 AND to_user_id=$2) OR (from_user_id=$2 AND to_user_id=$1)";
+                sql = "SELECT messages.*,\n\nfrom_user.login as from_user_login,\nfrom_user.personal_photo as from_user_personal_photo,\nfrom_user.personal_gender as from_user_personal_gender,\nfrom_user.name as from_user_name,\n\nto_user.login as to_user_login,\nto_user.personal_photo as to_user_personal_photo,\nto_user.personal_gender as to_user_personal_gender,\nto_user.name as to_user_name\n\nFROM messages \nLEFT JOIN users AS from_user ON messages.from_id=from_user.id \nLEFT JOIN users AS to_user ON messages.to_id=to_user.id \nWHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)";
                 sql += " LIMIT $3 OFFSET $4 ";
                 _context2.next = 5;
                 return _db.DB.Init.Query(sql, [fields.owner_id, fields.user_id, fields.count, fields.offset]);
@@ -98,7 +98,7 @@ var _default = /*#__PURE__*/function () {
                   //добавление новых полей к массиву
                   messages = {}; //добавление новых полей
 
-                  if (Number(result[i].from_user_id) === fields.owner_id) {
+                  if (Number(result[i].from_id) === fields.owner_id) {
                     messages.user_id = Number(result[i].to_user_id);
                     messages.user_name = result[i].to_user_name;
                     messages["in"] = false;
@@ -122,7 +122,7 @@ var _default = /*#__PURE__*/function () {
                 _context2.t0 = _context2["catch"](0);
                 console.log(_context2.t0);
                 throw {
-                  err: 2001000,
+                  err: 5002000,
                   msg: 'CMessage GetUserId'
                 };
 
@@ -151,21 +151,22 @@ var _default = /*#__PURE__*/function () {
               case 0:
                 _context3.prev = 0;
                 //ИСХОДЯЩИЕ
-                sql = "SELECT messages.*,\n\nfrom_user.login as from_user_login,\nfrom_user.personal_photo as from_user_personal_photo,\nfrom_user.personal_gender as from_user_personal_gender,\nfrom_user.name as from_user_name,\n\nto_user.login as to_user_login,\nto_user.personal_photo as to_user_personal_photo,\nto_user.personal_gender as to_user_personal_gender,\nto_user.name as to_user_name\n\nFROM messages \nLEFT JOIN users AS from_user ON messages.from_user_id=from_user.id \nLEFT JOIN users AS to_user ON messages.to_user_id=to_user.id \n\nWHERE messages.from_user_id=$1 AND (messages.to_user_id, messages.date_create) in (\nSELECT to_user_id, max(date_create)\nFROM messages \nWHERE from_user_id=$1\nGROUP BY to_user_id)";
+                sql = "SELECT messages.*,\n\nfrom_user.login as from_user_login,\nfrom_user.personal_photo as from_user_personal_photo,\nfrom_user.personal_gender as from_user_personal_gender,\nfrom_user.name as from_user_name,\n\nto_user.login as to_user_login,\nto_user.personal_photo as to_user_personal_photo,\nto_user.personal_gender as to_user_personal_gender,\nto_user.name as to_user_name\n\nFROM messages \nLEFT JOIN users AS from_user ON messages.from_id=from_user.id \nLEFT JOIN users AS to_user ON messages.to_id=to_user.id \n\nWHERE messages.from_id=$1 AND (messages.to_id, messages.date_create) in (\nSELECT to_id, max(date_create)\nFROM messages \nWHERE from_id=$1\nGROUP BY to_id)";
                 sql += " LIMIT $2 OFFSET $3 ";
                 _context3.next = 5;
-                return _db.DB.Init.Query(sql, [fields.owner_id, fields.count, fields.offset]);
+                return _db.DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset]);
 
               case 5:
                 outMes = _context3.sent;
                 //ВХОДЯЩИЕ
-                sql = "SELECT messages.*,\n\nfrom_user.login as from_user_login,\nfrom_user.personal_photo as from_user_personal_photo,\nfrom_user.personal_gender as from_user_personal_gender,\nfrom_user.name as from_user_name,\n\nto_user.login as to_user_login,\nto_user.personal_photo as to_user_personal_photo,\nto_user.personal_gender as to_user_personal_gender,\nto_user.name as to_user_name\n\nFROM messages \nLEFT JOIN users AS from_user ON messages.from_user_id=from_user.id \nLEFT JOIN users AS to_user ON messages.to_user_id=to_user.id \n\nWHERE messages.to_user_id=$1 AND (messages.from_user_id, messages.date_create) in (\nSELECT from_user_id, max(date_create)\nFROM messages \nWHERE to_user_id=$1\nGROUP BY from_user_id)";
+                sql = "SELECT messages.*,\n\nfrom_user.login as from_user_login,\nfrom_user.personal_photo as from_user_personal_photo,\nfrom_user.personal_gender as from_user_personal_gender,\nfrom_user.name as from_user_name,\n\nto_user.login as to_user_login,\nto_user.personal_photo as to_user_personal_photo,\nto_user.personal_gender as to_user_personal_gender,\nto_user.name as to_user_name\n\nFROM messages \nLEFT JOIN users AS from_user ON messages.from_id=from_user.id \nLEFT JOIN users AS to_user ON messages.to_id=to_user.id \n\nWHERE messages.to_id=$1 AND (messages.from_id, messages.date_create) in (\nSELECT from_id, max(date_create)\nFROM messages \nWHERE to_id=$1\nGROUP BY from_id)";
                 sql += " LIMIT $2 OFFSET $3 ";
                 _context3.next = 10;
-                return _db.DB.Init.Query(sql, [fields.owner_id, fields.count, fields.offset]);
+                return _db.DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset]);
 
               case 10:
                 inMes = _context3.sent;
+                //объединение входящих и исходящих сообщений
                 result = outMes.concat(inMes); //ОБЪЕДИНЕНИЕ ВХОДЯЩИХ и ИСХОДЯЩИХ сообщений
 
                 arMessages = []; //массив сообщений уникальных пользователей
@@ -177,7 +178,7 @@ var _default = /*#__PURE__*/function () {
 
               case 15:
                 if (!(i < result.length)) {
-                  _context3.next = 36;
+                  _context3.next = 44;
                   break;
                 }
 
@@ -186,76 +187,88 @@ var _default = /*#__PURE__*/function () {
 
                 messages = {}; //добавление новых полей
 
-                if (Number(result[i].from_user_id) === fields.owner_id) {
+                if (Number(result[i].from_user_id) === fields.from_id) {
                   messages.user_id = Number(result[i].to_user_id);
                   messages.user_name = result[i].to_user_name;
+                  messages.user_personal_photo = result[i].to_user_personal_photo;
+                  messages.user_personal_gender = result[i].to_user_personal_gender;
                   messages["in"] = false;
                 } else {
                   messages.user_id = Number(result[i].from_user_id);
                   messages.user_name = result[i].from_user_name;
+                  messages.user_personal_photo = result[i].from_user_personal_photo;
+                  messages.user_personal_gender = result[i].from_user_personal_gender;
                   messages["in"] = true;
                 } //удаление не актуальных полей
 
 
                 delete result[i].id;
                 delete result[i].from_user_id;
-                delete result[i].to_user_id; //проходим по массиву еще раз и ищем такой же
+                delete result[i].from_user_login;
+                delete result[i].from_user_name;
+                delete result[i].from_user_personal_photo;
+                delete result[i].from_user_personal_gender;
+                delete result[i].to_user_id;
+                delete result[i].to_user_login;
+                delete result[i].to_user_name;
+                delete result[i].to_user_personal_photo;
+                delete result[i].to_user_personal_gender; //проходим по массиву еще раз и ищем такой же
 
                 j = 0;
 
-              case 23:
+              case 31:
                 if (!(j < arMessages.length)) {
-                  _context3.next = 30;
+                  _context3.next = 38;
                   break;
                 }
 
                 if (!(messages.user_id === arMessages[j].user_id)) {
-                  _context3.next = 27;
+                  _context3.next = 35;
                   break;
                 }
 
                 CheckContinue = true;
-                return _context3.abrupt("break", 30);
+                return _context3.abrupt("break", 38);
 
-              case 27:
+              case 35:
                 j++;
-                _context3.next = 23;
+                _context3.next = 31;
                 break;
 
-              case 30:
+              case 38:
                 if (!CheckContinue) {
-                  _context3.next = 32;
+                  _context3.next = 40;
                   break;
                 }
 
-                return _context3.abrupt("continue", 33);
+                return _context3.abrupt("continue", 41);
 
-              case 32:
+              case 40:
                 arMessages.push(_objectSpread(_objectSpread({}, result[i]), messages));
 
-              case 33:
+              case 41:
                 i++;
                 _context3.next = 15;
                 break;
 
-              case 36:
+              case 44:
                 return _context3.abrupt("return", arMessages);
 
-              case 39:
-                _context3.prev = 39;
+              case 47:
+                _context3.prev = 47;
                 _context3.t0 = _context3["catch"](0);
                 console.log(_context3.t0);
                 throw {
-                  err: 2001000,
+                  err: 5003000,
                   msg: 'CMessage Get'
                 };
 
-              case 43:
+              case 51:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[0, 39]]);
+        }, _callee3, null, [[0, 47]]);
       }));
 
       function Get(_x3) {
@@ -263,6 +276,93 @@ var _default = /*#__PURE__*/function () {
       }
 
       return Get;
+    }() //добавить новое видео
+
+  }, {
+    key: "MarkAsReadAll",
+    value: function () {
+      var _MarkAsReadAll = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(fields) {
+        var sql, result;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.prev = 0;
+                sql = "UPDATE messages SET read = true WHERE from_user_id=".concat(fields.from_id, " AND to_user_id=").concat(fields.to_id, " AND id < ").concat(fields.start_message_id);
+                console.log(sql);
+                _context4.next = 5;
+                return _db.DB.Init.Query(sql);
+
+              case 5:
+                result = _context4.sent;
+                _context4.next = 12;
+                break;
+
+              case 8:
+                _context4.prev = 8;
+                _context4.t0 = _context4["catch"](0);
+                console.log(_context4.t0);
+                throw {
+                  err: 5004000,
+                  msg: 'CMessage MarkAsReadAll'
+                };
+
+              case 12:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, null, [[0, 8]]);
+      }));
+
+      function MarkAsReadAll(_x4) {
+        return _MarkAsReadAll.apply(this, arguments);
+      }
+
+      return MarkAsReadAll;
+    }() //добавить новое видео
+
+  }, {
+    key: "MarkAsRead",
+    value: function () {
+      var _MarkAsRead = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(fields) {
+        var sql, result;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.prev = 0;
+                sql = "UPDATE messages SET read = true WHERE from_user_id=".concat(fields.from_user_id, " AND id in (").concat(fields.message_ids, ")");
+                _context5.next = 4;
+                return _db.DB.Init.Query(sql);
+
+              case 4:
+                result = _context5.sent;
+                _context5.next = 11;
+                break;
+
+              case 7:
+                _context5.prev = 7;
+                _context5.t0 = _context5["catch"](0);
+                console.log(_context5.t0);
+                throw {
+                  err: 5005000,
+                  msg: 'CMessage Add'
+                };
+
+              case 11:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, null, [[0, 7]]);
+      }));
+
+      function MarkAsRead(_x5) {
+        return _MarkAsRead.apply(this, arguments);
+      }
+
+      return MarkAsRead;
     }()
   }]);
 

@@ -97,13 +97,19 @@ INSERT INTO users (LOGIN, PASSWORD, EMAIL, NAME, ROOT, DATE_CREATE) VALUES ('tes
 /* сообщения */
 CREATE TABLE messages (
     ID	serial primary key,	/* ID пользователя. */
-    FROM_USER_ID bigint, /* от кого (обязательное поле) */
-    TO_USER_ID bigint, /* кому (обязательное поле), */
+
+    FROM_ID bigint, /* от кого (обязательное поле) */
+    TO_ID bigint, /* кому (обязательное поле), */
+
     MESSAGE text, /* сообщение (обязательное поле), */
     MESSAGE_TYPE character varying (1), /* тип сообщения: P - персональное, S - системное. */
     READ boolean,
-    DELETE_FROM_USER boolean,
-    DELETE_TO_USER boolean,
+    IMPORTANT boolean,
+
+    FILES jsonb, /* массив id файлов */
+
+    DELETE_FROM boolean,
+    DELETE_TO boolean,
     DATE_CREATE timestamp with time zone DEFAULT NOW()
 );
 
@@ -139,7 +145,7 @@ CREATE TABLE groups (
     NOTES	character varying (2000),	/* Дополнительные заметки. */
 
     /* о создании */
-    CREATE_USER_ID bigint, /* кто создал */
+    CREATE_ID bigint, /* кто создал */
     CREATE_DATE timestamp with time zone DEFAULT NOW()
 );
 
@@ -147,11 +153,9 @@ CREATE TABLE groups (
 /* файлы */
 CREATE TABLE files (
     ID	serial primary key,
-    FROM_USER_ID bigint, /* от кого */
-    FROM_GROUP_ID bigint, /* от кого */
 
-    OWNER_USER_ID bigint, /* где */
-    OWNER_GROUP_ID bigint, /* где */
+    FROM_ID bigint, /* от кого */
+    OWNER_ID bigint, /* где */
 
     /* параметры файла */
     SIZE bigint not null,
@@ -163,7 +167,7 @@ CREATE TABLE files (
     TEXT text,
 
     /* о создании */
-    CREATE_USER_ID bigint, /* кто создал */
+    CREATE_ID bigint, /* кто создал */
     CREATE_DATE timestamp with time zone DEFAULT NOW()
 );
 
@@ -171,11 +175,9 @@ CREATE TABLE files (
 /* фото */
 CREATE TABLE photo (
     ID	serial primary key,
-    FROM_USER_ID bigint, /* от кого */
-    FROM_GROUP_ID bigint, /* от кого */
 
-    OWNER_USER_ID bigint, /* где */
-    OWNER_GROUP_ID bigint, /* где */
+    FROM_ID bigint, /* от кого */
+    OWNER_ID bigint, /* где */
 
     TITLE character varying (255) not null, /* название фото */
     TEXT text, /* текст */
@@ -183,7 +185,7 @@ CREATE TABLE photo (
     FILES jsonb, /* массив id файлов */
 
     /* о создании */
-    CREATE_USER_ID bigint, /* кто создал */
+    CREATE_ID bigint, /* кто создал */
     DATE_CREATE timestamp with time zone DEFAULT NOW()
 );
 
@@ -191,19 +193,18 @@ CREATE TABLE photo (
 /* видео */
 CREATE TABLE video (
     ID	serial primary key,
-    FROM_USER_ID bigint, /* от кого */
-    FROM_GROUP_ID bigint, /* от кого */
 
-    OWNER_USER_ID bigint, /* где */
-    OWNER_GROUP_ID bigint, /* где */
+    FROM_ID bigint, /* от кого */
+    OWNER_ID bigint, /* где */
 
     TITLE character varying (255) not null, /* название видео */
     TEXT text, /* текст */
 
     FILE bigint, /* id файла */
+    IMAGE_ID bigint, /* id файла */
 
     /* о создании */
-    CREATE_USER_ID bigint, /* кто создал */
+    CREATE_ID bigint, /* кто создал */
     DATE_CREATE timestamp with time zone DEFAULT NOW()
 );
 
@@ -212,11 +213,9 @@ CREATE TABLE video (
 /* обсуждения */
 CREATE TABLE topic (
     ID	serial primary key,
-    FROM_USER_ID bigint, /* от кого */
-    FROM_GROUP_ID bigint, /* от кого */
 
-    OWNER_USER_ID bigint, /* где */
-    OWNER_GROUP_ID bigint, /* где */
+    FROM_ID bigint, /* от кого */
+    OWNER_ID bigint, /* где */
 
     TITLE character varying (255) not null, /* название дискусии */
     TEXT text NOT NULL, /* текст */
@@ -224,7 +223,7 @@ CREATE TABLE topic (
     FILES jsonb, /* массив id файлов */
 
     /* о создании */
-    CREATE_USER_ID bigint, /* кто создал */
+    CREATE_ID bigint, /* кто создал */
     DATE_CREATE timestamp with time zone DEFAULT NOW()
 );
 
@@ -233,18 +232,16 @@ CREATE TABLE topic (
 /* посты */
 CREATE TABLE posts (
     ID	serial primary key,
-    FROM_USER_ID bigint, /* от кого */
-    FROM_GROUP_ID bigint, /* от кого */
 
-    OWNER_USER_ID bigint, /* где */
-    OWNER_GROUP_ID bigint, /* где */
+    FROM_ID bigint, /* от кого */
+    OWNER_ID bigint, /* где */
 
     TEXT text, /* текст */
 
     FILES jsonb, /* массив id файлов */
 
     /* о создании */
-    CREATE_USER_ID bigint, /* кто создал */
+    CREATE_ID bigint, /* кто создал */
     DATE_CREATE timestamp with time zone DEFAULT NOW()
 );
 
@@ -252,16 +249,15 @@ CREATE TABLE posts (
 /* комментарии */
 CREATE TABLE comments (
     ID	serial primary key,
-    FROM_USER_ID bigint, /* от кого */
-    FROM_GROUP_ID bigint, /* от кого */
+    FROM_ID bigint, /* от кого */
 
-    OBJECT_ID bigint NOT NULL, /* какому видео принадлежит */
+    OBJECT_ID bigint NOT NULL, /* какому объекту принадлежит */
     MODULE character varying (100) NOT NULL,
     TEXT text, /* текст */
 
     FILES jsonb, /* массив id файлов */
 
     /* о создании */
-    CREATE_USER_ID bigint, /* кто создал */
+    CREATE_ID bigint, /* кто создал */
     DATE_CREATE timestamp with time zone DEFAULT NOW()
 );

@@ -38,50 +38,30 @@ var _default = /*#__PURE__*/function () {
               case 0:
                 _context.prev = 0;
                 //если владелец не указан
-                if (!fields.owner_id) fields.owner_id = fields.from_id;
+                if (!fields.owner_id) fields.owner_id = fields.from_id; //запись
 
-                if (fields.owner_id > 0) {
-                  fields.owner_user_id = fields.owner_id;
-                  fields.owner_group_id = null;
-                } else {
-                  fields.owner_user_id = null;
-                  fields.owner_group_id = fields.owner_id;
-                }
-
-                if (fields.from_id > 0) {
-                  fields.from_user_id = fields.from_id;
-                  fields.from_group_id = null;
-                } else {
-                  fields.from_user_id = null;
-                  fields.from_group_id = fields.from_id;
-                } //удаляем лишний
-
-
-                delete fields.owner_id;
-                delete fields.from_id; //запись
-
-                _context.next = 8;
+                _context.next = 4;
                 return _db.DB.Init.Insert("topic", fields, "ID");
 
-              case 8:
+              case 4:
                 result = _context.sent;
                 return _context.abrupt("return", result[0]);
 
-              case 12:
-                _context.prev = 12;
+              case 8:
+                _context.prev = 8;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
-                  err: 2001000,
+                  err: 6001000,
                   msg: 'CTopic Add'
                 };
 
-              case 16:
+              case 12:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[0, 12]]);
+        }, _callee, null, [[0, 8]]);
       }));
 
       function Add(_x) {
@@ -114,30 +94,21 @@ var _default = /*#__PURE__*/function () {
                       while (1) {
                         switch (_context2.prev = _context2.next) {
                           case 0:
-                            if (item.owner_user_id) item.owner_id = -Number(item.owner_user_id);
-                            if (item.owner_group_id) item.owner_id = -Number(item.owner_group_id);
-                            if (item.from_user_id) item.from_id = -Number(item.from_user_id);
-                            if (item.from_group_id) item.from_id = -Number(item.from_group_id);
-                            delete item.owner_user_id;
-                            delete item.owner_group_id;
-                            delete item.from_user_id;
-                            delete item.from_group_id;
-
                             if (!item.files) {
-                              _context2.next = 12;
+                              _context2.next = 4;
                               break;
                             }
 
-                            _context2.next = 11;
+                            _context2.next = 3;
                             return _file["default"].GetById(item.files);
 
-                          case 11:
+                          case 3:
                             item.files = _context2.sent;
 
-                          case 12:
+                          case 4:
                             return _context2.abrupt("return", item);
 
-                          case 13:
+                          case 5:
                           case "end":
                             return _context2.stop();
                         }
@@ -159,7 +130,7 @@ var _default = /*#__PURE__*/function () {
                 _context3.t0 = _context3["catch"](0);
                 console.log(_context3.t0);
                 throw {
-                  err: 2001000,
+                  err: 6002000,
                   msg: 'CTopic GetById'
                 };
 
@@ -188,7 +159,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                sql = "SELECT * FROM topic WHERE ".concat(fields.owner_id > 0 ? "owner_user_id=".concat(fields.owner_id) : "owner_group_id=".concat(fields.owner_id));
+                sql = "SELECT * FROM topic WHERE owner_id=".concat(fields.owner_id);
                 sql += " LIMIT $1 OFFSET $2 ";
                 _context5.next = 5;
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
@@ -202,30 +173,21 @@ var _default = /*#__PURE__*/function () {
                       while (1) {
                         switch (_context4.prev = _context4.next) {
                           case 0:
-                            if (item.owner_user_id) item.owner_id = Number(item.owner_user_id);
-                            if (item.owner_group_id) item.owner_id = -Number(item.owner_group_id);
-                            if (item.from_user_id) item.from_id = Number(item.from_user_id);
-                            if (item.from_group_id) item.from_id = -Number(item.from_group_id);
-                            delete item.owner_user_id;
-                            delete item.owner_group_id;
-                            delete item.from_user_id;
-                            delete item.from_group_id;
-
                             if (!item.files) {
-                              _context4.next = 12;
+                              _context4.next = 4;
                               break;
                             }
 
-                            _context4.next = 11;
+                            _context4.next = 3;
                             return _file["default"].GetById(item.files);
 
-                          case 11:
+                          case 3:
                             item.files = _context4.sent;
 
-                          case 12:
+                          case 4:
                             return _context4.abrupt("return", item);
 
-                          case 13:
+                          case 5:
                           case "end":
                             return _context4.stop();
                         }
@@ -247,7 +209,7 @@ var _default = /*#__PURE__*/function () {
                 _context5.t0 = _context5["catch"](0);
                 console.log(_context5.t0);
                 throw {
-                  err: 2001000,
+                  err: 6003000,
                   msg: 'CTopic Get'
                 };
 
@@ -276,7 +238,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context6.prev = _context6.next) {
               case 0:
                 _context6.prev = 0;
-                sql = "SELECT COUNT(*) FROM topic WHERE ".concat(fields.owner_id > 0 ? "owner_user_id=".concat(fields.owner_id) : "owner_group_id=".concat(fields.owner_id));
+                sql = "SELECT COUNT(*) FROM topic WHERE owner_id=".concat(fields.owner_id);
                 _context6.next = 4;
                 return _db.DB.Init.Query(sql);
 
@@ -289,7 +251,7 @@ var _default = /*#__PURE__*/function () {
                 _context6.t0 = _context6["catch"](0);
                 console.log(_context6.t0);
                 throw {
-                  err: 2001000,
+                  err: 6004000,
                   msg: 'CTopic Count'
                 };
 
@@ -327,6 +289,7 @@ var _default = /*#__PURE__*/function () {
                 return _context7.abrupt("return", []);
 
               case 3:
+                /* выгрузка индентификаторов из объектов / пользователей */
                 arUsersId = items.map(function (item, i) {
                   return item.from_id;
                 }); //удаление одинаковых id из массива
@@ -345,7 +308,7 @@ var _default = /*#__PURE__*/function () {
                 _context7.t0 = _context7["catch"](0);
                 console.log(_context7.t0);
                 throw {
-                  err: 2001000,
+                  err: 6005000,
                   msg: 'CTopic GetUsers'
                 };
 

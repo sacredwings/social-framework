@@ -32,60 +32,73 @@ var _default = /*#__PURE__*/function () {
     key: "GetById",
     //поиск по id
     value: function () {
-      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(id) {
+      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(ids) {
         var result;
-        return regeneratorRuntime.wrap(function _callee$(_context) {
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context.prev = _context.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
-                _context.prev = 0;
-                _context.next = 3;
-                return _db.DB.Init.Query("SELECT * FROM users WHERE id=$1", [id]);
+                _context2.prev = 0;
+                ids = ids.join(',');
+                _context2.next = 4;
+                return _db.DB.Init.Query("SELECT * FROM users WHERE id in (".concat(ids, ")"));
 
-              case 3:
-                result = _context.sent;
+              case 4:
+                result = _context2.sent;
+                _context2.next = 7;
+                return Promise.all(result.map( /*#__PURE__*/function () {
+                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(item, i) {
+                    return regeneratorRuntime.wrap(function _callee$(_context) {
+                      while (1) {
+                        switch (_context.prev = _context.next) {
+                          case 0:
+                            if (!item.personal_photo) {
+                              _context.next = 5;
+                              break;
+                            }
 
-                if (result.length) {
-                  _context.next = 6;
-                  break;
-                }
+                            _context.next = 3;
+                            return _file["default"].GetById([item.personal_photo]);
 
-                return _context.abrupt("return", false);
+                          case 3:
+                            item.personal_photo = _context.sent;
+                            item.personal_photo = item.personal_photo[0];
 
-              case 6:
-                //упрощаем
-                result = result[0];
+                          case 5:
+                            return _context.abrupt("return", item);
 
-                if (!result.personal_photo) {
-                  _context.next = 12;
-                  break;
-                }
+                          case 6:
+                          case "end":
+                            return _context.stop();
+                        }
+                      }
+                    }, _callee);
+                  }));
 
-                _context.next = 10;
-                return _file["default"].GetById([result.personal_photo]);
+                  return function (_x2, _x3) {
+                    return _ref.apply(this, arguments);
+                  };
+                }()));
 
-              case 10:
-                result.personal_photo = _context.sent;
-                result.personal_photo = result.personal_photo[0];
+              case 7:
+                result = _context2.sent;
+                return _context2.abrupt("return", result);
 
-              case 12:
-                return _context.abrupt("return", result);
-
-              case 15:
-                _context.prev = 15;
-                _context.t0 = _context["catch"](0);
-                console.log(_context.t0);
+              case 11:
+                _context2.prev = 11;
+                _context2.t0 = _context2["catch"](0);
+                console.log(_context2.t0);
                 throw {
-                  err: 2001000,
+                  err: 7001000,
                   msg: 'CUser GetById'
                 };
 
-              case 19:
+              case 15:
               case "end":
-                return _context.stop();
+                return _context2.stop();
             }
           }
-        }, _callee, null, [[0, 15]]);
+        }, _callee2, null, [[0, 11]]);
       }));
 
       function GetById(_x) {
@@ -97,59 +110,59 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Update",
     value: function () {
-      var _Update = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(id, fields) {
+      var _Update = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(id, fields) {
         var salt, result;
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
-                _context2.prev = 0;
+                _context3.prev = 0;
 
                 if (!fields.password) {
-                  _context2.next = 8;
+                  _context3.next = 8;
                   break;
                 }
 
-                _context2.next = 4;
+                _context3.next = 4;
                 return bcrypt.genSalt();
 
               case 4:
-                salt = _context2.sent;
-                _context2.next = 7;
+                salt = _context3.sent;
+                _context3.next = 7;
                 return bcrypt.hash(fields.password, salt);
 
               case 7:
-                fields.password = _context2.sent;
+                fields.password = _context3.sent;
 
               case 8:
                 console.log(fields);
-                _context2.next = 11;
+                _context3.next = 11;
                 return _db.DB.Init.Update("users", fields, {
                   id: id
                 }, "id");
 
               case 11:
-                result = _context2.sent;
-                return _context2.abrupt("return", result[0]);
+                result = _context3.sent;
+                return _context3.abrupt("return", result[0]);
 
               case 15:
-                _context2.prev = 15;
-                _context2.t0 = _context2["catch"](0);
-                console.log(_context2.t0);
+                _context3.prev = 15;
+                _context3.t0 = _context3["catch"](0);
+                console.log(_context3.t0);
                 throw {
-                  err: 2003000,
+                  err: 7002000,
                   msg: 'CUser Update'
                 };
 
               case 19:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, null, [[0, 15]]);
+        }, _callee3, null, [[0, 15]]);
       }));
 
-      function Update(_x2, _x3) {
+      function Update(_x4, _x5) {
         return _Update.apply(this, arguments);
       }
 

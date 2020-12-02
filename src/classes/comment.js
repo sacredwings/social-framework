@@ -6,22 +6,8 @@ export default class {
     //новый комментарий
     static async Add ( fields ) {
         try {
-
-            if (fields.from_id > 0) {
-                fields.from_user_id = fields.from_id
-                fields.from_group_id = null
-            } else {
-                fields.from_user_id = null
-                fields.from_group_id = fields.from_id
-            }
-
-            //удаляем лишний
-            delete fields.owner_id
-            delete fields.from_id
-
             let result = await DB.Init.Insert('comments', fields, `ID`)
             return result[0]
-
         } catch (err) {
             console.log(err)
             throw ({err: 2001000, msg: 'CComment Add'})
@@ -38,17 +24,7 @@ export default class {
             let result = await DB.Init.Query(sql, [fields.module, fields.object_id, fields.count, fields.offset])
 
             result = await Promise.all(result.map(async (item, i) => {
-                if (item.owner_user_id) item.owner_id = Number (item.owner_user_id)
-                if (item.owner_group_id) item.owner_id = - Number (item.owner_group_id)
-
-                if (item.from_user_id) item.from_id = Number (item.from_user_id)
-                if (item.from_group_id) item.from_id = - Number (item.from_group_id)
-
-                delete item.owner_user_id
-                delete item.owner_group_id
-                delete item.from_user_id
-                delete item.from_group_id
-
+                /* загрузка инфы о файле */
                 if (item.files)
                     item.files = await CFile.GetById(item.files);
 
@@ -59,7 +35,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 2001000, msg: 'CComment Get'})
+            throw ({err: 2002000, msg: 'CComment Get'})
         }
     }
 
@@ -74,7 +50,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 2001000, msg: 'CComment Count'})
+            throw ({err: 2003000, msg: 'CComment Count'})
         }
     }
 
@@ -86,7 +62,7 @@ export default class {
             if ((!items) || (!items.length))
                 return []
 
-            console.log(items)
+            /* выгрузка индентификаторов из объектов / пользователей */
             let arUsersId = items.map((item, i) => {
                 return item.from_id
             })
@@ -109,7 +85,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 2001000, msg: 'CComment GetUsers'})
+            throw ({err: 2004000, msg: 'CComment GetUsers'})
         }
     }
 }

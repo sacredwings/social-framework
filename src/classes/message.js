@@ -7,13 +7,12 @@ export default class {
     //добавить новое видео
     static async Add( fields ) {
         try {
-
             let result = await DB.Init.Insert(`messages`, fields, `ID`)
             return result[0]
 
         } catch (err) {
             console.log(err)
-            throw ({err: 2001000, msg: 'CMessage Add'})
+            throw ({err: 5001000, msg: 'CMessage Add'})
         }
     }
 
@@ -34,9 +33,9 @@ to_user.personal_gender as to_user_personal_gender,
 to_user.name as to_user_name
 
 FROM messages 
-LEFT JOIN users AS from_user ON messages.from_user_id=from_user.id 
-LEFT JOIN users AS to_user ON messages.to_user_id=to_user.id 
-WHERE (from_user_id=$1 AND to_user_id=$2) OR (from_user_id=$2 AND to_user_id=$1)`
+LEFT JOIN users AS from_user ON messages.from_id=from_user.id 
+LEFT JOIN users AS to_user ON messages.to_id=to_user.id 
+WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
             sql += ` LIMIT $3 OFFSET $4 `
 
             let result = await DB.Init.Query(sql, [fields.owner_id, fields.user_id, fields.count, fields.offset])
@@ -50,7 +49,7 @@ WHERE (from_user_id=$1 AND to_user_id=$2) OR (from_user_id=$2 AND to_user_id=$1)
                 let messages = {}
 
                 //добавление новых полей
-                if (Number (result[i].from_user_id) === fields.owner_id) {
+                if (Number (result[i].from_id) === fields.owner_id) {
                     messages.user_id = Number (result[i].to_user_id)
                     messages.user_name = result[i].to_user_name
                     messages.in = false
@@ -72,7 +71,7 @@ WHERE (from_user_id=$1 AND to_user_id=$2) OR (from_user_id=$2 AND to_user_id=$1)
             return arMessages
         } catch (err) {
             console.log(err)
-            throw ({err: 2001000, msg: 'CMessage GetUserId'})
+            throw ({err: 5002000, msg: 'CMessage GetUserId'})
         }
     }
 
@@ -93,17 +92,17 @@ to_user.personal_gender as to_user_personal_gender,
 to_user.name as to_user_name
 
 FROM messages 
-LEFT JOIN users AS from_user ON messages.from_user_id=from_user.id 
-LEFT JOIN users AS to_user ON messages.to_user_id=to_user.id 
+LEFT JOIN users AS from_user ON messages.from_id=from_user.id 
+LEFT JOIN users AS to_user ON messages.to_id=to_user.id 
 
-WHERE messages.from_user_id=$1 AND (messages.to_user_id, messages.date_create) in (
-SELECT to_user_id, max(date_create)
+WHERE messages.from_id=$1 AND (messages.to_id, messages.date_create) in (
+SELECT to_id, max(date_create)
 FROM messages 
-WHERE from_user_id=$1
-GROUP BY to_user_id)`
+WHERE from_id=$1
+GROUP BY to_id)`
             sql += ` LIMIT $2 OFFSET $3 `
 
-            let outMes = await DB.Init.Query(sql, [fields.owner_id, fields.count, fields.offset])
+            let outMes = await DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset])
 
             //ВХОДЯЩИЕ
             sql = `SELECT messages.*,
@@ -119,18 +118,19 @@ to_user.personal_gender as to_user_personal_gender,
 to_user.name as to_user_name
 
 FROM messages 
-LEFT JOIN users AS from_user ON messages.from_user_id=from_user.id 
-LEFT JOIN users AS to_user ON messages.to_user_id=to_user.id 
+LEFT JOIN users AS from_user ON messages.from_id=from_user.id 
+LEFT JOIN users AS to_user ON messages.to_id=to_user.id 
 
-WHERE messages.to_user_id=$1 AND (messages.from_user_id, messages.date_create) in (
-SELECT from_user_id, max(date_create)
+WHERE messages.to_id=$1 AND (messages.from_id, messages.date_create) in (
+SELECT from_id, max(date_create)
 FROM messages 
-WHERE to_user_id=$1
-GROUP BY from_user_id)`
+WHERE to_id=$1
+GROUP BY from_id)`
             sql += ` LIMIT $2 OFFSET $3 `
 
-            let inMes = await DB.Init.Query(sql, [fields.owner_id, fields.count, fields.offset])
+            let inMes = await DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset])
 
+            //объединение входящих и исходящих сообщений
             let result = outMes.concat(inMes);
 
             //ОБЪЕДИНЕНИЕ ВХОДЯЩИХ и ИСХОДЯЩИХ сообщений
@@ -145,20 +145,33 @@ GROUP BY from_user_id)`
                 let messages = {}
 
                 //добавление новых полей
-                if (Number (result[i].from_user_id) === fields.owner_id) {
+                if (Number (result[i].from_user_id) === fields.from_id) {
                     messages.user_id = Number (result[i].to_user_id)
                     messages.user_name = result[i].to_user_name
+                    messages.user_personal_photo = result[i].to_user_personal_photo
+                    messages.user_personal_gender = result[i].to_user_personal_gender
                     messages.in = false
                 } else {
                     messages.user_id = Number (result[i].from_user_id)
                     messages.user_name = result[i].from_user_name
+                    messages.user_personal_photo = result[i].from_user_personal_photo
+                    messages.user_personal_gender = result[i].from_user_personal_gender
                     messages.in = true
                 }
 
                 //удаление не актуальных полей
                 delete result[i].id
                 delete result[i].from_user_id
+                delete result[i].from_user_login
+                delete result[i].from_user_name
+                delete result[i].from_user_personal_photo
+                delete result[i].from_user_personal_gender
+
                 delete result[i].to_user_id
+                delete result[i].to_user_login
+                delete result[i].to_user_name
+                delete result[i].to_user_personal_photo
+                delete result[i].to_user_personal_gender
 
                 //проходим по массиву еще раз и ищем такой же
                 for (let j=0; j < arMessages.length; j++) {
@@ -180,7 +193,32 @@ GROUP BY from_user_id)`
 
         } catch (err) {
             console.log(err)
-            throw ({err: 2001000, msg: 'CMessage Get'})
+            throw ({err: 5003000, msg: 'CMessage Get'})
+        }
+    }
+
+    //добавить новое видео
+    static async MarkAsReadAll( fields ) {
+        try {
+            let sql = `UPDATE messages SET read = true WHERE from_user_id=${fields.from_id} AND to_user_id=${fields.to_id} AND id < ${fields.start_message_id}`
+            console.log(sql)
+            let result = await DB.Init.Query(sql)
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 5004000, msg: 'CMessage MarkAsReadAll'})
+        }
+    }
+
+    //добавить новое видео
+    static async MarkAsRead( fields ) {
+        try {
+            let sql = `UPDATE messages SET read = true WHERE from_user_id=${fields.from_user_id} AND id in (${fields.message_ids})`
+            let result = await DB.Init.Query(sql)
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 5005000, msg: 'CMessage Add'})
         }
     }
 }

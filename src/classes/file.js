@@ -7,25 +7,6 @@ export default class {
     //Сохраняем новый вайл в таблицу файлов и сам файл
     static async SaveFile ( fields, savePath ) {
         try {
-            //если владелец не указан
-            if (!fields.owner_id) fields.owner_id = fields.from_id
-
-            if (fields.owner_id > 0) {
-                fields.owner_user_id = fields.owner_id
-                fields.owner_group_id = null
-            } else {
-                fields.owner_user_id = null
-                fields.owner_group_id = fields.owner_id
-            }
-
-            if (fields.from_id > 0) {
-                fields.from_user_id = fields.from_id
-                fields.from_group_id = null
-            } else {
-                fields.from_user_id = null
-                fields.from_group_id = fields.from_id
-            }
-
             //удаление файла с диска и базы
             if (fields.old_file)
                 await this.Delete(fields.old_file, true)
@@ -47,10 +28,8 @@ export default class {
 
             //добавление записи о файле в таблицу
             let arFields = {
-                owner_user_id: fields.owner_user_id,
-                owner_group_id: fields.owner_group_id,
-                from_user_id: fields.from_user_id,
-                from_group_id: fields.from_group_id,
+                owner_id: fields.owner_id,
+                from_id: fields.from_id,
 
                 size: fields.file.size,
                 path: savePath,
@@ -71,10 +50,27 @@ export default class {
 
     }
 
+    //загрузка файлов
+    static async GetById ( ids ) {
+        try {
+            if (!ids)
+                return false
+
+            ids = ids.join(',');
+
+            let result = await DB.Init.Query(`SELECT * FROM files WHERE id in (${ids})`)
+            return result;
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 3002000, msg: 'CFile GetById'})
+        }
+
+    }
+
     //удаление информации о файле из базы и сам файл
     static async Delete ( id, deleteFile ) {
         try {
-
             //удаление файла
             if (deleteFile) {
                 let result = await DB.Init.Query(`SELECT * FROM files WHERE id=$1`, [id])
@@ -90,44 +86,8 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 3002000, msg: 'CFile Delete'})
+            throw ({err: 3003000, msg: 'CFile Delete'})
         }
 
     }
-
-    //загрузка файлов
-    static async GetById ( ids ) {
-        try {
-            if (!ids)
-                return false
-
-            ids = ids.join(',');
-
-            let result = await DB.Init.Query(`SELECT * FROM files WHERE id in (${ids})`)
-
-            result = result.map((item, i) => {
-                if (item.owner_user_id) item.owner_id = - Number (item.owner_user_id)
-                if (item.owner_group_id) item.owner_id = - Number (item.owner_group_id)
-
-                if (item.from_user_id) item.from_id = - Number (item.from_user_id)
-                if (item.from_group_id) item.from_id = - Number (item.from_group_id)
-
-                delete item.owner_user_id
-                delete item.owner_group_id
-                delete item.from_user_id
-                delete item.from_group_id
-
-                return item;
-            });
-
-            return result;
-
-        } catch (err) {
-            console.log(err)
-            throw ({err: 3002000, msg: 'CFile GetById'})
-        }
-
-    }
-
-
 }
