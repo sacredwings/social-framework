@@ -24,6 +24,16 @@ export default class {
             let result = await DB.Init.Query(sql, [fields.module, fields.object_id, fields.count, fields.offset])
 
             result = await Promise.all(result.map(async (item, i) => {
+
+                if (item.from_id)
+                    item.from_id = Number (item.from_id);
+
+                if (item.object_id)
+                    item.object_id = Number (item.object_id);
+
+                if (item.create_id)
+                    item.create_id = Number (item.create_id);
+
                 /* загрузка инфы о файле */
                 if (item.files)
                     item.files = await CFile.GetById(item.files);

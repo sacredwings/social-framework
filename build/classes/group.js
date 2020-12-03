@@ -172,22 +172,27 @@ var _default = /*#__PURE__*/function () {
                       while (1) {
                         switch (_context4.prev = _context4.next) {
                           case 0:
+                            if (item.type) item.type = Number(item.type);
+                            if (item.photo) item.photo = Number(item.photo);
+                            if (item.create_id) item.create_id = Number(item.create_id);
+                            /* загрузка инфы о файле */
+
                             if (!item.photo) {
-                              _context4.next = 5;
+                              _context4.next = 8;
                               break;
                             }
 
-                            _context4.next = 3;
+                            _context4.next = 6;
                             return _file["default"].GetById([item.photo]);
 
-                          case 3:
+                          case 6:
                             item.photo = _context4.sent;
                             item.photo = item.photo[0];
 
-                          case 5:
+                          case 8:
                             return _context4.abrupt("return", item);
 
-                          case 6:
+                          case 9:
                           case "end":
                             return _context4.stop();
                         }

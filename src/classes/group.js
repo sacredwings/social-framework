@@ -51,6 +51,16 @@ export default class {
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
 
             result = await Promise.all(result.map(async (item, i) => {
+
+                if (item.type)
+                    item.type = Number (item.type);
+
+                if (item.photo)
+                    item.photo = Number (item.photo);
+
+                if (item.create_id)
+                    item.create_id = Number (item.create_id);
+
                 /* загрузка инфы о файле */
                 if (item.photo) {
                     item.photo = await CFile.GetById([item.photo]);

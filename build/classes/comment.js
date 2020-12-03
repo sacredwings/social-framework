@@ -92,21 +92,26 @@ var _default = /*#__PURE__*/function () {
                       while (1) {
                         switch (_context2.prev = _context2.next) {
                           case 0:
+                            if (item.from_id) item.from_id = Number(item.from_id);
+                            if (item.object_id) item.object_id = Number(item.object_id);
+                            if (item.create_id) item.create_id = Number(item.create_id);
+                            /* загрузка инфы о файле */
+
                             if (!item.files) {
-                              _context2.next = 4;
+                              _context2.next = 7;
                               break;
                             }
 
-                            _context2.next = 3;
+                            _context2.next = 6;
                             return _file["default"].GetById(item.files);
 
-                          case 3:
+                          case 6:
                             item.files = _context2.sent;
 
-                          case 4:
+                          case 7:
                             return _context2.abrupt("return", item);
 
-                          case 5:
+                          case 8:
                           case "end":
                             return _context2.stop();
                         }
