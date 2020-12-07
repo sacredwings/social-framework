@@ -11,6 +11,8 @@ var _crypto = _interopRequireDefault(require("crypto"));
 
 var _db = require("./db");
 
+var _user = _interopRequireDefault(require("./user"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -45,7 +47,7 @@ var _default = /*#__PURE__*/function () {
               case 0:
                 _context.prev = 0;
                 _context.next = 3;
-                return this.GetByLogin(fields.login);
+                return _user["default"].GetByLogin(fields.login);
 
               case 3:
                 user = _context.sent;
@@ -125,76 +127,36 @@ var _default = /*#__PURE__*/function () {
       return Login;
     }()
   }, {
-    key: "GetByLogin",
+    key: "GetById",
     value: function () {
-      var _GetByLogin = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(login) {
+      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(id) {
         var result;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.prev = 0;
-                _context2.next = 3;
-                return _db.DB.Init.Query("SELECT * FROM users WHERE login=$1", [login]);
-
-              case 3:
-                result = _context2.sent;
-                return _context2.abrupt("return", result[0]);
-
-              case 7:
-                _context2.prev = 7;
-                _context2.t0 = _context2["catch"](0);
-                console.log(_context2.t0);
-                throw {
-                  err: 1002000,
-                  msg: 'CAuth GetByLogin'
-                };
-
-              case 11:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2, null, [[0, 7]]);
-      }));
-
-      function GetByLogin(_x2) {
-        return _GetByLogin.apply(this, arguments);
-      }
-
-      return GetByLogin;
-    }()
-  }, {
-    key: "GetById",
-    value: function () {
-      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(id) {
-        var result;
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                _context3.prev = 0;
                 console.log(id);
-                _context3.next = 4;
+                _context2.next = 4;
                 return _db.DB.Init.Query("SELECT * FROM tokens WHERE id=$1", [id]);
 
               case 4:
-                result = _context3.sent;
+                result = _context2.sent;
 
                 if (!result.length) {
-                  _context3.next = 7;
+                  _context2.next = 7;
                   break;
                 }
 
-                return _context3.abrupt("return", result[0]);
+                return _context2.abrupt("return", result[0]);
 
               case 7:
-                return _context3.abrupt("return", false);
+                return _context2.abrupt("return", false);
 
               case 10:
-                _context3.prev = 10;
-                _context3.t0 = _context3["catch"](0);
-                console.log(_context3.t0);
+                _context2.prev = 10;
+                _context2.t0 = _context2["catch"](0);
+                console.log(_context2.t0);
                 throw {
                   err: 1003000,
                   msg: 'CAuth GetById'
@@ -202,13 +164,13 @@ var _default = /*#__PURE__*/function () {
 
               case 14:
               case "end":
-                return _context3.stop();
+                return _context2.stop();
             }
           }
-        }, _callee3, null, [[0, 10]]);
+        }, _callee2, null, [[0, 10]]);
       }));
 
-      function GetById(_x3) {
+      function GetById(_x2) {
         return _GetById.apply(this, arguments);
       }
 
@@ -217,13 +179,13 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "AddToken",
     value: function () {
-      var _AddToken = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(userId, ip, browser) {
+      var _AddToken = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(userId, ip, browser) {
         var hash, arFields, result;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
-                _context4.prev = 0;
+                _context3.prev = 0;
                 //создаем hash /нужно поменять на дату
                 hash = new Date().toString();
                 hash = _crypto["default"].createHash('md5').update(hash).digest("hex"); //подготовка полей
@@ -235,17 +197,17 @@ var _default = /*#__PURE__*/function () {
                   BROWSER: browser
                 }; //запись
 
-                _context4.next = 6;
+                _context3.next = 6;
                 return _db.DB.Init.Insert("tokens", arFields, "ID, TOKEN_KEY");
 
               case 6:
-                result = _context4.sent;
-                return _context4.abrupt("return", result[0]);
+                result = _context3.sent;
+                return _context3.abrupt("return", result[0]);
 
               case 10:
-                _context4.prev = 10;
-                _context4.t0 = _context4["catch"](0);
-                console.log(_context4.t0);
+                _context3.prev = 10;
+                _context3.t0 = _context3["catch"](0);
+                console.log(_context3.t0);
                 throw {
                   err: 1004000,
                   msg: 'CAuth AddToken'
@@ -253,13 +215,13 @@ var _default = /*#__PURE__*/function () {
 
               case 14:
               case "end":
-                return _context4.stop();
+                return _context3.stop();
             }
           }
-        }, _callee4, null, [[0, 10]]);
+        }, _callee3, null, [[0, 10]]);
       }));
 
-      function AddToken(_x4, _x5, _x6) {
+      function AddToken(_x3, _x4, _x5) {
         return _AddToken.apply(this, arguments);
       }
 

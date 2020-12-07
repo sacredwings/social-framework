@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import {DB} from "./db";
+import CUser from './user'
 
 export default class {
 
@@ -8,7 +9,7 @@ export default class {
         try {
 
             //поиск пользователя по логину
-            let user = await this.GetByLogin(fields.login);
+            let user = await CUser.GetByLogin(fields.login);
             if (!user)
                 throw ({err: 1001001, msg: 'Неверный логин'});
 
@@ -25,16 +26,6 @@ export default class {
 
         } catch (err) {
             throw ({...{err: 1001000, msg: 'CAuth Login'}, ...err});
-        }
-    }
-
-    static async GetByLogin ( login ) {
-        try {
-            let result = await DB.Init.Query(`SELECT * FROM users WHERE login=$1`, [login])
-            return result[0]
-        } catch (err) {
-            console.log(err)
-            throw ({err: 1002000, msg: 'CAuth GetByLogin'})
         }
     }
 

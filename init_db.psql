@@ -32,7 +32,7 @@ CREATE TABLE users (
     NAME	character varying (50),	/* Имя. */
     LAST_NAME	character varying (50),	/* Фамилия. */
     SECOND_NAME	character varying (50),	/* Отчество. */
-    EMAIL	character varying (255) not null,	 /* E-mail адрес. */
+    EMAIL	character varying (100),	 /* E-mail адрес. */
     LAST_LOGIN	TIMESTAMP WITH TIME ZONE,	/* Дата последней авторизации. */
     LAST_ACTIVITY_DATE	TIMESTAMP WITH TIME ZONE,	/* Дата последнего хита на сайте. */
     ADMIN_NOTES	character varying (2000),	/* Заметки администратора. */
@@ -260,4 +260,19 @@ CREATE TABLE comments (
     /* о создании */
     CREATE_ID bigint, /* кто создал */
     DATE_CREATE timestamp with time zone DEFAULT NOW()
+);
+
+/* -------------------------------------------------- */
+/* пользователи - во время регистрации */
+CREATE TABLE users_no_reg (
+    id SERIAL PRIMARY KEY,
+    phone BIGINT,
+    login CHARACTER VARYING(50),
+    email CHARACTER VARYING(100),
+    password CHARACTER VARYING(60) NOT NULL,
+    name CHARACTER VARYING(30) NOT NULL,
+    gender CHARACTER VARYING(1) NOT NULL,
+    code CHARACTER VARYING(32) NOT NULL,
+
+    create_date TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
