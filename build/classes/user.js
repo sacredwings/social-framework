@@ -511,13 +511,11 @@ var _default = /*#__PURE__*/function () {
                   name: fields.name,
                   code: hash
                 };
-                console.log(arFields);
-                _context10.next = 25;
+                _context10.next = 24;
                 return this.AddNoReg(arFields);
 
-              case 25:
-                _context10.next = 31;
-                break;
+              case 24:
+                return _context10.abrupt("return", hash);
 
               case 27:
                 _context10.prev = 27;

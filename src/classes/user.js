@@ -165,8 +165,10 @@ export default class {
                 name: fields.name,
                 code: hash
             }
-            console.log(arFields)
             await this.AddNoReg(arFields);
+
+            //выводим код для почты
+            return hash
 
         } catch (err) {
             console.log(err)
