@@ -28,8 +28,6 @@ export default class {
 
             //добавление записи о файле в таблицу
             let arFields = {
-                owner_id: fields.owner_id,
-                from_id: fields.from_id,
 
                 size: fields.file.size,
                 path: savePath,
@@ -37,7 +35,7 @@ export default class {
                 url: url,
 
                 title: (fields.title) ? fields.title : fields.file.title,
-                text: (fields.text) ? fields.text : null,
+                create_id: fields.create_id
             }
 
             let result = await DB.Init.Insert(`files`, arFields, `id`)
