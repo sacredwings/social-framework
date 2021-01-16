@@ -15,7 +15,7 @@ export default class {
                 fields.login = fields.login.toLowerCase()
 
             //запись
-            let result = await DB.Init.Insert(`users_no_reg`, fields, `ID`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}user_no_reg`, fields, `ID`)
             return result[0]
         } catch (err) {
             console.log(err)
@@ -33,7 +33,7 @@ export default class {
                 fields.login = fields.login.toLowerCase()
 
             //запись
-            let result = await DB.Init.Insert(`users`, fields, `ID`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}user`, fields, `ID`)
             return result[0]
         } catch (err) {
             console.log(err)
@@ -45,13 +45,13 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM users WHERE id in (${ids})`)
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user WHERE id in (${ids})`)
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
-                if (item.personal_photo) {
-                    item.personal_photo = await CFile.GetById([item.personal_photo]);
-                    item.personal_photo = item.personal_photo[0]
+                if (item.photo) {
+                    item.photo = await CFile.GetById([item.photo]);
+                    item.photo = item.photo[0]
                 }
 
                 return item;
@@ -71,7 +71,7 @@ export default class {
             //в нижний регистр
             email = email.toLowerCase()
 
-            let result = await DB.Init.Query(`SELECT * FROM users WHERE email=$1`, [email])
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user WHERE email=$1`, [email])
             if (!result.length) return false
             result = result[0]
 
@@ -79,9 +79,9 @@ export default class {
             //delete result.password
 
             /* загрузка инфы о файле */
-            if (result.personal_photo) {
-                result.personal_photo = await CFile.GetById([result.personal_photo]);
-                result.personal_photo = result.personal_photo[0]
+            if (result.photo) {
+                result.photo = await CFile.GetById([result.photo]);
+                result.photo = result.photo[0]
             }
 
             return result
@@ -98,7 +98,7 @@ export default class {
             //в нижний регистр
             login = login.toLowerCase()
 
-            let result = await DB.Init.Query(`SELECT * FROM users WHERE login=$1`, [login])
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user WHERE login=$1`, [login])
             if (!result.length) return false
             result = result[0]
 
@@ -106,9 +106,9 @@ export default class {
             //delete result.password
 
             /* загрузка инфы о файле */
-            if (result.personal_photo) {
-                result.personal_photo = await CFile.GetById([result.personal_photo]);
-                result.personal_photo = result.personal_photo[0]
+            if (result.photo) {
+                result.photo = await CFile.GetById([result.photo]);
+                result.photo = result.photo[0]
             }
 
             return result
@@ -127,7 +127,7 @@ export default class {
             }
             console.log(fields)
 
-            let result = await DB.Init.Update (`users`, fields, {id: id},`id`)
+            let result = await DB.Init.Update (`${DB.Init.TablePrefix}user`, fields, {id: id},`id`)
             return result[0]
         } catch (err) {
             console.log(err)
@@ -162,7 +162,7 @@ export default class {
                 email: fields.email,
                 password: fields.password,
                 gender: fields.gender,
-                name: fields.name,
+                firs_name: fields.first_name,
                 code: hash
             }
             await this.AddNoReg(arFields);
@@ -178,7 +178,7 @@ export default class {
 
     static async RegActivate ( code ) {
         try {
-            let noRegUser = await DB.Init.Query(`SELECT * FROM users_no_reg WHERE code=$1`, [code])
+            let noRegUser = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user_no_reg WHERE code=$1`, [code])
             if (!noRegUser.length)
                 throw ({err: 30030001, msg: 'Заявки не существует'});
 
@@ -199,8 +199,8 @@ export default class {
                 login: noRegUser.login,
                 email: noRegUser.email,
                 password: noRegUser.password,
-                name: noRegUser.name,
-                personal_gender: noRegUser.gender
+                first_name: noRegUser.first_name,
+                gender: noRegUser.gender
             }
             let items = await this.Add ( arFields );
 
@@ -221,7 +221,7 @@ export default class {
                 there.push(` to_tsvector(name) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
 
             //запрос
-            let sql = `SELECT * FROM users `
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}user `
 
             //объединеие параметров запроса
             if (there.length)
@@ -232,9 +232,9 @@ export default class {
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
-                if (item.personal_photo) {
-                    item.personal_photo = await CFile.GetById([item.personal_photo]);
-                    item.personal_photo = item.personal_photo[0]
+                if (item.photo) {
+                    item.photo = await CFile.GetById([item.photo]);
+                    item.photo = item.photo[0]
                 }
 
                 return item;
@@ -257,7 +257,7 @@ export default class {
                 there.push(` to_tsvector(name) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
 
             //запрос
-            let sql = `SELECT COUNT(*) FROM users `
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}user `
 
             //объединеие параметров запроса
             if (there.length)

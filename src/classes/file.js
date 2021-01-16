@@ -38,7 +38,7 @@ export default class {
                 create_id: fields.create_id
             }
 
-            let result = await DB.Init.Insert(`files`, arFields, `id`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}file`, arFields, `id`)
             return result[0].id
 
         } catch (err) {
@@ -56,7 +56,7 @@ export default class {
 
             ids = ids.join(',');
 
-            let result = await DB.Init.Query(`SELECT * FROM files WHERE id in (${ids})`)
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids})`)
             return result;
 
         } catch (err) {
@@ -71,7 +71,7 @@ export default class {
         try {
             //удаление файла
             if (deleteFile) {
-                let result = await DB.Init.Query(`SELECT * FROM files WHERE id=$1`, [id])
+                let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id=$1`, [id])
                 if (!result[0])
                     return false
 
@@ -79,7 +79,7 @@ export default class {
             }
 
             //удаление записи о файле
-            let result = await DB.Init.Query(`DELETE FROM files WHERE id=$1`, [id])
+            let result = await DB.Init.Query(`DELETE FROM ${DB.Init.TablePrefix}file WHERE id=$1`, [id])
             return true
 
         } catch (err) {

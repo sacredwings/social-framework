@@ -22,7 +22,7 @@ export default class {
             if (!token)
                 throw ({err: 1001003, msg: 'Токен не создан'});
 
-            return {tid: token.id, token: token.token_key, id: user.id, login: user.login}
+            return {tid: token.id, token: token.token, id: user.id, login: user.login}
 
         } catch (err) {
             throw ({...{err: 1001000, msg: 'CAuth Login'}, ...err});
@@ -31,8 +31,7 @@ export default class {
 
     static async GetById ( id ) {
         try {
-            console.log(id)
-            let result = await DB.Init.Query(`SELECT * FROM tokens WHERE id=$1`, [id])
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}token WHERE id=$1`, [id])
             if (result.length)
                 return result[0]
 
@@ -52,14 +51,14 @@ export default class {
 
             //подготовка полей
             let arFields = {
-                TOKEN_KEY: hash,
-                USER_ID: userId,
-                IP: ip,
-                BROWSER: browser
+                token: hash,
+                user_id: userId,
+                ip: ip,
+                browser: browser
             };
 
             //запись
-            let result = await DB.Init.Insert(`tokens`, arFields, `ID, TOKEN_KEY`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}token`, arFields, `id, token`)
             return result[0]
 
         } catch (err) {

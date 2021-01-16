@@ -15,17 +15,18 @@ export default class {
             if ((fields.albums) || (fields.albums === null))
                 delete  fields.albums
 
-            let result = await DB.Init.Insert(`video`, fields, `ID`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}video`, fields, `ID`)
 
-            albums.map(async (item, i)=>{
-                let arFields = {
-                    album_id: item,
-                    object_id: result[0].id,
+            if ((albums) && (albums.length))
+                albums.map(async (item, i)=>{
+                    let arFields = {
+                        album_id: item,
+                        object_id: result[0].id,
 
-                    create_id: fields.create_id
-                }
-                await DB.Init.Insert(`albums_link`, arFields, `ID`)
-            })
+                        create_id: fields.create_id
+                    }
+                    await DB.Init.Insert(`${DB.Init.TablePrefix}album_link`, arFields, `ID`)
+                })
 
             return result[0]
 
@@ -39,7 +40,7 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM video WHERE id in (${ids})`)
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}video WHERE id in (${ids})`)
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
@@ -62,13 +63,13 @@ export default class {
     //загрузка
     static async Get ( fields ) {
         try {
-            let sql = `SELECT * FROM video WHERE owner_id=${fields.owner_id}`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}video WHERE owner_id=${fields.owner_id}`
 
             /* видео из альбома */
             if (fields.album_id)
-                sql = `SELECT video.*
-                    FROM albums_link
-                    INNER JOIN video ON video.id = albums_link.object_id WHERE albums_link.album_id = ${fields.album_id}`
+                sql = `SELECT ${DB.Init.TablePrefix}video.*
+                    FROM ${DB.Init.TablePrefix}album_link
+                    INNER JOIN ${DB.Init.TablePrefix}video ON ${DB.Init.TablePrefix}video.id = ${DB.Init.TablePrefix}album_link.object_id WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id}`
 
             sql += ` LIMIT $1 OFFSET $2 `
 
@@ -93,13 +94,13 @@ export default class {
     //количество
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM video WHERE owner_id=${fields.owner_id}`
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}video WHERE owner_id=${fields.owner_id}`
 
             /* видео из альбома */
             if (fields.album_id)
                 sql = `SELECT COUNT(*)
-                    FROM albums_link
-                    WHERE albums_link.album_id = ${fields.album_id}`
+                    FROM ${DB.Init.TablePrefix}album_link
+                    WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id}`
 
             let result = await DB.Init.Query(sql)
 
@@ -127,7 +128,7 @@ export default class {
             //удаление одинаковых id из массива
             arUsersId = Array.from(new Set(arUsersId))
 
-            let sql = `SELECT id,login,name,date_create,personal_birthday FROM users WHERE id in (${arUsersId})`
+            let sql = `SELECT id,login,first_name,create_date,birthday FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsersId})`
             let users = await DB.Init.Query(sql)
             return users
 
@@ -145,7 +146,7 @@ export default class {
             //если владелец не указан
             if (!fields.owner_id) fields.owner_id = fields.from_id
 
-            let result = await DB.Init.Insert(`albums`, fields, `ID`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}album`, fields, `ID`)
             return result[0]
 
         } catch (err) {
@@ -157,7 +158,7 @@ export default class {
     //загрузка
     static async GetAlbums ( fields ) {
         try {
-            let sql = `SELECT * FROM albums WHERE owner_id=${fields.owner_id} AND module='video'`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}album WHERE owner_id=${fields.owner_id} AND module='video'`
             sql += ` LIMIT $1 OFFSET $2 `
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
@@ -180,7 +181,7 @@ export default class {
     //количество
     static async CountAlbums ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM albums WHERE owner_id=${fields.owner_id} AND module='video'`
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}album WHERE owner_id=${fields.owner_id} AND module='video'`
             let result = await DB.Init.Query(sql)
 
             return Number (result[0].count)

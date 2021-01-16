@@ -7,7 +7,7 @@ export default class {
     //добавить новое видео
     static async Add( fields ) {
         try {
-            let result = await DB.Init.Insert(`messages`, fields, `ID`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}message`, fields, `ID`)
             return result[0]
 
         } catch (err) {
@@ -20,21 +20,21 @@ export default class {
     static async GetByUserId ( fields ) {
         try {
 
-            let sql = `SELECT messages.*,
+            let sql = `SELECT ${DB.Init.TablePrefix}message.*,
 
 from_user.login as from_user_login,
-from_user.personal_photo as from_user_personal_photo,
-from_user.personal_gender as from_user_personal_gender,
-from_user.name as from_user_name,
+from_user.photo as from_user_photo,
+from_user.gender as from_user_gender,
+from_user.first_name as from_user_first_name,
 
 to_user.login as to_user_login,
-to_user.personal_photo as to_user_personal_photo,
-to_user.personal_gender as to_user_personal_gender,
-to_user.name as to_user_name
+to_user.personal_photo as to_user_photo,
+to_user.personal_gender as to_user_gender,
+to_user.name as to_user_first_name
 
-FROM messages 
-LEFT JOIN users AS from_user ON messages.from_id=from_user.id 
-LEFT JOIN users AS to_user ON messages.to_id=to_user.id 
+FROM ${DB.Init.TablePrefix}message
+LEFT JOIN ${DB.Init.TablePrefix}user AS from_user ON ${DB.Init.TablePrefix}message.from_id=from_user.id 
+LEFT JOIN ${DB.Init.TablePrefix}user AS to_user ON ${DB.Init.TablePrefix}message.to_id=to_user.id 
 WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
             sql += ` LIMIT $3 OFFSET $4 `
 
@@ -51,11 +51,11 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
                 //добавление новых полей
                 if (Number (result[i].from_id) === fields.owner_id) {
                     messages.user_id = Number (result[i].to_user_id)
-                    messages.user_name = result[i].to_user_name
+                    messages.user_first_name = result[i].to_user_first_name
                     messages.in = false
                 } else {
                     messages.user_id = Number (result[i].from_user_id)
-                    messages.user_name = result[i].from_user_name
+                    messages.user_first_name = result[i].from_user_first_name
                     messages.in = true
                 }
 
@@ -79,25 +79,25 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
         try {
 
             //ИСХОДЯЩИЕ
-            let sql = `SELECT messages.*,
+            let sql = `SELECT ${DB.Init.TablePrefix}message.*,
 
 from_user.login as from_user_login,
-from_user.personal_photo as from_user_personal_photo,
-from_user.personal_gender as from_user_personal_gender,
-from_user.name as from_user_name,
+from_user.photo as from_user_photo,
+from_user.gender as from_user_gender,
+from_user.first_name as from_user_first_name,
 
 to_user.login as to_user_login,
-to_user.personal_photo as to_user_personal_photo,
-to_user.personal_gender as to_user_personal_gender,
-to_user.name as to_user_name
+to_user.personal_photo as to_user_photo,
+to_user.personal_gender as to_user_gender,
+to_user.name as to_user_first_name
 
-FROM messages 
-LEFT JOIN users AS from_user ON messages.from_id=from_user.id 
-LEFT JOIN users AS to_user ON messages.to_id=to_user.id 
+FROM ${DB.Init.TablePrefix}message
+LEFT JOIN ${DB.Init.TablePrefix}user AS from_user ON ${DB.Init.TablePrefix}message.from_id=from_user.id 
+LEFT JOIN ${DB.Init.TablePrefix}user AS to_user ON ${DB.Init.TablePrefix}message.to_id=to_user.id 
 
-WHERE messages.from_id=$1 AND (messages.to_id, messages.date_create) in (
-SELECT to_id, max(date_create)
-FROM messages 
+WHERE ${DB.Init.TablePrefix}message.from_id=$1 AND (${DB.Init.TablePrefix}message.to_id, ${DB.Init.TablePrefix}message.create_date) in (
+SELECT to_id, max(create_date)
+FROM ${DB.Init.TablePrefix}message 
 WHERE from_id=$1
 GROUP BY to_id)`
             sql += ` LIMIT $2 OFFSET $3 `
@@ -105,25 +105,25 @@ GROUP BY to_id)`
             let outMes = await DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset])
 
             //ВХОДЯЩИЕ
-            sql = `SELECT messages.*,
+            sql = `SELECT ${DB.Init.TablePrefix}message.*,
 
 from_user.login as from_user_login,
-from_user.personal_photo as from_user_personal_photo,
-from_user.personal_gender as from_user_personal_gender,
-from_user.name as from_user_name,
+from_user.photo as from_user_photo,
+from_user.gender as from_user_gender,
+from_user.first_name as from_user_first_name,
 
 to_user.login as to_user_login,
-to_user.personal_photo as to_user_personal_photo,
-to_user.personal_gender as to_user_personal_gender,
-to_user.name as to_user_name
+to_user.personal_photo as to_user_photo,
+to_user.personal_gender as to_user_gender,
+to_user.name as to_user_first_name
 
-FROM messages 
-LEFT JOIN users AS from_user ON messages.from_id=from_user.id 
-LEFT JOIN users AS to_user ON messages.to_id=to_user.id 
+FROM ${DB.Init.TablePrefix}message
+LEFT JOIN ${DB.Init.TablePrefix}user AS from_user ON ${DB.Init.TablePrefix}message.from_id=from_user.id 
+LEFT JOIN ${DB.Init.TablePrefix}user AS to_user ON ${DB.Init.TablePrefix}message.to_id=to_user.id 
 
-WHERE messages.to_id=$1 AND (messages.from_id, messages.date_create) in (
-SELECT from_id, max(date_create)
-FROM messages 
+WHERE ${DB.Init.TablePrefix}message.to_id=$1 AND (${DB.Init.TablePrefix}message.from_id, ${DB.Init.TablePrefix}message.create_date) in (
+SELECT from_id, max(create_date)
+FROM ${DB.Init.TablePrefix}message 
 WHERE to_id=$1
 GROUP BY from_id)`
             sql += ` LIMIT $2 OFFSET $3 `
@@ -147,15 +147,15 @@ GROUP BY from_id)`
                 //добавление новых полей
                 if (Number (result[i].from_user_id) === fields.from_id) {
                     messages.user_id = Number (result[i].to_user_id)
-                    messages.user_name = result[i].to_user_name
-                    messages.user_personal_photo = result[i].to_user_personal_photo
-                    messages.user_personal_gender = result[i].to_user_personal_gender
+                    messages.user_first_name = result[i].to_user_first_name
+                    messages.user_photo = result[i].to_user_photo
+                    messages.user_gender = result[i].to_user_gender
                     messages.in = false
                 } else {
                     messages.user_id = Number (result[i].from_user_id)
-                    messages.user_name = result[i].from_user_name
-                    messages.user_personal_photo = result[i].from_user_personal_photo
-                    messages.user_personal_gender = result[i].from_user_personal_gender
+                    messages.user_first_name = result[i].from_user_first_name
+                    messages.user_photo = result[i].from_user_photo
+                    messages.user_gender = result[i].from_user_gender
                     messages.in = true
                 }
 
@@ -163,15 +163,15 @@ GROUP BY from_id)`
                 delete result[i].id
                 delete result[i].from_user_id
                 delete result[i].from_user_login
-                delete result[i].from_user_name
-                delete result[i].from_user_personal_photo
-                delete result[i].from_user_personal_gender
+                delete result[i].from_user_first_name
+                delete result[i].from_user_photo
+                delete result[i].from_user_gender
 
                 delete result[i].to_user_id
                 delete result[i].to_user_login
-                delete result[i].to_user_name
-                delete result[i].to_user_personal_photo
-                delete result[i].to_user_personal_gender
+                delete result[i].to_user_first_name
+                delete result[i].to_user_photo
+                delete result[i].to_user_gender
 
                 //проходим по массиву еще раз и ищем такой же
                 for (let j=0; j < arMessages.length; j++) {
@@ -200,7 +200,7 @@ GROUP BY from_id)`
     //добавить новое видео
     static async MarkAsReadAll( fields ) {
         try {
-            let sql = `UPDATE messages SET read = true WHERE from_user_id=${fields.from_id} AND to_user_id=${fields.to_id} AND id < ${fields.start_message_id}`
+            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_user_id=${fields.from_id} AND to_user_id=${fields.to_id} AND id < ${fields.start_message_id}`
             console.log(sql)
             let result = await DB.Init.Query(sql)
 
@@ -213,7 +213,7 @@ GROUP BY from_id)`
     //добавить новое видео
     static async MarkAsRead( fields ) {
         try {
-            let sql = `UPDATE messages SET read = true WHERE from_user_id=${fields.from_user_id} AND id in (${fields.message_ids})`
+            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_user_id=${fields.from_user_id} AND id in (${fields.message_ids})`
             let result = await DB.Init.Query(sql)
 
         } catch (err) {

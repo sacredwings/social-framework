@@ -7,7 +7,7 @@ export default class {
     static async Add ( fields ) {
         try {
             //запись
-            let result = await DB.Init.Insert(`groups`, fields, `ID`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}group`, fields, `ID`)
             return result[0]
         } catch (err) {
             console.log(err)
@@ -19,7 +19,7 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM groups WHERE id in (${ids})`)
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}group WHERE id in (${ids})`)
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
@@ -45,7 +45,7 @@ export default class {
     static async Get ( fields ) {
         try {
 
-            let sql = `SELECT * FROM groups WHERE create_id=${fields.owner_id}`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}group WHERE create_id=${fields.owner_id}`
             sql += ` LIMIT $1 OFFSET $2 `
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
@@ -80,7 +80,7 @@ export default class {
     //количество
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM groups WHERE create_id=${fields.owner_id}`
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}group WHERE create_id=${fields.owner_id}`
             let result = await DB.Init.Query(sql)
 
             return Number (result[0].count)
@@ -105,7 +105,7 @@ export default class {
             //удаление одинаковых id из массива
             arUsersId = Array.from(new Set(arUsersId))
 
-            let sql = `SELECT id,login,name,date_create,personal_birthday FROM users WHERE id in (${arUsersId})`
+            let sql = `SELECT id,login,first_name,create_date,birthday FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsersId})`
 
             let users = await DB.Init.Query(sql)
             return users
@@ -124,7 +124,7 @@ export default class {
             }
             console.log(fields)
 
-            let result = await DB.Init.Update (`groups`, fields, {id: id},`id`)
+            let result = await DB.Init.Update (`${DB.Init.TablePrefix}group`, fields, {id: id},`id`)
             return result[0]
         } catch (err) {
             console.log(err)

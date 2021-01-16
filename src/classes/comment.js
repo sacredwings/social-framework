@@ -6,7 +6,7 @@ export default class {
     //новый комментарий
     static async Add ( fields ) {
         try {
-            let result = await DB.Init.Insert('comments', fields, `ID`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}comment`, fields, `ID`)
             return result[0]
         } catch (err) {
             console.log(err)
@@ -18,7 +18,7 @@ export default class {
     static async Get ( fields ) {
         try {
 
-            let sql = `SELECT * FROM comments WHERE module=$1 AND object_id=$2 `
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}comment WHERE module=$1 AND object_id=$2 `
             sql += ` LIMIT $3 OFFSET $4 `
 
             let result = await DB.Init.Query(sql, [fields.module, fields.object_id, fields.count, fields.offset])
@@ -53,7 +53,7 @@ export default class {
     static async Count ( fields ) {
         try {
 
-            let sql = `SELECT COUNT(*) FROM comments WHERE module=$1 AND object_id=$2`
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}comment WHERE module=$1 AND object_id=$2`
             let result = await DB.Init.Query(sql, [fields.module, fields.object_id])
 
             return Number (result[0].count)
@@ -80,13 +80,13 @@ export default class {
             //удаление одинаковых id из массива
             arUsersId = Array.from(new Set(arUsersId))
 
-            let sql = `SELECT id,login,name,date_create,personal_birthday,personal_photo FROM users WHERE id in (${arUsersId})`
+            let sql = `SELECT id,login,first_name,create_date,birthday,photo FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsersId})`
             let users = await DB.Init.Query(sql)
 
             users = await Promise.all(users.map(async (user, i)=>{
-                if (user.personal_photo) {
-                    user.personal_photo = await CFile.GetById([user.personal_photo]);
-                    user.personal_photo = user.personal_photo[0]
+                if (user.photo) {
+                    user.photo = await CFile.GetById([user.photo]);
+                    user.photo = user.photo[0]
                 }
                 return user
             }))
