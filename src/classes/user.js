@@ -218,7 +218,7 @@ export default class {
             let there = []
 
             if (fields.q)
-                there.push(` to_tsvector(name) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+                there.push(` to_tsvector(first_name) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
 
             //запрос
             let sql = `SELECT * FROM ${DB.Init.TablePrefix}user `
@@ -227,8 +227,10 @@ export default class {
             if (there.length)
                 sql += `WHERE ` + there.join(' AND ')
 
+            sql += ` LIMIT $1 OFFSET $2`
+
+            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
             console.log(sql)
-            let result = await DB.Init.Query(sql)
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
@@ -254,7 +256,7 @@ export default class {
             let there = []
 
             if (fields.q)
-                there.push(` to_tsvector(name) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+                there.push(` to_tsvector(first_name) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
 
             //запрос
             let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}user `

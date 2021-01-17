@@ -614,19 +614,20 @@ var _default = /*#__PURE__*/function () {
               case 0:
                 _context11.prev = 0;
                 there = [];
-                if (fields.q) there.push(" to_tsvector(name) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
+                if (fields.q) there.push(" to_tsvector(first_name) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
                 //запрос
 
                 sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "user "); //объединеие параметров запроса
 
                 if (there.length) sql += "WHERE " + there.join(' AND ');
-                console.log(sql);
+                sql += " LIMIT $1 OFFSET $2";
                 _context11.next = 8;
-                return _db.DB.Init.Query(sql);
+                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
 
               case 8:
                 result = _context11.sent;
-                _context11.next = 11;
+                console.log(sql);
+                _context11.next = 12;
                 return Promise.all(result.map( /*#__PURE__*/function () {
                   var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(item, i) {
                     return regeneratorRuntime.wrap(function _callee10$(_context10) {
@@ -661,12 +662,12 @@ var _default = /*#__PURE__*/function () {
                   };
                 }()));
 
-              case 11:
+              case 12:
                 result = _context11.sent;
                 return _context11.abrupt("return", result);
 
-              case 15:
-                _context11.prev = 15;
+              case 16:
+                _context11.prev = 16;
                 _context11.t0 = _context11["catch"](0);
                 console.log(_context11.t0);
                 throw {
@@ -674,12 +675,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CUser Search'
                 };
 
-              case 19:
+              case 20:
               case "end":
                 return _context11.stop();
             }
           }
-        }, _callee11, null, [[0, 15]]);
+        }, _callee11, null, [[0, 16]]);
       }));
 
       function Search(_x12) {
@@ -700,7 +701,7 @@ var _default = /*#__PURE__*/function () {
               case 0:
                 _context12.prev = 0;
                 there = [];
-                if (fields.q) there.push(" to_tsvector(name) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
+                if (fields.q) there.push(" to_tsvector(first_name) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
                 //запрос
 
                 sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "user "); //объединеие параметров запроса
