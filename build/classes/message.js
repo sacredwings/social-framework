@@ -84,10 +84,10 @@ var _default = /*#__PURE__*/function () {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.prev = 0;
-                sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "message.*,\n\nfrom_user.login as from_user_login,\nfrom_user.photo as from_user_photo,\nfrom_user.gender as from_user_gender,\nfrom_user.first_name as from_user_first_name,\n\nto_user.login as to_user_login,\nto_user.personal_photo as to_user_photo,\nto_user.personal_gender as to_user_gender,\nto_user.name as to_user_first_name\n\nFROM ").concat(_db.DB.Init.TablePrefix, "message\nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS from_user ON ").concat(_db.DB.Init.TablePrefix, "message.from_id=from_user.id \nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS to_user ON ").concat(_db.DB.Init.TablePrefix, "message.to_id=to_user.id \nWHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)");
+                sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "message.*,\n\nfrom_user.login as from_user_login,\nfrom_user.photo as from_user_photo,\nfrom_user.gender as from_user_gender,\nfrom_user.first_name as from_user_first_name,\n\nto_user.login as to_user_login,\nto_user.photo as to_user_photo,\nto_user.gender as to_user_gender,\nto_user.first_name as to_user_first_name\n\nFROM ").concat(_db.DB.Init.TablePrefix, "message\nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS from_user ON ").concat(_db.DB.Init.TablePrefix, "message.from_id=from_user.id \nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS to_user ON ").concat(_db.DB.Init.TablePrefix, "message.to_id=to_user.id \nWHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)");
                 sql += " LIMIT $3 OFFSET $4 ";
                 _context2.next = 5;
-                return _db.DB.Init.Query(sql, [fields.owner_id, fields.user_id, fields.count, fields.offset]);
+                return _db.DB.Init.Query(sql, [fields.from_id, fields.to_id, fields.count, fields.offset]);
 
               case 5:
                 result = _context2.sent;
@@ -98,20 +98,22 @@ var _default = /*#__PURE__*/function () {
                   //добавление новых полей к массиву
                   messages = {}; //добавление новых полей
 
-                  if (Number(result[i].from_id) === fields.owner_id) {
-                    messages.user_id = Number(result[i].to_user_id);
+                  if (Number(result[i].from_id) === fields.from_id) {
+                    messages.user_id = Number(result[i].to_id);
                     messages.user_first_name = result[i].to_user_first_name;
                     messages["in"] = false;
                   } else {
-                    messages.user_id = Number(result[i].from_user_id);
+                    messages.user_id = Number(result[i].from_id);
                     messages.user_first_name = result[i].from_user_first_name;
                     messages["in"] = true;
-                  } //удаление не актуальных полей
+                  }
 
+                  messages.from_id = Number(result[i].from_id);
+                  messages.to_id = Number(result[i].to_id); //удаление не актуальных полей
+                  //delete result[i].id
+                  //delete result[i].from_id
+                  //delete result[i].to_id
 
-                  delete result[i].id;
-                  delete result[i].from_user_id;
-                  delete result[i].to_user_id;
                   arMessages.push(_objectSpread(_objectSpread({}, result[i]), messages));
                 }
 
@@ -151,7 +153,7 @@ var _default = /*#__PURE__*/function () {
               case 0:
                 _context3.prev = 0;
                 //ИСХОДЯЩИЕ
-                sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "message.*,\n\nfrom_user.login as from_user_login,\nfrom_user.photo as from_user_photo,\nfrom_user.gender as from_user_gender,\nfrom_user.first_name as from_user_first_name,\n\nto_user.login as to_user_login,\nto_user.personal_photo as to_user_photo,\nto_user.personal_gender as to_user_gender,\nto_user.name as to_user_first_name\n\nFROM ").concat(_db.DB.Init.TablePrefix, "message\nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS from_user ON ").concat(_db.DB.Init.TablePrefix, "message.from_id=from_user.id \nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS to_user ON ").concat(_db.DB.Init.TablePrefix, "message.to_id=to_user.id \n\nWHERE ").concat(_db.DB.Init.TablePrefix, "message.from_id=$1 AND (").concat(_db.DB.Init.TablePrefix, "message.to_id, ").concat(_db.DB.Init.TablePrefix, "message.create_date) in (\nSELECT to_id, max(create_date)\nFROM ").concat(_db.DB.Init.TablePrefix, "message \nWHERE from_id=$1\nGROUP BY to_id)");
+                sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "message.*,\n\nfrom_user.login as from_user_login,\nfrom_user.photo as from_user_photo,\nfrom_user.gender as from_user_gender,\nfrom_user.first_name as from_user_first_name,\n\nto_user.login as to_user_login,\nto_user.photo as to_user_photo,\nto_user.gender as to_user_gender,\nto_user.first_name as to_user_first_name\n\nFROM ").concat(_db.DB.Init.TablePrefix, "message\nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS from_user ON ").concat(_db.DB.Init.TablePrefix, "message.from_id=from_user.id \nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS to_user ON ").concat(_db.DB.Init.TablePrefix, "message.to_id=to_user.id \n\nWHERE ").concat(_db.DB.Init.TablePrefix, "message.from_id=$1 AND (").concat(_db.DB.Init.TablePrefix, "message.to_id, ").concat(_db.DB.Init.TablePrefix, "message.create_date) in (\nSELECT to_id, max(create_date)\nFROM ").concat(_db.DB.Init.TablePrefix, "message \nWHERE from_id=$1\nGROUP BY to_id)");
                 sql += " LIMIT $2 OFFSET $3 ";
                 _context3.next = 5;
                 return _db.DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset]);
@@ -159,7 +161,7 @@ var _default = /*#__PURE__*/function () {
               case 5:
                 outMes = _context3.sent;
                 //ВХОДЯЩИЕ
-                sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "message.*,\n\nfrom_user.login as from_user_login,\nfrom_user.photo as from_user_photo,\nfrom_user.gender as from_user_gender,\nfrom_user.first_name as from_user_first_name,\n\nto_user.login as to_user_login,\nto_user.personal_photo as to_user_photo,\nto_user.personal_gender as to_user_gender,\nto_user.name as to_user_first_name\n\nFROM ").concat(_db.DB.Init.TablePrefix, "message\nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS from_user ON ").concat(_db.DB.Init.TablePrefix, "message.from_id=from_user.id \nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS to_user ON ").concat(_db.DB.Init.TablePrefix, "message.to_id=to_user.id \n\nWHERE ").concat(_db.DB.Init.TablePrefix, "message.to_id=$1 AND (").concat(_db.DB.Init.TablePrefix, "message.from_id, ").concat(_db.DB.Init.TablePrefix, "message.create_date) in (\nSELECT from_id, max(create_date)\nFROM ").concat(_db.DB.Init.TablePrefix, "message \nWHERE to_id=$1\nGROUP BY from_id)");
+                sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "message.*,\n\nfrom_user.login as from_user_login,\nfrom_user.photo as from_user_photo,\nfrom_user.gender as from_user_gender,\nfrom_user.first_name as from_user_first_name,\n\nto_user.login as to_user_login,\nto_user.photo as to_user_photo,\nto_user.gender as to_user_gender,\nto_user.first_name as to_user_first_name\n\nFROM ").concat(_db.DB.Init.TablePrefix, "message\nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS from_user ON ").concat(_db.DB.Init.TablePrefix, "message.from_id=from_user.id \nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS to_user ON ").concat(_db.DB.Init.TablePrefix, "message.to_id=to_user.id \n\nWHERE ").concat(_db.DB.Init.TablePrefix, "message.to_id=$1 AND (").concat(_db.DB.Init.TablePrefix, "message.from_id, ").concat(_db.DB.Init.TablePrefix, "message.create_date) in (\nSELECT from_id, max(create_date)\nFROM ").concat(_db.DB.Init.TablePrefix, "message \nWHERE to_id=$1\nGROUP BY from_id)");
                 sql += " LIMIT $2 OFFSET $3 ";
                 _context3.next = 10;
                 return _db.DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset]);
@@ -187,14 +189,14 @@ var _default = /*#__PURE__*/function () {
 
                 messages = {}; //добавление новых полей
 
-                if (Number(result[i].from_user_id) === fields.from_id) {
-                  messages.user_id = Number(result[i].to_user_id);
+                if (Number(result[i].from_id) === fields.from_id) {
+                  messages.user_id = Number(result[i].to_id);
                   messages.user_first_name = result[i].to_user_first_name;
                   messages.user_photo = result[i].to_user_photo;
                   messages.user_gender = result[i].to_user_gender;
                   messages["in"] = false;
                 } else {
-                  messages.user_id = Number(result[i].from_user_id);
+                  messages.user_id = Number(result[i].from_id);
                   messages.user_first_name = result[i].from_user_first_name;
                   messages.user_photo = result[i].from_user_photo;
                   messages.user_gender = result[i].from_user_gender;
@@ -203,12 +205,12 @@ var _default = /*#__PURE__*/function () {
 
 
                 delete result[i].id;
-                delete result[i].from_user_id;
+                delete result[i].from_id;
                 delete result[i].from_user_login;
                 delete result[i].from_user_first_name;
                 delete result[i].from_user_photo;
                 delete result[i].from_user_gender;
-                delete result[i].to_user_id;
+                delete result[i].to_id;
                 delete result[i].to_user_login;
                 delete result[i].to_user_first_name;
                 delete result[i].to_user_photo;
@@ -288,7 +290,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.prev = 0;
-                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_user_id=").concat(fields.from_id, " AND to_user_id=").concat(fields.to_id, " AND id < ").concat(fields.start_message_id);
+                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_id=").concat(fields.from_id, " AND to_id=").concat(fields.to_id, " AND id < ").concat(fields.start_message_id);
                 console.log(sql);
                 _context4.next = 5;
                 return _db.DB.Init.Query(sql);
@@ -332,7 +334,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_user_id=").concat(fields.from_user_id, " AND id in (").concat(fields.message_ids, ")");
+                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_id=").concat(fields.from_id, " AND id in (").concat(fields.message_ids, ")");
                 _context5.next = 4;
                 return _db.DB.Init.Query(sql);
 

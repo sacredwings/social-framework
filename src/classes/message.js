@@ -28,9 +28,9 @@ from_user.gender as from_user_gender,
 from_user.first_name as from_user_first_name,
 
 to_user.login as to_user_login,
-to_user.personal_photo as to_user_photo,
-to_user.personal_gender as to_user_gender,
-to_user.name as to_user_first_name
+to_user.photo as to_user_photo,
+to_user.gender as to_user_gender,
+to_user.first_name as to_user_first_name
 
 FROM ${DB.Init.TablePrefix}message
 LEFT JOIN ${DB.Init.TablePrefix}user AS from_user ON ${DB.Init.TablePrefix}message.from_id=from_user.id 
@@ -38,7 +38,7 @@ LEFT JOIN ${DB.Init.TablePrefix}user AS to_user ON ${DB.Init.TablePrefix}message
 WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
             sql += ` LIMIT $3 OFFSET $4 `
 
-            let result = await DB.Init.Query(sql, [fields.owner_id, fields.user_id, fields.count, fields.offset])
+            let result = await DB.Init.Query(sql, [fields.from_id, fields.to_id, fields.count, fields.offset])
 
             let arMessages = [] //массив сообщений уникальных пользователей
 
@@ -49,20 +49,23 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
                 let messages = {}
 
                 //добавление новых полей
-                if (Number (result[i].from_id) === fields.owner_id) {
-                    messages.user_id = Number (result[i].to_user_id)
+                if (Number (result[i].from_id) === fields.from_id) {
+                    messages.user_id = Number (result[i].to_id)
                     messages.user_first_name = result[i].to_user_first_name
                     messages.in = false
                 } else {
-                    messages.user_id = Number (result[i].from_user_id)
+                    messages.user_id = Number (result[i].from_id)
                     messages.user_first_name = result[i].from_user_first_name
                     messages.in = true
                 }
 
+                messages.from_id = Number(result[i].from_id)
+                messages.to_id = Number(result[i].to_id)
+
                 //удаление не актуальных полей
-                delete result[i].id
-                delete result[i].from_user_id
-                delete result[i].to_user_id
+                //delete result[i].id
+                //delete result[i].from_id
+                //delete result[i].to_id
 
                 arMessages.push({...result[i], ...messages})
 
@@ -87,9 +90,9 @@ from_user.gender as from_user_gender,
 from_user.first_name as from_user_first_name,
 
 to_user.login as to_user_login,
-to_user.personal_photo as to_user_photo,
-to_user.personal_gender as to_user_gender,
-to_user.name as to_user_first_name
+to_user.photo as to_user_photo,
+to_user.gender as to_user_gender,
+to_user.first_name as to_user_first_name
 
 FROM ${DB.Init.TablePrefix}message
 LEFT JOIN ${DB.Init.TablePrefix}user AS from_user ON ${DB.Init.TablePrefix}message.from_id=from_user.id 
@@ -113,9 +116,9 @@ from_user.gender as from_user_gender,
 from_user.first_name as from_user_first_name,
 
 to_user.login as to_user_login,
-to_user.personal_photo as to_user_photo,
-to_user.personal_gender as to_user_gender,
-to_user.name as to_user_first_name
+to_user.photo as to_user_photo,
+to_user.gender as to_user_gender,
+to_user.first_name as to_user_first_name
 
 FROM ${DB.Init.TablePrefix}message
 LEFT JOIN ${DB.Init.TablePrefix}user AS from_user ON ${DB.Init.TablePrefix}message.from_id=from_user.id 
@@ -145,14 +148,14 @@ GROUP BY from_id)`
                 let messages = {}
 
                 //добавление новых полей
-                if (Number (result[i].from_user_id) === fields.from_id) {
-                    messages.user_id = Number (result[i].to_user_id)
+                if (Number (result[i].from_id) === fields.from_id) {
+                    messages.user_id = Number (result[i].to_id)
                     messages.user_first_name = result[i].to_user_first_name
                     messages.user_photo = result[i].to_user_photo
                     messages.user_gender = result[i].to_user_gender
                     messages.in = false
                 } else {
-                    messages.user_id = Number (result[i].from_user_id)
+                    messages.user_id = Number (result[i].from_id)
                     messages.user_first_name = result[i].from_user_first_name
                     messages.user_photo = result[i].from_user_photo
                     messages.user_gender = result[i].from_user_gender
@@ -161,13 +164,13 @@ GROUP BY from_id)`
 
                 //удаление не актуальных полей
                 delete result[i].id
-                delete result[i].from_user_id
+                delete result[i].from_id
                 delete result[i].from_user_login
                 delete result[i].from_user_first_name
                 delete result[i].from_user_photo
                 delete result[i].from_user_gender
 
-                delete result[i].to_user_id
+                delete result[i].to_id
                 delete result[i].to_user_login
                 delete result[i].to_user_first_name
                 delete result[i].to_user_photo
@@ -200,7 +203,7 @@ GROUP BY from_id)`
     //добавить новое видео
     static async MarkAsReadAll( fields ) {
         try {
-            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_user_id=${fields.from_id} AND to_user_id=${fields.to_id} AND id < ${fields.start_message_id}`
+            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_id=${fields.from_id} AND to_id=${fields.to_id} AND id < ${fields.start_message_id}`
             console.log(sql)
             let result = await DB.Init.Query(sql)
 
@@ -213,7 +216,7 @@ GROUP BY from_id)`
     //добавить новое видео
     static async MarkAsRead( fields ) {
         try {
-            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_user_id=${fields.from_user_id} AND id in (${fields.message_ids})`
+            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_id=${fields.from_id} AND id in (${fields.message_ids})`
             let result = await DB.Init.Query(sql)
 
         } catch (err) {
