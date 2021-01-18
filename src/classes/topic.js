@@ -112,4 +112,75 @@ export default class {
             throw ({err: 6005000, msg: 'CTopic GetUsers'})
         }
     }
+
+    //поиск по обсуждениям
+    static async Search ( fields ) {
+        try {
+            let there = []
+
+            if (fields.q)
+                there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+
+            //запрос
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}topic `
+
+            //объединеие параметров запроса
+            if (there.length)
+                sql += `WHERE ` + there.join(' AND ')
+
+            sql += ` LIMIT $1 OFFSET $2`
+
+            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
+            console.log(sql)
+
+            result = await Promise.all(result.map(async (item, i) => {
+                if (item.from_id)
+                    item.from_id = Number (item.from_id);
+
+                if (item.owner_id)
+                    item.owner_id = Number (item.owner_id);
+
+                if (item.create_id)
+                    item.create_id = Number (item.create_id);
+
+                /* загрузка инфы о файле */
+                if (item.files)
+                    item.files = await CFile.GetById(item.files);
+
+                return item;
+            }));
+
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 7001000, msg: 'CGroup Search'})
+        }
+    }
+
+    //количество / поиск по обсуждениям
+    static async SearchCount ( fields ) {
+        try {
+            let there = []
+
+            if (fields.q)
+                there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+
+            //запрос
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}topic `
+
+            //объединеие параметров запроса
+            if (there.length)
+                sql += `WHERE ` + there.join(' AND ')
+
+            console.log(sql)
+            let result = await DB.Init.Query(sql)
+
+            return Number (result[0].count)
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 7001000, msg: 'CGroup SearchCount'})
+        }
+    }
 }

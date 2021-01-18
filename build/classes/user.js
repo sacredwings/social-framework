@@ -721,7 +721,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context12.t0);
                 throw {
                   err: 7001000,
-                  msg: 'CUser Search'
+                  msg: 'CUser SearchCount'
                 };
 
               case 16:

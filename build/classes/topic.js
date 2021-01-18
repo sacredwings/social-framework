@@ -330,6 +330,146 @@ var _default = /*#__PURE__*/function () {
       }
 
       return GetUsers;
+    }() //поиск по обсуждениям
+
+  }, {
+    key: "Search",
+    value: function () {
+      var _Search = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(fields) {
+        var there, sql, result;
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                _context9.prev = 0;
+                there = [];
+                if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
+                //запрос
+
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "topic "); //объединеие параметров запроса
+
+                if (there.length) sql += "WHERE " + there.join(' AND ');
+                sql += " LIMIT $1 OFFSET $2";
+                _context9.next = 8;
+                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
+
+              case 8:
+                result = _context9.sent;
+                console.log(sql);
+                _context9.next = 12;
+                return Promise.all(result.map( /*#__PURE__*/function () {
+                  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(item, i) {
+                    return regeneratorRuntime.wrap(function _callee8$(_context8) {
+                      while (1) {
+                        switch (_context8.prev = _context8.next) {
+                          case 0:
+                            if (item.from_id) item.from_id = Number(item.from_id);
+                            if (item.owner_id) item.owner_id = Number(item.owner_id);
+                            if (item.create_id) item.create_id = Number(item.create_id);
+                            /* загрузка инфы о файле */
+
+                            if (!item.files) {
+                              _context8.next = 7;
+                              break;
+                            }
+
+                            _context8.next = 6;
+                            return _file["default"].GetById(item.files);
+
+                          case 6:
+                            item.files = _context8.sent;
+
+                          case 7:
+                            return _context8.abrupt("return", item);
+
+                          case 8:
+                          case "end":
+                            return _context8.stop();
+                        }
+                      }
+                    }, _callee8);
+                  }));
+
+                  return function (_x11, _x12) {
+                    return _ref3.apply(this, arguments);
+                  };
+                }()));
+
+              case 12:
+                result = _context9.sent;
+                return _context9.abrupt("return", result);
+
+              case 16:
+                _context9.prev = 16;
+                _context9.t0 = _context9["catch"](0);
+                console.log(_context9.t0);
+                throw {
+                  err: 7001000,
+                  msg: 'CGroup Search'
+                };
+
+              case 20:
+              case "end":
+                return _context9.stop();
+            }
+          }
+        }, _callee9, null, [[0, 16]]);
+      }));
+
+      function Search(_x10) {
+        return _Search.apply(this, arguments);
+      }
+
+      return Search;
+    }() //количество / поиск по обсуждениям
+
+  }, {
+    key: "SearchCount",
+    value: function () {
+      var _SearchCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(fields) {
+        var there, sql, result;
+        return regeneratorRuntime.wrap(function _callee10$(_context10) {
+          while (1) {
+            switch (_context10.prev = _context10.next) {
+              case 0:
+                _context10.prev = 0;
+                there = [];
+                if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
+                //запрос
+
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "topic "); //объединеие параметров запроса
+
+                if (there.length) sql += "WHERE " + there.join(' AND ');
+                console.log(sql);
+                _context10.next = 8;
+                return _db.DB.Init.Query(sql);
+
+              case 8:
+                result = _context10.sent;
+                return _context10.abrupt("return", Number(result[0].count));
+
+              case 12:
+                _context10.prev = 12;
+                _context10.t0 = _context10["catch"](0);
+                console.log(_context10.t0);
+                throw {
+                  err: 7001000,
+                  msg: 'CGroup SearchCount'
+                };
+
+              case 16:
+              case "end":
+                return _context10.stop();
+            }
+          }
+        }, _callee10, null, [[0, 12]]);
+      }));
+
+      function SearchCount(_x13) {
+        return _SearchCount.apply(this, arguments);
+      }
+
+      return SearchCount;
     }()
   }]);
 

@@ -272,7 +272,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CUser Search'})
+            throw ({err: 7001000, msg: 'CUser SearchCount'})
         }
     }
 /*
