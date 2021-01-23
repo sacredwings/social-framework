@@ -33,7 +33,7 @@ var _default = /*#__PURE__*/function () {
     //Сохраняем новый вайл в таблицу файлов и сам файл
     value: function () {
       var _SaveFile = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields, savePath) {
-        var hash, type, url, arFields, result;
+        var file_buffer, hash, type, url, arFields, result;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -49,8 +49,10 @@ var _default = /*#__PURE__*/function () {
                 return this.Delete(fields.old_file, true);
 
               case 4:
-                //хеш размера и имени файла
-                hash = _crypto["default"].createHash('md5').update(fields.file.size + fields.file.name).digest("hex"); //вытаскиваем расширение
+                //содержимое файла
+                file_buffer = _fsExtra["default"].readFileSync(fields.file.path); //хеш размера и имени файла
+
+                hash = _crypto["default"].createHash('md5').update(file_buffer).digest("hex"); //вытаскиваем расширение
 
                 type = fields.file.type.split('/');
                 type = type[1];
@@ -58,10 +60,10 @@ var _default = /*#__PURE__*/function () {
 
                 savePath = "".concat(savePath, "files/").concat(fields.module_id, "/").concat(hash, ".").concat(type); //копирование файла в постоянную папку
 
-                _context.next = 11;
+                _context.next = 12;
                 return _fsExtra["default"].copy(fields.file.path, savePath);
 
-              case 11:
+              case 12:
                 //добавление записи о файле в таблицу
                 arFields = {
                   size: fields.file.size,
@@ -71,15 +73,15 @@ var _default = /*#__PURE__*/function () {
                   title: fields.title ? fields.title : fields.file.title,
                   create_id: fields.create_id
                 };
-                _context.next = 14;
+                _context.next = 15;
                 return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "file"), arFields, "id");
 
-              case 14:
+              case 15:
                 result = _context.sent;
                 return _context.abrupt("return", result[0].id);
 
-              case 18:
-                _context.prev = 18;
+              case 19:
+                _context.prev = 19;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
@@ -87,12 +89,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CFile SaveFile'
                 };
 
-              case 22:
+              case 23:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[0, 18]]);
+        }, _callee, this, [[0, 19]]);
       }));
 
       function SaveFile(_x, _x2) {

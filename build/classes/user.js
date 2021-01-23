@@ -470,7 +470,7 @@ var _default = /*#__PURE__*/function () {
                   email: fields.email,
                   password: fields.password,
                   gender: fields.gender,
-                  firs_name: fields.first_name,
+                  first_name: fields.first_name,
                   code: hash
                 };
                 _context8.next = 24;

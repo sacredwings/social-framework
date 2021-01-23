@@ -1,5 +1,7 @@
 import fs from "fs-extra";
 import crypto from "crypto";
+//import fs from "fs";
+
 import {DB} from "./db";
 
 export default class {
@@ -11,8 +13,11 @@ export default class {
             if (fields.old_file)
                 await this.Delete(fields.old_file, true)
 
+            //содержимое файла
+            let file_buffer = fs.readFileSync(fields.file.path);
+
             //хеш размера и имени файла
-            let hash = crypto.createHash('md5').update(fields.file.size + fields.file.name).digest("hex")
+            let hash = crypto.createHash('md5').update(file_buffer).digest("hex")
 
             //вытаскиваем расширение
             let type = fields.file.type.split('/');
