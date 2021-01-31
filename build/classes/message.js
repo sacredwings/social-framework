@@ -153,16 +153,18 @@ var _default = /*#__PURE__*/function () {
               case 0:
                 _context3.prev = 0;
                 //ИСХОДЯЩИЕ
-                sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "message.*,\n\nfrom_user.login as from_user_login,\nfrom_user.photo as from_user_photo,\nfrom_user.gender as from_user_gender,\nfrom_user.first_name as from_user_first_name,\n\nto_user.login as to_user_login,\nto_user.photo as to_user_photo,\nto_user.gender as to_user_gender,\nto_user.first_name as to_user_first_name\n\nFROM ").concat(_db.DB.Init.TablePrefix, "message\nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS from_user ON ").concat(_db.DB.Init.TablePrefix, "message.from_id=from_user.id \nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS to_user ON ").concat(_db.DB.Init.TablePrefix, "message.to_id=to_user.id \n\nWHERE ").concat(_db.DB.Init.TablePrefix, "message.from_id=$1 AND (").concat(_db.DB.Init.TablePrefix, "message.to_id, ").concat(_db.DB.Init.TablePrefix, "message.create_date) in (\nSELECT to_id, max(create_date)\nFROM ").concat(_db.DB.Init.TablePrefix, "message \nWHERE from_id=$1\nGROUP BY to_id)");
-                sql += " LIMIT $2 OFFSET $3 ";
+                sql = "SELECT *\nFROM ".concat(_db.DB.Init.TablePrefix, "message\nWHERE ").concat(_db.DB.Init.TablePrefix, "message.from_id=$1 AND (").concat(_db.DB.Init.TablePrefix, "message.to_id, ").concat(_db.DB.Init.TablePrefix, "message.create_date) in \n\n(SELECT to_id, max(create_date)\nFROM ").concat(_db.DB.Init.TablePrefix, "message \nWHERE from_id=$1\nGROUP BY to_id)");
+                sql += " LIMIT $2 OFFSET $3 "; //запрос
+
                 _context3.next = 5;
                 return _db.DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset]);
 
               case 5:
                 outMes = _context3.sent;
                 //ВХОДЯЩИЕ
-                sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "message.*,\n\nfrom_user.login as from_user_login,\nfrom_user.photo as from_user_photo,\nfrom_user.gender as from_user_gender,\nfrom_user.first_name as from_user_first_name,\n\nto_user.login as to_user_login,\nto_user.photo as to_user_photo,\nto_user.gender as to_user_gender,\nto_user.first_name as to_user_first_name\n\nFROM ").concat(_db.DB.Init.TablePrefix, "message\nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS from_user ON ").concat(_db.DB.Init.TablePrefix, "message.from_id=from_user.id \nLEFT JOIN ").concat(_db.DB.Init.TablePrefix, "user AS to_user ON ").concat(_db.DB.Init.TablePrefix, "message.to_id=to_user.id \n\nWHERE ").concat(_db.DB.Init.TablePrefix, "message.to_id=$1 AND (").concat(_db.DB.Init.TablePrefix, "message.from_id, ").concat(_db.DB.Init.TablePrefix, "message.create_date) in (\nSELECT from_id, max(create_date)\nFROM ").concat(_db.DB.Init.TablePrefix, "message \nWHERE to_id=$1\nGROUP BY from_id)");
-                sql += " LIMIT $2 OFFSET $3 ";
+                sql = "SELECT *\nFROM ".concat(_db.DB.Init.TablePrefix, "message\nWHERE ").concat(_db.DB.Init.TablePrefix, "message.to_id=$1 AND (").concat(_db.DB.Init.TablePrefix, "message.from_id, ").concat(_db.DB.Init.TablePrefix, "message.create_date) in \n\n(SELECT from_id, max(create_date)\nFROM ").concat(_db.DB.Init.TablePrefix, "message \nWHERE to_id=$1\nGROUP BY from_id)");
+                sql += " LIMIT $2 OFFSET $3 "; //запрос
+
                 _context3.next = 10;
                 return _db.DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset]);
 
@@ -180,7 +182,7 @@ var _default = /*#__PURE__*/function () {
 
               case 15:
                 if (!(i < result.length)) {
-                  _context3.next = 44;
+                  _context3.next = 39;
                   break;
                 }
 
@@ -191,73 +193,62 @@ var _default = /*#__PURE__*/function () {
 
                 if (Number(result[i].from_id) === fields.from_id) {
                   messages.user_id = Number(result[i].to_id);
-                  messages.user_first_name = result[i].to_user_first_name;
-                  messages.user_photo = result[i].to_user_photo;
-                  messages.user_gender = result[i].to_user_gender;
                   messages["in"] = false;
                 } else {
                   messages.user_id = Number(result[i].from_id);
-                  messages.user_first_name = result[i].from_user_first_name;
-                  messages.user_photo = result[i].from_user_photo;
-                  messages.user_gender = result[i].from_user_gender;
                   messages["in"] = true;
                 } //удаление не актуальных полей
 
 
                 delete result[i].id;
                 delete result[i].from_id;
-                delete result[i].from_user_login;
-                delete result[i].from_user_first_name;
-                delete result[i].from_user_photo;
-                delete result[i].from_user_gender;
                 delete result[i].to_id;
-                delete result[i].to_user_login;
-                delete result[i].to_user_first_name;
-                delete result[i].to_user_photo;
-                delete result[i].to_user_gender; //проходим по массиву еще раз и ищем такой же
+                delete result[i].delete_from;
+                delete result[i].delete_to;
+                delete result[i].important; //проходим по массиву еще раз и ищем такой же
 
                 j = 0;
 
-              case 31:
+              case 26:
                 if (!(j < arMessages.length)) {
-                  _context3.next = 38;
+                  _context3.next = 33;
                   break;
                 }
 
                 if (!(messages.user_id === arMessages[j].user_id)) {
-                  _context3.next = 35;
+                  _context3.next = 30;
                   break;
                 }
 
                 CheckContinue = true;
-                return _context3.abrupt("break", 38);
+                return _context3.abrupt("break", 33);
 
-              case 35:
+              case 30:
                 j++;
-                _context3.next = 31;
+                _context3.next = 26;
                 break;
 
-              case 38:
+              case 33:
                 if (!CheckContinue) {
-                  _context3.next = 40;
+                  _context3.next = 35;
                   break;
                 }
 
-                return _context3.abrupt("continue", 41);
+                return _context3.abrupt("continue", 36);
 
-              case 40:
+              case 35:
                 arMessages.push(_objectSpread(_objectSpread({}, result[i]), messages));
 
-              case 41:
+              case 36:
                 i++;
                 _context3.next = 15;
                 break;
 
-              case 44:
+              case 39:
                 return _context3.abrupt("return", arMessages);
 
-              case 47:
-                _context3.prev = 47;
+              case 42:
+                _context3.prev = 42;
                 _context3.t0 = _context3["catch"](0);
                 console.log(_context3.t0);
                 throw {
@@ -265,12 +256,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CMessage Get'
                 };
 
-              case 51:
+              case 46:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[0, 47]]);
+        }, _callee3, null, [[0, 42]]);
       }));
 
       function Get(_x3) {
@@ -278,35 +269,32 @@ var _default = /*#__PURE__*/function () {
       }
 
       return Get;
-    }() //добавить новое видео
-
+    }()
   }, {
-    key: "MarkAsReadAll",
+    key: "Count",
     value: function () {
-      var _MarkAsReadAll = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(fields) {
-        var sql, result;
+      var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(fields) {
+        var count;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.prev = 0;
-                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_id=").concat(fields.from_id, " AND to_id=").concat(fields.to_id, " AND id < ").concat(fields.start_message_id);
-                console.log(sql);
-                _context4.next = 5;
-                return _db.DB.Init.Query(sql);
+                count = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "message WHERE from_id=$1 OR to_id=$1 GROUP BY from_id");
+                _context4.next = 4;
+                return _db.DB.Init.Query(count, [fields.from_id]);
 
-              case 5:
-                result = _context4.sent;
-                _context4.next = 12;
-                break;
+              case 4:
+                count = _context4.sent;
+                return _context4.abrupt("return", count.length);
 
               case 8:
                 _context4.prev = 8;
                 _context4.t0 = _context4["catch"](0);
                 console.log(_context4.t0);
                 throw {
-                  err: 5004000,
-                  msg: 'CMessage MarkAsReadAll'
+                  err: 5003000,
+                  msg: 'CMessage Count'
                 };
 
               case 12:
@@ -317,7 +305,108 @@ var _default = /*#__PURE__*/function () {
         }, _callee4, null, [[0, 8]]);
       }));
 
-      function MarkAsReadAll(_x4) {
+      function Count(_x4) {
+        return _Count.apply(this, arguments);
+      }
+
+      return Count;
+    }() //пользователи
+
+  }, {
+    key: "GetUsers",
+    value: function () {
+      var _GetUsers = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(items) {
+        var arUsersId, sql, users;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.prev = 0;
+
+                if (!(!items || !items.length)) {
+                  _context5.next = 3;
+                  break;
+                }
+
+                return _context5.abrupt("return", []);
+
+              case 3:
+                /* выгрузка индентификаторов из объектов / пользователей */
+                arUsersId = items.map(function (item, i) {
+                  return item.user_id;
+                }); //удаление одинаковых id из массива
+
+                arUsersId = Array.from(new Set(arUsersId));
+                sql = "SELECT id,login,first_name,create_date,birthday FROM ".concat(_db.DB.Init.TablePrefix, "user WHERE id in (").concat(arUsersId, ")");
+                _context5.next = 8;
+                return _db.DB.Init.Query(sql);
+
+              case 8:
+                users = _context5.sent;
+                return _context5.abrupt("return", users);
+
+              case 12:
+                _context5.prev = 12;
+                _context5.t0 = _context5["catch"](0);
+                console.log(_context5.t0);
+                throw {
+                  err: 8001000,
+                  msg: 'CMessage GetUsers'
+                };
+
+              case 16:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, null, [[0, 12]]);
+      }));
+
+      function GetUsers(_x5) {
+        return _GetUsers.apply(this, arguments);
+      }
+
+      return GetUsers;
+    }() //добавить новое видео
+
+  }, {
+    key: "MarkAsReadAll",
+    value: function () {
+      var _MarkAsReadAll = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(fields) {
+        var sql, result;
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                _context6.prev = 0;
+                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_id=").concat(fields.from_id, " AND to_id=").concat(fields.to_id, " AND id < ").concat(fields.start_message_id);
+                console.log(sql);
+                _context6.next = 5;
+                return _db.DB.Init.Query(sql);
+
+              case 5:
+                result = _context6.sent;
+                _context6.next = 12;
+                break;
+
+              case 8:
+                _context6.prev = 8;
+                _context6.t0 = _context6["catch"](0);
+                console.log(_context6.t0);
+                throw {
+                  err: 5004000,
+                  msg: 'CMessage MarkAsReadAll'
+                };
+
+              case 12:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, _callee6, null, [[0, 8]]);
+      }));
+
+      function MarkAsReadAll(_x6) {
         return _MarkAsReadAll.apply(this, arguments);
       }
 
@@ -327,26 +416,26 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "MarkAsRead",
     value: function () {
-      var _MarkAsRead = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(fields) {
+      var _MarkAsRead = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(fields) {
         var sql, result;
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context7.prev = _context7.next) {
               case 0:
-                _context5.prev = 0;
+                _context7.prev = 0;
                 sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_id=").concat(fields.from_id, " AND id in (").concat(fields.message_ids, ")");
-                _context5.next = 4;
+                _context7.next = 4;
                 return _db.DB.Init.Query(sql);
 
               case 4:
-                result = _context5.sent;
-                _context5.next = 11;
+                result = _context7.sent;
+                _context7.next = 11;
                 break;
 
               case 7:
-                _context5.prev = 7;
-                _context5.t0 = _context5["catch"](0);
-                console.log(_context5.t0);
+                _context7.prev = 7;
+                _context7.t0 = _context7["catch"](0);
+                console.log(_context7.t0);
                 throw {
                   err: 5005000,
                   msg: 'CMessage Add'
@@ -354,13 +443,13 @@ var _default = /*#__PURE__*/function () {
 
               case 11:
               case "end":
-                return _context5.stop();
+                return _context7.stop();
             }
           }
-        }, _callee5, null, [[0, 7]]);
+        }, _callee7, null, [[0, 7]]);
       }));
 
-      function MarkAsRead(_x5) {
+      function MarkAsRead(_x7) {
         return _MarkAsRead.apply(this, arguments);
       }
 

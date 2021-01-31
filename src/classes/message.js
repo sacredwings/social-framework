@@ -82,55 +82,31 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
         try {
 
             //ИСХОДЯЩИЕ
-            let sql = `SELECT ${DB.Init.TablePrefix}message.*,
-
-from_user.login as from_user_login,
-from_user.photo as from_user_photo,
-from_user.gender as from_user_gender,
-from_user.first_name as from_user_first_name,
-
-to_user.login as to_user_login,
-to_user.photo as to_user_photo,
-to_user.gender as to_user_gender,
-to_user.first_name as to_user_first_name
-
+            let sql = `SELECT *
 FROM ${DB.Init.TablePrefix}message
-LEFT JOIN ${DB.Init.TablePrefix}user AS from_user ON ${DB.Init.TablePrefix}message.from_id=from_user.id 
-LEFT JOIN ${DB.Init.TablePrefix}user AS to_user ON ${DB.Init.TablePrefix}message.to_id=to_user.id 
+WHERE ${DB.Init.TablePrefix}message.from_id=$1 AND (${DB.Init.TablePrefix}message.to_id, ${DB.Init.TablePrefix}message.create_date) in 
 
-WHERE ${DB.Init.TablePrefix}message.from_id=$1 AND (${DB.Init.TablePrefix}message.to_id, ${DB.Init.TablePrefix}message.create_date) in (
-SELECT to_id, max(create_date)
+(SELECT to_id, max(create_date)
 FROM ${DB.Init.TablePrefix}message 
 WHERE from_id=$1
 GROUP BY to_id)`
             sql += ` LIMIT $2 OFFSET $3 `
 
+            //запрос
             let outMes = await DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset])
 
             //ВХОДЯЩИЕ
-            sql = `SELECT ${DB.Init.TablePrefix}message.*,
-
-from_user.login as from_user_login,
-from_user.photo as from_user_photo,
-from_user.gender as from_user_gender,
-from_user.first_name as from_user_first_name,
-
-to_user.login as to_user_login,
-to_user.photo as to_user_photo,
-to_user.gender as to_user_gender,
-to_user.first_name as to_user_first_name
-
+            sql = `SELECT *
 FROM ${DB.Init.TablePrefix}message
-LEFT JOIN ${DB.Init.TablePrefix}user AS from_user ON ${DB.Init.TablePrefix}message.from_id=from_user.id 
-LEFT JOIN ${DB.Init.TablePrefix}user AS to_user ON ${DB.Init.TablePrefix}message.to_id=to_user.id 
+WHERE ${DB.Init.TablePrefix}message.to_id=$1 AND (${DB.Init.TablePrefix}message.from_id, ${DB.Init.TablePrefix}message.create_date) in 
 
-WHERE ${DB.Init.TablePrefix}message.to_id=$1 AND (${DB.Init.TablePrefix}message.from_id, ${DB.Init.TablePrefix}message.create_date) in (
-SELECT from_id, max(create_date)
+(SELECT from_id, max(create_date)
 FROM ${DB.Init.TablePrefix}message 
 WHERE to_id=$1
 GROUP BY from_id)`
             sql += ` LIMIT $2 OFFSET $3 `
 
+            //запрос
             let inMes = await DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset])
 
             //объединение входящих и исходящих сообщений
@@ -150,31 +126,19 @@ GROUP BY from_id)`
                 //добавление новых полей
                 if (Number (result[i].from_id) === fields.from_id) {
                     messages.user_id = Number (result[i].to_id)
-                    messages.user_first_name = result[i].to_user_first_name
-                    messages.user_photo = result[i].to_user_photo
-                    messages.user_gender = result[i].to_user_gender
                     messages.in = false
                 } else {
                     messages.user_id = Number (result[i].from_id)
-                    messages.user_first_name = result[i].from_user_first_name
-                    messages.user_photo = result[i].from_user_photo
-                    messages.user_gender = result[i].from_user_gender
                     messages.in = true
                 }
 
                 //удаление не актуальных полей
                 delete result[i].id
                 delete result[i].from_id
-                delete result[i].from_user_login
-                delete result[i].from_user_first_name
-                delete result[i].from_user_photo
-                delete result[i].from_user_gender
-
                 delete result[i].to_id
-                delete result[i].to_user_login
-                delete result[i].to_user_first_name
-                delete result[i].to_user_photo
-                delete result[i].to_user_gender
+                delete result[i].delete_from
+                delete result[i].delete_to
+                delete result[i].important
 
                 //проходим по массиву еще раз и ищем такой же
                 for (let j=0; j < arMessages.length; j++) {
@@ -197,6 +161,47 @@ GROUP BY from_id)`
         } catch (err) {
             console.log(err)
             throw ({err: 5003000, msg: 'CMessage Get'})
+        }
+    }
+
+    static async Count ( fields ) {
+        try {
+            let count = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}message WHERE from_id=$1 OR to_id=$1 GROUP BY from_id`
+            count = await DB.Init.Query(count, [fields.from_id])
+
+            return count.length;
+
+            //let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}message WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 5003000, msg: 'CMessage Count'})
+        }
+    }
+
+    //пользователи
+    static async GetUsers ( items ) {
+        try {
+
+            //нет массива для обработки
+            if ((!items) || (!items.length))
+                return []
+
+            /* выгрузка индентификаторов из объектов / пользователей */
+            let arUsersId = items.map((item, i) => {
+                return item.user_id
+            })
+
+            //удаление одинаковых id из массива
+            arUsersId = Array.from(new Set(arUsersId))
+
+            let sql = `SELECT id,login,first_name,create_date,birthday FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsersId})`
+            let users = await DB.Init.Query(sql)
+            return users
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CMessage GetUsers'})
         }
     }
 
