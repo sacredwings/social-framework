@@ -18,7 +18,7 @@ export default class {
     static async Get ( fields ) {
         try {
 
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}comment WHERE module=$1 AND object_id=$2 `
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}comment WHERE module=$1 AND object_id=$2 ORDER BY id DESC`
             sql += ` LIMIT $3 OFFSET $4 `
 
             let result = await DB.Init.Query(sql, [fields.module, fields.object_id, fields.count, fields.offset])

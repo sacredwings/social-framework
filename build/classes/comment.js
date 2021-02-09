@@ -78,7 +78,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context3.prev = _context3.next) {
               case 0:
                 _context3.prev = 0;
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "comment WHERE module=$1 AND object_id=$2 ");
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "comment WHERE module=$1 AND object_id=$2 ORDER BY id DESC");
                 sql += " LIMIT $3 OFFSET $4 ";
                 _context3.next = 5;
                 return _db.DB.Init.Query(sql, [fields.module, fields.object_id, fields.count, fields.offset]);
