@@ -128,8 +128,17 @@ export default class {
             //удаление одинаковых id из массива
             arUsersId = Array.from(new Set(arUsersId))
 
-            let sql = `SELECT id,login,first_name,create_date,birthday FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsersId})`
+            let sql = `SELECT id,login,first_name,create_date,birthday,photo FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsersId})`
             let users = await DB.Init.Query(sql)
+
+            users = await Promise.all(users.map(async (user, i)=>{
+                if (user.photo) {
+                    user.photo = await CFile.GetById([user.photo]);
+                    user.photo = user.photo[0]
+                }
+                return user
+            }))
+
             return users
 
         } catch (err) {
