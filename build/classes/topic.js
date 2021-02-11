@@ -28,8 +28,8 @@ var _default = /*#__PURE__*/function () {
 
   _createClass(_default, null, [{
     key: "Add",
-    //новая тема для обсуждений
-    value: function () {
+    value: //новая тема для обсуждений
+    function () {
       var _Add = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields) {
         var result;
         return regeneratorRuntime.wrap(function _callee$(_context) {

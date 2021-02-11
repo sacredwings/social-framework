@@ -30,8 +30,8 @@ var _default = /*#__PURE__*/function () {
 
   _createClass(_default, null, [{
     key: "SaveFile",
-    //Сохраняем новый вайл в таблицу файлов и сам файл
-    value: function () {
+    value: //Сохраняем новый вайл в таблицу файлов и сам файл
+    function () {
       var _SaveFile = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields, savePath) {
         var file_buffer, hash, type, url, arFields, result;
         return regeneratorRuntime.wrap(function _callee$(_context) {

@@ -28,8 +28,8 @@ var _default = /*#__PURE__*/function () {
 
   _createClass(_default, null, [{
     key: "Add",
-    //добавить новую группу
-    value: function () {
+    value: //добавить новую группу
+    function () {
       var _Add = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields) {
         var result;
         return regeneratorRuntime.wrap(function _callee$(_context) {

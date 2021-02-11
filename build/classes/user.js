@@ -38,8 +38,8 @@ var _default = /*#__PURE__*/function () {
 
   _createClass(_default, null, [{
     key: "AddNoReg",
-    //добавить незарегистрированного пользователя
-    value: function () {
+    value: //добавить незарегистрированного пользователя
+    function () {
       var _AddNoReg = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields) {
         var result;
         return regeneratorRuntime.wrap(function _callee$(_context) {
