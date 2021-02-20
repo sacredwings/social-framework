@@ -184,7 +184,7 @@ CREATE TABLE sf_video (
     title           character varying (255) NOT NULL, /* название видео */
     text            text, /* текст */
     file            bigint NOT NULL, /* id файла */
-    image_id        bigint, /* id файла */
+    file_preview    bigint, /* id файла */
 
     /* о создании */
     create_id       bigint NOT NULL, /* кто создал */
