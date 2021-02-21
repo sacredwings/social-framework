@@ -49,6 +49,11 @@ export default class {
                     item.file = item.file[0]
                 }
 
+                if (item.file_preview) {
+                    item.file_preview = await CFile.GetById([item.file_preview]);
+                    item.file_preview = item.file_preview[0]
+                }
+
                 return item;
             }));
 
@@ -79,6 +84,11 @@ export default class {
                 if (item.file) {
                     item.file = await CFile.GetById([item.file]);
                     item.file = item.file[0]
+                }
+
+                if (item.file_preview) {
+                    item.file_preview = await CFile.GetById([item.file_preview]);
+                    item.file_preview = item.file_preview[0]
                 }
 
                 return item;

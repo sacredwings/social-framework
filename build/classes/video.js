@@ -136,9 +136,22 @@ var _default = /*#__PURE__*/function () {
                             item.file = item.file[0];
 
                           case 5:
+                            if (!item.file_preview) {
+                              _context3.next = 10;
+                              break;
+                            }
+
+                            _context3.next = 8;
+                            return _file["default"].GetById([item.file_preview]);
+
+                          case 8:
+                            item.file_preview = _context3.sent;
+                            item.file_preview = item.file_preview[0];
+
+                          case 10:
                             return _context3.abrupt("return", item);
 
-                          case 6:
+                          case 11:
                           case "end":
                             return _context3.stop();
                         }
@@ -219,9 +232,22 @@ var _default = /*#__PURE__*/function () {
                             item.file = item.file[0];
 
                           case 5:
+                            if (!item.file_preview) {
+                              _context5.next = 10;
+                              break;
+                            }
+
+                            _context5.next = 8;
+                            return _file["default"].GetById([item.file_preview]);
+
+                          case 8:
+                            item.file_preview = _context5.sent;
+                            item.file_preview = item.file_preview[0];
+
+                          case 10:
                             return _context5.abrupt("return", item);
 
-                          case 6:
+                          case 11:
                           case "end":
                             return _context5.stop();
                         }
