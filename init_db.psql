@@ -191,6 +191,22 @@ CREATE TABLE sf_video (
     create_date     timestamp with time zone DEFAULT NOW()
 );
 
+/* СТЕНА */
+/* видео */
+CREATE TABLE sf_wall (
+    id	            serial primary key,
+
+    from_id         bigint NOT NULL, /* от кого */
+    owner_id        bigint NOT NULL, /* где */
+
+    text            text, /* текст */
+    files           jsonb, /* массив id файлов */
+
+    /* о создании */
+    create_id       bigint NOT NULL, /* кто создал */
+    create_date     timestamp with time zone DEFAULT NOW()
+);
+
 /* ФОРУМ */
 /* обсуждения */
 CREATE TABLE sf_topic (
