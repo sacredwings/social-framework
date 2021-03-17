@@ -106,9 +106,11 @@ var _default = /*#__PURE__*/function () {
                             item.files = _context2.sent;
 
                           case 4:
+                            if (item.from_id) item.from_id = Number(item.from_id);
+                            if (item.owner_id) item.owner_id = Number(item.owner_id);
                             return _context2.abrupt("return", item);
 
-                          case 5:
+                          case 7:
                           case "end":
                             return _context2.stop();
                         }
@@ -123,7 +125,7 @@ var _default = /*#__PURE__*/function () {
 
               case 7:
                 result = _context3.sent;
-                return _context3.abrupt("return", result);
+                return _context3.abrupt("return", result[0]);
 
               case 11:
                 _context3.prev = 11;
@@ -507,6 +509,47 @@ var _default = /*#__PURE__*/function () {
       }
 
       return SearchCount;
+    }() //количество / поиск по обсуждениям
+
+  }, {
+    key: "Delete",
+    value: function () {
+      var _Delete = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(id) {
+        var result;
+        return regeneratorRuntime.wrap(function _callee12$(_context12) {
+          while (1) {
+            switch (_context12.prev = _context12.next) {
+              case 0:
+                _context12.prev = 0;
+                _context12.next = 3;
+                return _db.DB.Init.Query("DELETE FROM sf_wall WHERE id = ".concat(id));
+
+              case 3:
+                result = _context12.sent;
+                return _context12.abrupt("return", true);
+
+              case 7:
+                _context12.prev = 7;
+                _context12.t0 = _context12["catch"](0);
+                console.log(_context12.t0);
+                throw {
+                  err: 7001000,
+                  msg: 'CWall Delete'
+                };
+
+              case 11:
+              case "end":
+                return _context12.stop();
+            }
+          }
+        }, _callee12, null, [[0, 7]]);
+      }));
+
+      function Delete(_x16) {
+        return _Delete.apply(this, arguments);
+      }
+
+      return Delete;
     }()
   }]);
 

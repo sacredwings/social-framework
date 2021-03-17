@@ -30,10 +30,16 @@ export default class {
                 if (item.files)
                     item.files = await CFile.GetById(item.files);
 
+                if (item.from_id)
+                    item.from_id = Number (item.from_id);
+
+                if (item.owner_id)
+                    item.owner_id = Number (item.owner_id);
+
                 return item;
             }));
 
-            return result
+            return result[0]
 
         } catch (err) {
             console.log(err)
@@ -189,6 +195,19 @@ export default class {
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CWall SearchCount'})
+        }
+    }
+
+    //количество / поиск по обсуждениям
+    static async Delete ( id ) {
+        try {
+            //запись
+            let result = await DB.Init.Query(`DELETE FROM sf_wall WHERE id = ${id}`)
+            return true
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 7001000, msg: 'CWall Delete'})
         }
     }
 }
