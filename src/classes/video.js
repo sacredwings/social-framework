@@ -4,35 +4,26 @@ import CFile from "./file";
 export default class {
 
     //добавить новое видео
-    static async Add ( fields ) {
+    static async InAlbum ( fields ) {
         try {
-            //если владелец не указан
-            if (!fields.owner_id) fields.owner_id = fields.from_id
+            // сделать проверку, что файл и альбом твои
 
-            let albums = fields.albums
+            //раскидываем файл по альбомам
+            fields.album_ids.map(async (item, i)=>{
+                let arFields = {
+                    album_id: item,
+                    file_id: fields.file_id,
 
-            //удаляем из массива
-            if ((fields.albums) || (fields.albums === null))
-                delete  fields.albums
-
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}video`, fields, `ID`)
-
-            if ((albums) && (albums.length))
-                albums.map(async (item, i)=>{
-                    let arFields = {
-                        album_id: item,
-                        object_id: result[0].id,
-
-                        create_id: fields.create_id
-                    }
-                    await DB.Init.Insert(`${DB.Init.TablePrefix}album_link`, arFields, `ID`)
-                })
+                    create_id: fields.create_id
+                }
+                await DB.Init.Insert(`${DB.Init.TablePrefix}album_link`, arFields, `ID`)
+            })
 
             return result[0]
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CVideo Add'})
+            throw ({err: 8001000, msg: 'CVideo InAlbum'})
         }
     }
 

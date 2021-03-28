@@ -16,17 +16,18 @@ export default class {
             //содержимое файла
             let file_buffer = fs.readFileSync(fields.file.path);
 
-            //хеш размера и имени файла
+            //хеш содержимого
             let hash = crypto.createHash('md5').update(file_buffer).digest("hex")
 
             //вытаскиваем расширение
             let type = fields.file.type.split('/');
             type = type[1]
 
-            let url = `files/${fields.module_id}/${hash}.${type}`
+            //url путь к файлу
+            let url = `files/${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.${type}`
 
-            //к основному пути прибавляем путь к модулю
-            savePath = `${savePath}files/${fields.module_id}/${hash}.${type}`
+            //полный путь к файлу
+            savePath = `${savePath}${url}`
 
             //копирование файла в постоянную папку
             await fs.copy(fields.file.path, savePath)
@@ -39,7 +40,14 @@ export default class {
                 type: fields.file.type,
                 url: url,
 
+                from_id: fields.from_id,
+                owner_id: fields.owner_id,
+
+                file_id: fields.file_id,
+
                 title: (fields.title) ? fields.title : fields.file.title,
+                text: fields.text,
+
                 create_id: fields.create_id
             }
 
@@ -62,6 +70,16 @@ export default class {
             ids = ids.join(',');
 
             let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids})`)
+
+            result = await Promise.all(result.map(async (item, i) => {
+
+                /* загрузка инфы о файле */
+                if (item.file_id)
+                    item.file_id = await this.GetById(item.file_id);
+
+                return item;
+            }));
+
             return result;
 
         } catch (err) {

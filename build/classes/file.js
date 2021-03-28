@@ -50,15 +50,16 @@ var _default = /*#__PURE__*/function () {
 
               case 4:
                 //содержимое файла
-                file_buffer = _fsExtra["default"].readFileSync(fields.file.path); //хеш размера и имени файла
+                file_buffer = _fsExtra["default"].readFileSync(fields.file.path); //хеш содержимого
 
                 hash = _crypto["default"].createHash('md5').update(file_buffer).digest("hex"); //вытаскиваем расширение
 
                 type = fields.file.type.split('/');
-                type = type[1];
-                url = "files/".concat(fields.module_id, "/").concat(hash, ".").concat(type); //к основному пути прибавляем путь к модулю
+                type = type[1]; //url путь к файлу
 
-                savePath = "".concat(savePath, "files/").concat(fields.module_id, "/").concat(hash, ".").concat(type); //копирование файла в постоянную папку
+                url = "files/".concat(hash[0]).concat(hash[1], "/").concat(hash[2]).concat(hash[3], "/").concat(hash, ".").concat(type); //полный путь к файлу
+
+                savePath = "".concat(savePath).concat(url); //копирование файла в постоянную папку
 
                 _context.next = 12;
                 return _fsExtra["default"].copy(fields.file.path, savePath);
@@ -70,7 +71,11 @@ var _default = /*#__PURE__*/function () {
                   path: savePath,
                   type: fields.file.type,
                   url: url,
+                  from_id: fields.from_id,
+                  owner_id: fields.owner_id,
+                  file_id: fields.file_id,
                   title: fields.title ? fields.title : fields.file.title,
+                  text: fields.text,
                   create_id: fields.create_id
                 };
                 _context.next = 15;
@@ -107,45 +112,83 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetById",
     value: function () {
-      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(ids) {
+      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(ids) {
+        var _this = this;
+
         var result;
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
-                _context2.prev = 0;
+                _context3.prev = 0;
 
                 if (ids) {
-                  _context2.next = 3;
+                  _context3.next = 3;
                   break;
                 }
 
-                return _context2.abrupt("return", false);
+                return _context3.abrupt("return", false);
 
               case 3:
                 ids = ids.join(',');
-                _context2.next = 6;
+                _context3.next = 6;
                 return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE id in (").concat(ids, ")"));
 
               case 6:
-                result = _context2.sent;
-                return _context2.abrupt("return", result);
+                result = _context3.sent;
+                _context3.next = 9;
+                return Promise.all(result.map( /*#__PURE__*/function () {
+                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(item, i) {
+                    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                      while (1) {
+                        switch (_context2.prev = _context2.next) {
+                          case 0:
+                            if (!item.file_id) {
+                              _context2.next = 4;
+                              break;
+                            }
 
-              case 10:
-                _context2.prev = 10;
-                _context2.t0 = _context2["catch"](0);
-                console.log(_context2.t0);
+                            _context2.next = 3;
+                            return _this.GetById(item.file_id);
+
+                          case 3:
+                            item.file_id = _context2.sent;
+
+                          case 4:
+                            return _context2.abrupt("return", item);
+
+                          case 5:
+                          case "end":
+                            return _context2.stop();
+                        }
+                      }
+                    }, _callee2);
+                  }));
+
+                  return function (_x4, _x5) {
+                    return _ref.apply(this, arguments);
+                  };
+                }()));
+
+              case 9:
+                result = _context3.sent;
+                return _context3.abrupt("return", result);
+
+              case 13:
+                _context3.prev = 13;
+                _context3.t0 = _context3["catch"](0);
+                console.log(_context3.t0);
                 throw {
                   err: 3002000,
                   msg: 'CFile GetById'
                 };
 
-              case 14:
+              case 17:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, null, [[0, 10]]);
+        }, _callee3, null, [[0, 13]]);
       }));
 
       function GetById(_x3) {
@@ -158,52 +201,52 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Delete",
     value: function () {
-      var _Delete = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(id, deleteFile) {
+      var _Delete = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(id, deleteFile) {
         var _result, result;
 
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                _context3.prev = 0;
+                _context4.prev = 0;
 
                 if (!deleteFile) {
-                  _context3.next = 10;
+                  _context4.next = 10;
                   break;
                 }
 
-                _context3.next = 4;
+                _context4.next = 4;
                 return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE id=$1"), [id]);
 
               case 4:
-                _result = _context3.sent;
+                _result = _context4.sent;
 
                 if (_result[0]) {
-                  _context3.next = 7;
+                  _context4.next = 7;
                   break;
                 }
 
-                return _context3.abrupt("return", false);
+                return _context4.abrupt("return", false);
 
               case 7:
-                _context3.next = 9;
+                _context4.next = 9;
                 return _fsExtra["default"].remove("".concat(_result[0].path, "/").concat(_result[0].name));
 
               case 9:
-                _result = _context3.sent;
+                _result = _context4.sent;
 
               case 10:
-                _context3.next = 12;
+                _context4.next = 12;
                 return _db.DB.Init.Query("DELETE FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE id=$1"), [id]);
 
               case 12:
-                result = _context3.sent;
-                return _context3.abrupt("return", true);
+                result = _context4.sent;
+                return _context4.abrupt("return", true);
 
               case 16:
-                _context3.prev = 16;
-                _context3.t0 = _context3["catch"](0);
-                console.log(_context3.t0);
+                _context4.prev = 16;
+                _context4.t0 = _context4["catch"](0);
+                console.log(_context4.t0);
                 throw {
                   err: 3003000,
                   msg: 'CFile Delete'
@@ -211,13 +254,13 @@ var _default = /*#__PURE__*/function () {
 
               case 20:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, null, [[0, 16]]);
+        }, _callee4, null, [[0, 16]]);
       }));
 
-      function Delete(_x4, _x5) {
+      function Delete(_x6, _x7) {
         return _Delete.apply(this, arguments);
       }
 

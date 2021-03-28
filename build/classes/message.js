@@ -77,20 +77,20 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetByUserId",
     value: function () {
-      var _GetByUserId = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(fields) {
+      var _GetByUserId = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(fields) {
         var sql, result, arMessages, i, messages;
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
-                _context2.prev = 0;
+                _context3.prev = 0;
                 sql = "SELECT *\nFROM ".concat(_db.DB.Init.TablePrefix, "message\nWHERE ((from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)) AND delete_from IS NOT true ORDER BY id DESC");
                 sql += " LIMIT $3 OFFSET $4 ";
-                _context2.next = 5;
+                _context3.next = 5;
                 return _db.DB.Init.Query(sql, [fields.from_id, fields.to_id, fields.count, fields.offset]);
 
               case 5:
-                result = _context2.sent;
+                result = _context3.sent;
                 arMessages = []; //массив сообщений уникальных пользователей
                 //уникальность массива
 
@@ -115,23 +115,70 @@ var _default = /*#__PURE__*/function () {
                   arMessages.push(_objectSpread(_objectSpread({}, result[i]), messages));
                 }
 
-                return _context2.abrupt("return", arMessages);
+                _context3.next = 10;
+                return Promise.all(arMessages.map( /*#__PURE__*/function () {
+                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(item, i) {
+                    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                      while (1) {
+                        switch (_context2.prev = _context2.next) {
+                          case 0:
+                            if (!item.file_ids) {
+                              _context2.next = 8;
+                              break;
+                            }
 
-              case 11:
-                _context2.prev = 11;
-                _context2.t0 = _context2["catch"](0);
-                console.log(_context2.t0);
+                            _context2.next = 3;
+                            return _file["default"].GetById(item.file_ids);
+
+                          case 3:
+                            item.file_ids = _context2.sent;
+
+                            if (!item.file_ids.file_id) {
+                              _context2.next = 8;
+                              break;
+                            }
+
+                            _context2.next = 7;
+                            return _file["default"].GetById(item.file_ids.file_id);
+
+                          case 7:
+                            item.file_ids.file_id = _context2.sent;
+
+                          case 8:
+                            return _context2.abrupt("return", item);
+
+                          case 9:
+                          case "end":
+                            return _context2.stop();
+                        }
+                      }
+                    }, _callee2);
+                  }));
+
+                  return function (_x3, _x4) {
+                    return _ref.apply(this, arguments);
+                  };
+                }()));
+
+              case 10:
+                result = _context3.sent;
+                return _context3.abrupt("return", result);
+
+              case 14:
+                _context3.prev = 14;
+                _context3.t0 = _context3["catch"](0);
+                console.log(_context3.t0);
                 throw {
                   err: 5002000,
                   msg: 'CMessage GetByUserId'
                 };
 
-              case 15:
+              case 18:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, null, [[0, 11]]);
+        }, _callee3, null, [[0, 14]]);
       }));
 
       function GetByUserId(_x2) {
@@ -143,25 +190,25 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "CountGetByUserId",
     value: function () {
-      var _CountGetByUserId = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(fields) {
+      var _CountGetByUserId = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(fields) {
         var count;
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                _context3.prev = 0;
+                _context4.prev = 0;
                 count = "SELECT COUNT(*)\nFROM ".concat(_db.DB.Init.TablePrefix, "message\nWHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1) AND delete_from IS NOT true");
-                _context3.next = 4;
+                _context4.next = 4;
                 return _db.DB.Init.Query(count, [fields.from_id, fields.to_id]);
 
               case 4:
-                count = _context3.sent;
-                return _context3.abrupt("return", Number(count[0].count));
+                count = _context4.sent;
+                return _context4.abrupt("return", Number(count[0].count));
 
               case 8:
-                _context3.prev = 8;
-                _context3.t0 = _context3["catch"](0);
-                console.log(_context3.t0);
+                _context4.prev = 8;
+                _context4.t0 = _context4["catch"](0);
+                console.log(_context4.t0);
                 throw {
                   err: 5003000,
                   msg: 'CMessage CountGetByUserId'
@@ -169,13 +216,13 @@ var _default = /*#__PURE__*/function () {
 
               case 12:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, null, [[0, 8]]);
+        }, _callee4, null, [[0, 8]]);
       }));
 
-      function CountGetByUserId(_x3) {
+      function CountGetByUserId(_x5) {
         return _CountGetByUserId.apply(this, arguments);
       }
 
@@ -184,21 +231,21 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Get",
     value: function () {
-      var _Get = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(fields) {
+      var _Get = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(fields) {
         var sql, result, arMessages, CheckContinue, i, messages, j;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                _context4.prev = 0;
+                _context5.prev = 0;
                 sql = "\n            SELECT *\n            FROM\n            sf_message\n            WHERE (from_id, to_id, create_date) in\n\n            (SELECT from_id, to_id, max(create_date)\n            FROM sf_message\n            WHERE (from_id=$1 OR to_id=$1) AND delete_from IS NOT true \n            GROUP BY to_id, from_id) ORDER BY create_date DESC";
                 sql += " LIMIT $2 OFFSET $3 "; //запрос
 
-                _context4.next = 5;
+                _context5.next = 5;
                 return _db.DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset]);
 
               case 5:
-                result = _context4.sent;
+                result = _context5.sent;
                 //ОБЪЕДИНЕНИЕ ВХОДЯЩИХ и ИСХОДЯЩИХ сообщений
                 arMessages = []; //массив сообщений уникальных пользователей
 
@@ -209,7 +256,7 @@ var _default = /*#__PURE__*/function () {
 
               case 9:
                 if (!(i < result.length)) {
-                  _context4.next = 33;
+                  _context5.next = 33;
                   break;
                 }
 
@@ -238,46 +285,46 @@ var _default = /*#__PURE__*/function () {
 
               case 20:
                 if (!(j < arMessages.length)) {
-                  _context4.next = 27;
+                  _context5.next = 27;
                   break;
                 }
 
                 if (!(messages.user_id === arMessages[j].user_id)) {
-                  _context4.next = 24;
+                  _context5.next = 24;
                   break;
                 }
 
                 CheckContinue = true;
-                return _context4.abrupt("break", 27);
+                return _context5.abrupt("break", 27);
 
               case 24:
                 j++;
-                _context4.next = 20;
+                _context5.next = 20;
                 break;
 
               case 27:
                 if (!CheckContinue) {
-                  _context4.next = 29;
+                  _context5.next = 29;
                   break;
                 }
 
-                return _context4.abrupt("continue", 30);
+                return _context5.abrupt("continue", 30);
 
               case 29:
                 arMessages.push(_objectSpread(_objectSpread({}, result[i]), messages));
 
               case 30:
                 i++;
-                _context4.next = 9;
+                _context5.next = 9;
                 break;
 
               case 33:
-                return _context4.abrupt("return", arMessages);
+                return _context5.abrupt("return", arMessages);
 
               case 36:
-                _context4.prev = 36;
-                _context4.t0 = _context4["catch"](0);
-                console.log(_context4.t0);
+                _context5.prev = 36;
+                _context5.t0 = _context5["catch"](0);
+                console.log(_context5.t0);
                 throw {
                   err: 5003000,
                   msg: 'CMessage Get'
@@ -285,13 +332,13 @@ var _default = /*#__PURE__*/function () {
 
               case 40:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, null, [[0, 36]]);
+        }, _callee5, null, [[0, 36]]);
       }));
 
-      function Get(_x4) {
+      function Get(_x6) {
         return _Get.apply(this, arguments);
       }
 
@@ -300,26 +347,26 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Count",
     value: function () {
-      var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(fields) {
+      var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(fields) {
         var count;
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
-                _context5.prev = 0;
+                _context6.prev = 0;
                 //let count = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}message WHERE from_id=$1 OR to_id=$1 GROUP BY from_id`
                 count = "SELECT COUNT(*)\n            FROM sf_message\n            WHERE (from_id=$1 OR to_id=$1) AND delete_from IS NOT true\n            GROUP BY to_id, from_id";
-                _context5.next = 4;
+                _context6.next = 4;
                 return _db.DB.Init.Query(count, [fields.from_id]);
 
               case 4:
-                count = _context5.sent;
-                return _context5.abrupt("return", count.length);
+                count = _context6.sent;
+                return _context6.abrupt("return", count.length);
 
               case 8:
-                _context5.prev = 8;
-                _context5.t0 = _context5["catch"](0);
-                console.log(_context5.t0);
+                _context6.prev = 8;
+                _context6.t0 = _context6["catch"](0);
+                console.log(_context6.t0);
                 throw {
                   err: 5003000,
                   msg: 'CMessage Count'
@@ -327,13 +374,13 @@ var _default = /*#__PURE__*/function () {
 
               case 12:
               case "end":
-                return _context5.stop();
+                return _context6.stop();
             }
           }
-        }, _callee5, null, [[0, 8]]);
+        }, _callee6, null, [[0, 8]]);
       }));
 
-      function Count(_x5) {
+      function Count(_x7) {
         return _Count.apply(this, arguments);
       }
 
@@ -343,20 +390,20 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetUsers",
     value: function () {
-      var _GetUsers = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(items, all) {
+      var _GetUsers = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(items, all) {
         var arUsersIdAll, arUsersId, arUsers, sql;
-        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+        return regeneratorRuntime.wrap(function _callee8$(_context8) {
           while (1) {
-            switch (_context7.prev = _context7.next) {
+            switch (_context8.prev = _context8.next) {
               case 0:
-                _context7.prev = 0;
+                _context8.prev = 0;
 
                 if (!(!items || !items.length)) {
-                  _context7.next = 3;
+                  _context8.next = 3;
                   break;
                 }
 
-                return _context7.abrupt("return", []);
+                return _context8.abrupt("return", []);
 
               case 3:
                 arUsersIdAll = [];
@@ -376,54 +423,54 @@ var _default = /*#__PURE__*/function () {
                 }
 
                 sql = "SELECT id,login,first_name,create_date,birthday,photo FROM ".concat(_db.DB.Init.TablePrefix, "user WHERE id in (").concat(arUsers, ")");
-                _context7.next = 10;
+                _context8.next = 10;
                 return _db.DB.Init.Query(sql);
 
               case 10:
-                arUsers = _context7.sent;
-                _context7.next = 13;
+                arUsers = _context8.sent;
+                _context8.next = 13;
                 return Promise.all(arUsers.map( /*#__PURE__*/function () {
-                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(user, i) {
-                    return regeneratorRuntime.wrap(function _callee6$(_context6) {
+                  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(user, i) {
+                    return regeneratorRuntime.wrap(function _callee7$(_context7) {
                       while (1) {
-                        switch (_context6.prev = _context6.next) {
+                        switch (_context7.prev = _context7.next) {
                           case 0:
                             if (!user.photo) {
-                              _context6.next = 5;
+                              _context7.next = 5;
                               break;
                             }
 
-                            _context6.next = 3;
+                            _context7.next = 3;
                             return _file["default"].GetById([user.photo]);
 
                           case 3:
-                            user.photo = _context6.sent;
+                            user.photo = _context7.sent;
                             user.photo = user.photo[0];
 
                           case 5:
-                            return _context6.abrupt("return", user);
+                            return _context7.abrupt("return", user);
 
                           case 6:
                           case "end":
-                            return _context6.stop();
+                            return _context7.stop();
                         }
                       }
-                    }, _callee6);
+                    }, _callee7);
                   }));
 
-                  return function (_x8, _x9) {
-                    return _ref.apply(this, arguments);
+                  return function (_x10, _x11) {
+                    return _ref2.apply(this, arguments);
                   };
                 }()));
 
               case 13:
-                arUsers = _context7.sent;
-                return _context7.abrupt("return", arUsers);
+                arUsers = _context8.sent;
+                return _context8.abrupt("return", arUsers);
 
               case 17:
-                _context7.prev = 17;
-                _context7.t0 = _context7["catch"](0);
-                console.log(_context7.t0);
+                _context8.prev = 17;
+                _context8.t0 = _context8["catch"](0);
+                console.log(_context8.t0);
                 throw {
                   err: 8001000,
                   msg: 'CMessage GetUsers'
@@ -431,13 +478,13 @@ var _default = /*#__PURE__*/function () {
 
               case 21:
               case "end":
-                return _context7.stop();
+                return _context8.stop();
             }
           }
-        }, _callee7, null, [[0, 17]]);
+        }, _callee8, null, [[0, 17]]);
       }));
 
-      function GetUsers(_x6, _x7) {
+      function GetUsers(_x8, _x9) {
         return _GetUsers.apply(this, arguments);
       }
 
@@ -447,27 +494,27 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "MarkAsReadAll",
     value: function () {
-      var _MarkAsReadAll = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(fields) {
+      var _MarkAsReadAll = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(fields) {
         var sql, result;
-        return regeneratorRuntime.wrap(function _callee8$(_context8) {
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
           while (1) {
-            switch (_context8.prev = _context8.next) {
+            switch (_context9.prev = _context9.next) {
               case 0:
-                _context8.prev = 0;
+                _context9.prev = 0;
                 sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_id=").concat(fields.from_id, " AND to_id=").concat(fields.to_id, " AND id < ").concat(fields.start_message_id);
                 console.log(sql);
-                _context8.next = 5;
+                _context9.next = 5;
                 return _db.DB.Init.Query(sql);
 
               case 5:
-                result = _context8.sent;
-                _context8.next = 12;
+                result = _context9.sent;
+                _context9.next = 12;
                 break;
 
               case 8:
-                _context8.prev = 8;
-                _context8.t0 = _context8["catch"](0);
-                console.log(_context8.t0);
+                _context9.prev = 8;
+                _context9.t0 = _context9["catch"](0);
+                console.log(_context9.t0);
                 throw {
                   err: 5004000,
                   msg: 'CMessage MarkAsReadAll'
@@ -475,13 +522,13 @@ var _default = /*#__PURE__*/function () {
 
               case 12:
               case "end":
-                return _context8.stop();
+                return _context9.stop();
             }
           }
-        }, _callee8, null, [[0, 8]]);
+        }, _callee9, null, [[0, 8]]);
       }));
 
-      function MarkAsReadAll(_x10) {
+      function MarkAsReadAll(_x12) {
         return _MarkAsReadAll.apply(this, arguments);
       }
 
@@ -491,57 +538,14 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "MarkAsRead",
     value: function () {
-      var _MarkAsRead = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(fields) {
-        var sql, result;
-        return regeneratorRuntime.wrap(function _callee9$(_context9) {
-          while (1) {
-            switch (_context9.prev = _context9.next) {
-              case 0:
-                _context9.prev = 0;
-                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_id=").concat(fields.from_id, " AND id in (").concat(fields.message_ids, ")");
-                _context9.next = 4;
-                return _db.DB.Init.Query(sql);
-
-              case 4:
-                result = _context9.sent;
-                _context9.next = 11;
-                break;
-
-              case 7:
-                _context9.prev = 7;
-                _context9.t0 = _context9["catch"](0);
-                console.log(_context9.t0);
-                throw {
-                  err: 5005000,
-                  msg: 'CMessage Add'
-                };
-
-              case 11:
-              case "end":
-                return _context9.stop();
-            }
-          }
-        }, _callee9, null, [[0, 7]]);
-      }));
-
-      function MarkAsRead(_x11) {
-        return _MarkAsRead.apply(this, arguments);
-      }
-
-      return MarkAsRead;
-    }() //удалить все сообщения с пользователем
-
-  }, {
-    key: "DeleteAll",
-    value: function () {
-      var _DeleteAll = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(fields) {
+      var _MarkAsRead = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(fields) {
         var sql, result;
         return regeneratorRuntime.wrap(function _callee10$(_context10) {
           while (1) {
             switch (_context10.prev = _context10.next) {
               case 0:
                 _context10.prev = 0;
-                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET delete_from = true WHERE (from_id=").concat(fields.from_id, " AND to_id=").concat(fields.to_id, ") OR (to_id=").concat(fields.from_id, " AND from_id=").concat(fields.to_id, ")");
+                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET read = true WHERE from_id=").concat(fields.from_id, " AND id in (").concat(fields.message_ids, ")");
                 _context10.next = 4;
                 return _db.DB.Init.Query(sql);
 
@@ -556,7 +560,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context10.t0);
                 throw {
                   err: 5005000,
-                  msg: 'CMessage DeleteAll'
+                  msg: 'CMessage Add'
                 };
 
               case 11:
@@ -567,7 +571,50 @@ var _default = /*#__PURE__*/function () {
         }, _callee10, null, [[0, 7]]);
       }));
 
-      function DeleteAll(_x12) {
+      function MarkAsRead(_x13) {
+        return _MarkAsRead.apply(this, arguments);
+      }
+
+      return MarkAsRead;
+    }() //удалить все сообщения с пользователем
+
+  }, {
+    key: "DeleteAll",
+    value: function () {
+      var _DeleteAll = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(fields) {
+        var sql, result;
+        return regeneratorRuntime.wrap(function _callee11$(_context11) {
+          while (1) {
+            switch (_context11.prev = _context11.next) {
+              case 0:
+                _context11.prev = 0;
+                sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET delete_from = true WHERE (from_id=").concat(fields.from_id, " AND to_id=").concat(fields.to_id, ") OR (to_id=").concat(fields.from_id, " AND from_id=").concat(fields.to_id, ")");
+                _context11.next = 4;
+                return _db.DB.Init.Query(sql);
+
+              case 4:
+                result = _context11.sent;
+                _context11.next = 11;
+                break;
+
+              case 7:
+                _context11.prev = 7;
+                _context11.t0 = _context11["catch"](0);
+                console.log(_context11.t0);
+                throw {
+                  err: 5005000,
+                  msg: 'CMessage DeleteAll'
+                };
+
+              case 11:
+              case "end":
+                return _context11.stop();
+            }
+          }
+        }, _callee11, null, [[0, 7]]);
+      }));
+
+      function DeleteAll(_x14) {
         return _DeleteAll.apply(this, arguments);
       }
 
@@ -577,27 +624,27 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Delete",
     value: function () {
-      var _Delete = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(fields) {
+      var _Delete = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(fields) {
         var sql, result;
-        return regeneratorRuntime.wrap(function _callee11$(_context11) {
+        return regeneratorRuntime.wrap(function _callee12$(_context12) {
           while (1) {
-            switch (_context11.prev = _context11.next) {
+            switch (_context12.prev = _context12.next) {
               case 0:
-                _context11.prev = 0;
+                _context12.prev = 0;
                 fields.ids = fields.ids.join(',');
                 sql = "UPDATE ".concat(_db.DB.Init.TablePrefix, "message SET delete_from = true WHERE (from_id=").concat(fields.from_id, " OR to_id=").concat(fields.from_id, ") AND id in (").concat(fields.ids, ")");
-                _context11.next = 5;
+                _context12.next = 5;
                 return _db.DB.Init.Query(sql);
 
               case 5:
-                result = _context11.sent;
-                _context11.next = 12;
+                result = _context12.sent;
+                _context12.next = 12;
                 break;
 
               case 8:
-                _context11.prev = 8;
-                _context11.t0 = _context11["catch"](0);
-                console.log(_context11.t0);
+                _context12.prev = 8;
+                _context12.t0 = _context12["catch"](0);
+                console.log(_context12.t0);
                 throw {
                   err: 5005000,
                   msg: 'CMessage Add'
@@ -605,13 +652,13 @@ var _default = /*#__PURE__*/function () {
 
               case 12:
               case "end":
-                return _context11.stop();
+                return _context12.stop();
             }
           }
-        }, _callee11, null, [[0, 8]]);
+        }, _callee12, null, [[0, 8]]);
       }));
 
-      function Delete(_x13) {
+      function Delete(_x15) {
         return _Delete.apply(this, arguments);
       }
 

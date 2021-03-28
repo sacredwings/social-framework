@@ -103,7 +103,7 @@ CREATE TABLE sf_message (
     read            boolean,
     important       boolean,
 
-    files           jsonb, /* массив id файлов */
+    file_ids        jsonb, /* массив id файлов */
 
     delete_from     boolean,
     delete_to       boolean,
@@ -115,13 +115,19 @@ CREATE TABLE sf_message (
 CREATE TABLE sf_file (
     id	            serial primary key,
 
+    from_id         bigint NOT NULL, /* от кого */
+    owner_id        bigint NOT NULL, /* где */
+
     /* параметры файла */
     size            bigint NOT NULL,
     path            character varying (255) NOT NULL,
     type            character varying (100) NOT NULL,
     url             character varying (255) NOT NULL,
 
+    file_id         bigint, /* вложеный файл (например для видео) */
+
     title           character varying (255) NOT NULL,
+    text            text, /* текст */
 
     /* о создании */
     create_id       bigint NOT NULL, /* кто создал */
@@ -135,7 +141,7 @@ CREATE TABLE sf_album (
     owner_id        bigint NOT NULL, /* где */
     module          character varying (100) NOT NULL, /* в каком модуле (фото, видео) */
 
-    title           character varying (255) NOT NULL, /* название видео */
+    title           character varying (255) NOT NULL, /* название */
     text            text, /* текст */
     image_id        bigint, /* id файла */
 
@@ -148,67 +154,19 @@ CREATE TABLE sf_album (
 CREATE TABLE sf_album_link (
     id	            serial primary key,
 
-    album_id        bigint NOT NULL, /* альбом */
-    object_id       bigint NOT NULL, /* какому объекту принадлежит */
+    file_id         bigint NOT NULL, /* id файла */
+    album_id        bigint NOT NULL, /* id альбома */
 
     /* о создании */
     create_id       bigint NOT NULL, /* кто создал */
     create_date     timestamp with time zone DEFAULT NOW()
 );
-/* уникальный объект и альбом / индексированный */
-CREATE UNIQUE INDEX unique_album_object ON sf_album_link (album_id, object_id);
+/* уникальный файл и альбом / индексированный */
+CREATE UNIQUE INDEX unique_file_album ON sf_album_link (file_ids, album_id);
 
 /* -------------------------------------------------- */
-/* фото */
-CREATE TABLE sf_photo (
-    id	            serial primary key,
 
-    from_id         bigint NOT NULL, /* от кого */
-    owner_id        bigint NOT NULL, /* где */
-
-    title           character varying (255) NOT NULL, /* название фото */
-    text            text, /* текст */
-    file            bigint NOT NULL, /* id файла */
-
-    /* о создании */
-    create_id       bigint NOT NULL, /* кто создал */
-    create_date     timestamp with time zone DEFAULT NOW()
-);
-/* видео */
-CREATE TABLE sf_video (
-    id	            serial primary key,
-
-    from_id         bigint NOT NULL, /* от кого */
-    owner_id        bigint NOT NULL, /* где */
-
-    title           character varying (255) NOT NULL, /* название видео */
-    text            text, /* текст */
-    file            bigint NOT NULL, /* id файла */
-    file_preview    bigint, /* id файла */
-
-    /* о создании */
-    create_id       bigint NOT NULL, /* кто создал */
-    create_date     timestamp with time zone DEFAULT NOW()
-);
-
-/* СТЕНА */
-/* видео */
-CREATE TABLE sf_wall (
-    id	            serial primary key,
-
-    from_id         bigint NOT NULL, /* от кого */
-    owner_id        bigint NOT NULL, /* где */
-
-    text            text, /* текст */
-    files           jsonb, /* массив id файлов */
-
-    /* о создании */
-    create_id       bigint NOT NULL, /* кто создал */
-    create_date     timestamp with time zone DEFAULT NOW()
-);
-
-/* ФОРУМ */
-/* обсуждения */
+/* ОБСУЖДЕНИЯ */
 CREATE TABLE sf_topic (
     id	            serial primary key,
 
@@ -217,15 +175,14 @@ CREATE TABLE sf_topic (
 
     title           character varying (255) NOT NULL, /* название дискусии */
     text            text, /* текст */
-    files           jsonb, /* массив id файлов */
+    file_ids        jsonb, /* массив id файлов */
 
     /* о создании */
     create_id       bigint NOT NULL, /* кто создал */
     create_date     timestamp with time zone DEFAULT NOW()
 );
 
-/* БЛОГ */
-/* посты */
+/* ПОСТЫ */
 CREATE TABLE sf_post (
     id	            serial primary key,
 
@@ -233,7 +190,7 @@ CREATE TABLE sf_post (
     owner_id        bigint NOT NULL, /* где */
 
     text            text, /* текст */
-    files           jsonb, /* массив id файлов */
+    file_ids        jsonb, /* массив id файлов */
 
     /* о создании */
     create_id       bigint NOT NULL, /* кто создал */
@@ -249,7 +206,7 @@ CREATE TABLE sf_comment (
 
     module          character varying (100) NOT NULL,
     text            text, /* текст */
-    files           jsonb, /* массив id файлов */
+    file_ids        jsonb, /* массив id файлов */
 
     /* о создании */
     create_id       bigint NOT NULL, /* кто создал */

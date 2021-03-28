@@ -27,27 +27,18 @@ var _default = /*#__PURE__*/function () {
   }
 
   _createClass(_default, null, [{
-    key: "Add",
+    key: "InAlbum",
     value: //добавить новое видео
     function () {
-      var _Add = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(fields) {
-        var albums, result;
+      var _InAlbum = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(fields) {
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.prev = 0;
-                //если владелец не указан
-                if (!fields.owner_id) fields.owner_id = fields.from_id;
-                albums = fields.albums; //удаляем из массива
-
-                if (fields.albums || fields.albums === null) delete fields.albums;
-                _context2.next = 6;
-                return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "video"), fields, "ID");
-
-              case 6:
-                result = _context2.sent;
-                if (albums && albums.length) albums.map( /*#__PURE__*/function () {
+                // сделать проверку, что файл и альбом твои
+                //раскидываем файл по альбомам
+                fields.album_ids.map( /*#__PURE__*/function () {
                   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(item, i) {
                     var arFields;
                     return regeneratorRuntime.wrap(function _callee$(_context) {
@@ -56,7 +47,7 @@ var _default = /*#__PURE__*/function () {
                           case 0:
                             arFields = {
                               album_id: item,
-                              object_id: result[0].id,
+                              file_id: fields.file_id,
                               create_id: fields.create_id
                             };
                             _context.next = 3;
@@ -76,35 +67,36 @@ var _default = /*#__PURE__*/function () {
                 }());
                 return _context2.abrupt("return", result[0]);
 
-              case 11:
-                _context2.prev = 11;
+              case 5:
+                _context2.prev = 5;
                 _context2.t0 = _context2["catch"](0);
                 console.log(_context2.t0);
                 throw {
                   err: 8001000,
-                  msg: 'CVideo Add'
+                  msg: 'CVideo InAlbum'
                 };
 
-              case 15:
+              case 9:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, null, [[0, 11]]);
+        }, _callee2, null, [[0, 5]]);
       }));
 
-      function Add(_x) {
-        return _Add.apply(this, arguments);
+      function InAlbum(_x) {
+        return _InAlbum.apply(this, arguments);
       }
 
-      return Add;
+      return InAlbum;
     }() //загрузка по id
 
   }, {
     key: "GetById",
     value: function () {
       var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(ids) {
-        var result;
+        var _result;
+
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
@@ -115,9 +107,9 @@ var _default = /*#__PURE__*/function () {
                 return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "video WHERE id in (").concat(ids, ")"));
 
               case 4:
-                result = _context4.sent;
+                _result = _context4.sent;
                 _context4.next = 7;
-                return Promise.all(result.map( /*#__PURE__*/function () {
+                return Promise.all(_result.map( /*#__PURE__*/function () {
                   var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(item, i) {
                     return regeneratorRuntime.wrap(function _callee3$(_context3) {
                       while (1) {
@@ -165,8 +157,8 @@ var _default = /*#__PURE__*/function () {
                 }()));
 
               case 7:
-                result = _context4.sent;
-                return _context4.abrupt("return", result);
+                _result = _context4.sent;
+                return _context4.abrupt("return", _result);
 
               case 11:
                 _context4.prev = 11;
@@ -196,7 +188,8 @@ var _default = /*#__PURE__*/function () {
     key: "Get",
     value: function () {
       var _Get = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(fields) {
-        var sql, result;
+        var sql, _result2;
+
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
@@ -211,9 +204,9 @@ var _default = /*#__PURE__*/function () {
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
 
               case 6:
-                result = _context6.sent;
+                _result2 = _context6.sent;
                 _context6.next = 9;
-                return Promise.all(result.map( /*#__PURE__*/function () {
+                return Promise.all(_result2.map( /*#__PURE__*/function () {
                   var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(item, i) {
                     return regeneratorRuntime.wrap(function _callee5$(_context5) {
                       while (1) {
@@ -261,8 +254,8 @@ var _default = /*#__PURE__*/function () {
                 }()));
 
               case 9:
-                result = _context6.sent;
-                return _context6.abrupt("return", result);
+                _result2 = _context6.sent;
+                return _context6.abrupt("return", _result2);
 
               case 13:
                 _context6.prev = 13;
@@ -292,7 +285,8 @@ var _default = /*#__PURE__*/function () {
     key: "Count",
     value: function () {
       var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(fields) {
-        var sql, result;
+        var sql, _result3;
+
         return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
             switch (_context7.prev = _context7.next) {
@@ -306,8 +300,8 @@ var _default = /*#__PURE__*/function () {
                 return _db.DB.Init.Query(sql);
 
               case 5:
-                result = _context7.sent;
-                return _context7.abrupt("return", Number(result[0].count));
+                _result3 = _context7.sent;
+                return _context7.abrupt("return", Number(_result3[0].count));
 
               case 9:
                 _context7.prev = 9;
@@ -431,7 +425,8 @@ var _default = /*#__PURE__*/function () {
     key: "AddAlbum",
     value: function () {
       var _AddAlbum = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(fields) {
-        var result;
+        var _result4;
+
         return regeneratorRuntime.wrap(function _callee10$(_context10) {
           while (1) {
             switch (_context10.prev = _context10.next) {
@@ -444,8 +439,8 @@ var _default = /*#__PURE__*/function () {
                 return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "album"), fields, "ID");
 
               case 5:
-                result = _context10.sent;
-                return _context10.abrupt("return", result[0]);
+                _result4 = _context10.sent;
+                return _context10.abrupt("return", _result4[0]);
 
               case 9:
                 _context10.prev = 9;
@@ -475,7 +470,8 @@ var _default = /*#__PURE__*/function () {
     key: "GetAlbums",
     value: function () {
       var _GetAlbums = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(fields) {
-        var sql, result;
+        var sql, _result5;
+
         return regeneratorRuntime.wrap(function _callee12$(_context12) {
           while (1) {
             switch (_context12.prev = _context12.next) {
@@ -487,9 +483,9 @@ var _default = /*#__PURE__*/function () {
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
 
               case 5:
-                result = _context12.sent;
+                _result5 = _context12.sent;
                 _context12.next = 8;
-                return Promise.all(result.map( /*#__PURE__*/function () {
+                return Promise.all(_result5.map( /*#__PURE__*/function () {
                   var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(item, i) {
                     return regeneratorRuntime.wrap(function _callee11$(_context11) {
                       while (1) {
@@ -524,8 +520,8 @@ var _default = /*#__PURE__*/function () {
                 }()));
 
               case 8:
-                result = _context12.sent;
-                return _context12.abrupt("return", result);
+                _result5 = _context12.sent;
+                return _context12.abrupt("return", _result5);
 
               case 12:
                 _context12.prev = 12;
@@ -555,7 +551,8 @@ var _default = /*#__PURE__*/function () {
     key: "CountAlbums",
     value: function () {
       var _CountAlbums = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(fields) {
-        var sql, result;
+        var sql, _result6;
+
         return regeneratorRuntime.wrap(function _callee13$(_context13) {
           while (1) {
             switch (_context13.prev = _context13.next) {
@@ -566,8 +563,8 @@ var _default = /*#__PURE__*/function () {
                 return _db.DB.Init.Query(sql);
 
               case 4:
-                result = _context13.sent;
-                return _context13.abrupt("return", Number(result[0].count));
+                _result6 = _context13.sent;
+                return _context13.abrupt("return", Number(_result6[0].count));
 
               case 8:
                 _context13.prev = 8;

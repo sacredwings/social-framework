@@ -56,7 +56,20 @@ WHERE ((from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)) AND delete_from I
 
             }
 
-            return arMessages
+            result = await Promise.all(arMessages.map(async (item, i) => {
+
+                /* загрузка инфы о файле */
+                if (item.file_ids) {
+                    item.file_ids = await CFile.GetById(item.file_ids);
+
+                    if (item.file_ids.file_id)
+                        item.file_ids.file_id = await CFile.GetById(item.file_ids.file_id);
+                }
+
+                return item;
+            }));
+
+            return result
         } catch (err) {
             console.log(err)
             throw ({err: 5002000, msg: 'CMessage GetByUserId'})

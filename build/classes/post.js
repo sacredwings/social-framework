@@ -41,7 +41,7 @@ var _default = /*#__PURE__*/function () {
                 if (!fields.owner_id) fields.owner_id = fields.from_id; //запись
 
                 _context.next = 4;
-                return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "wall"), fields, "ID");
+                return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "post"), fields, "ID");
 
               case 4:
                 result = _context.sent;
@@ -53,7 +53,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context.t0);
                 throw {
                   err: 6001000,
-                  msg: 'CWall Add'
+                  msg: 'CPost Add'
                 };
 
               case 12:
@@ -83,7 +83,7 @@ var _default = /*#__PURE__*/function () {
                 _context3.prev = 0;
                 ids = ids.join(',');
                 _context3.next = 4;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "wall WHERE id in (").concat(ids, ")"));
+                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "post WHERE id in (").concat(ids, ")"));
 
               case 4:
                 result = _context3.sent;
@@ -133,7 +133,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context3.t0);
                 throw {
                   err: 6002000,
-                  msg: 'CWall GetById'
+                  msg: 'CPost GetById'
                 };
 
               case 15:
@@ -161,7 +161,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "wall WHERE owner_id=").concat(fields.owner_id);
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "post WHERE owner_id=").concat(fields.owner_id);
                 sql += " LIMIT $1 OFFSET $2 ";
                 _context5.next = 5;
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
@@ -180,16 +180,16 @@ var _default = /*#__PURE__*/function () {
                             if (item.create_id) item.create_id = Number(item.create_id);
                             /* загрузка инфы о файле */
 
-                            if (!item.files) {
+                            if (!item.file_ids) {
                               _context4.next = 7;
                               break;
                             }
 
                             _context4.next = 6;
-                            return _file["default"].GetById(item.files);
+                            return _file["default"].GetById(item.file_ids);
 
                           case 6:
-                            item.files = _context4.sent;
+                            item.file_ids = _context4.sent;
 
                           case 7:
                             return _context4.abrupt("return", item);
@@ -217,7 +217,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context5.t0);
                 throw {
                   err: 6003000,
-                  msg: 'CWall Get'
+                  msg: 'CPost Get'
                 };
 
               case 16:
@@ -245,7 +245,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context6.prev = _context6.next) {
               case 0:
                 _context6.prev = 0;
-                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "wall WHERE owner_id=").concat(fields.owner_id);
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "post WHERE owner_id=").concat(fields.owner_id);
                 _context6.next = 4;
                 return _db.DB.Init.Query(sql);
 
@@ -259,7 +259,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context6.t0);
                 throw {
                   err: 6004000,
-                  msg: 'CWall Count'
+                  msg: 'CPost Count'
                 };
 
               case 12:
@@ -353,7 +353,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context8.t0);
                 throw {
                   err: 6005000,
-                  msg: 'CWall GetUsers'
+                  msg: 'CPost GetUsers'
                 };
 
               case 19:
@@ -385,7 +385,7 @@ var _default = /*#__PURE__*/function () {
                 if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
                 //запрос
 
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "wall "); //объединеие параметров запроса
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "post "); //объединеие параметров запроса
 
                 if (there.length) sql += "WHERE " + there.join(' AND ');
                 sql += " LIMIT $1 OFFSET $2";
@@ -444,7 +444,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context10.t0);
                 throw {
                   err: 7001000,
-                  msg: 'CWall Search'
+                  msg: 'CPost Search'
                 };
 
               case 20:
@@ -476,7 +476,7 @@ var _default = /*#__PURE__*/function () {
                 if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
                 //запрос
 
-                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "wall "); //объединеие параметров запроса
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "post "); //объединеие параметров запроса
 
                 if (there.length) sql += "WHERE " + there.join(' AND ');
                 console.log(sql);
@@ -493,7 +493,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context11.t0);
                 throw {
                   err: 7001000,
-                  msg: 'CWall SearchCount'
+                  msg: 'CPost SearchCount'
                 };
 
               case 16:
@@ -522,7 +522,7 @@ var _default = /*#__PURE__*/function () {
               case 0:
                 _context12.prev = 0;
                 _context12.next = 3;
-                return _db.DB.Init.Query("DELETE FROM sf_wall WHERE id = ".concat(id));
+                return _db.DB.Init.Query("DELETE FROM sf_post WHERE id = ".concat(id));
 
               case 3:
                 result = _context12.sent;
@@ -534,7 +534,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context12.t0);
                 throw {
                   err: 7001000,
-                  msg: 'CWall Delete'
+                  msg: 'CPost Delete'
                 };
 
               case 11:

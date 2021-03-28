@@ -10,12 +10,12 @@ export default class {
             if (!fields.owner_id) fields.owner_id = fields.from_id
 
             //запись
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}wall`, fields, `ID`)
+            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}post`, fields, `ID`)
             return result[0]
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6001000, msg: 'CWall Add'})
+            throw ({err: 6001000, msg: 'CPost Add'})
         }
     }
 
@@ -23,7 +23,7 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}wall WHERE id in (${ids})`)
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}post WHERE id in (${ids})`)
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
@@ -43,7 +43,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6002000, msg: 'CWall GetById'})
+            throw ({err: 6002000, msg: 'CPost GetById'})
         }
     }
 
@@ -51,7 +51,7 @@ export default class {
     static async Get ( fields ) {
         try {
 
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}wall WHERE owner_id=${fields.owner_id}`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id}`
             sql += ` LIMIT $1 OFFSET $2 `
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
@@ -67,8 +67,8 @@ export default class {
                     item.create_id = Number (item.create_id);
 
                 /* загрузка инфы о файле */
-                if (item.files)
-                    item.files = await CFile.GetById(item.files);
+                if (item.file_ids)
+                    item.file_ids = await CFile.GetById(item.file_ids);
 
                 return item;
             }));
@@ -76,20 +76,20 @@ export default class {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 6003000, msg: 'CWall Get'})
+            throw ({err: 6003000, msg: 'CPost Get'})
         }
     }
 
     //количество
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}wall WHERE owner_id=${fields.owner_id}`
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id}`
             let result = await DB.Init.Query(sql)
 
             return Number (result[0].count)
         } catch (err) {
             console.log(err)
-            throw ({err: 6004000, msg: 'CWall Count'})
+            throw ({err: 6004000, msg: 'CPost Count'})
         }
     }
 
@@ -123,7 +123,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6005000, msg: 'CWall GetUsers'})
+            throw ({err: 6005000, msg: 'CPost GetUsers'})
         }
     }
 
@@ -136,7 +136,7 @@ export default class {
                 there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
 
             //запрос
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}wall `
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}post `
 
             //объединеие параметров запроса
             if (there.length)
@@ -168,7 +168,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CWall Search'})
+            throw ({err: 7001000, msg: 'CPost Search'})
         }
     }
 
@@ -181,7 +181,7 @@ export default class {
                 there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
 
             //запрос
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}wall `
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}post `
 
             //объединеие параметров запроса
             if (there.length)
@@ -194,7 +194,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CWall SearchCount'})
+            throw ({err: 7001000, msg: 'CPost SearchCount'})
         }
     }
 
@@ -202,12 +202,12 @@ export default class {
     static async Delete ( id ) {
         try {
             //запись
-            let result = await DB.Init.Query(`DELETE FROM sf_wall WHERE id = ${id}`)
+            let result = await DB.Init.Query(`DELETE FROM sf_post WHERE id = ${id}`)
             return true
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CWall Delete'})
+            throw ({err: 7001000, msg: 'CPost Delete'})
         }
     }
 }
