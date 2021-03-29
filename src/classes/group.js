@@ -126,12 +126,6 @@ export default class {
 
     static async Update ( id, fields ) {
         try {
-            if (fields.password) {
-                const salt = await bcrypt.genSalt();
-                fields.password = await bcrypt.hash(fields.password, salt);
-            }
-            console.log(fields)
-
             let result = await DB.Init.Update (`${DB.Init.TablePrefix}group`, fields, {id: id},`id`)
             return result[0]
         } catch (err) {

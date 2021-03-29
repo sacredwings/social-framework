@@ -52,7 +52,7 @@ export default class {
             }
 
             let result = await DB.Init.Insert(`${DB.Init.TablePrefix}file`, arFields, `id`)
-            return result[0].id
+            return result[0]
 
         } catch (err) {
             console.log(err)

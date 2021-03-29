@@ -372,42 +372,23 @@ var _default = /*#__PURE__*/function () {
     key: "Update",
     value: function () {
       var _Update = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(id, fields) {
-        var salt, result;
+        var result;
         return regeneratorRuntime.wrap(function _callee9$(_context9) {
           while (1) {
             switch (_context9.prev = _context9.next) {
               case 0:
                 _context9.prev = 0;
-
-                if (!fields.password) {
-                  _context9.next = 8;
-                  break;
-                }
-
-                _context9.next = 4;
-                return bcrypt.genSalt();
-
-              case 4:
-                salt = _context9.sent;
-                _context9.next = 7;
-                return bcrypt.hash(fields.password, salt);
-
-              case 7:
-                fields.password = _context9.sent;
-
-              case 8:
-                console.log(fields);
-                _context9.next = 11;
+                _context9.next = 3;
                 return _db.DB.Init.Update("".concat(_db.DB.Init.TablePrefix, "group"), fields, {
                   id: id
                 }, "id");
 
-              case 11:
+              case 3:
                 result = _context9.sent;
                 return _context9.abrupt("return", result[0]);
 
-              case 15:
-                _context9.prev = 15;
+              case 7:
+                _context9.prev = 7;
                 _context9.t0 = _context9["catch"](0);
                 console.log(_context9.t0);
                 throw {
@@ -415,12 +396,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CGroup Update'
                 };
 
-              case 19:
+              case 11:
               case "end":
                 return _context9.stop();
             }
           }
-        }, _callee9, null, [[0, 15]]);
+        }, _callee9, null, [[0, 7]]);
       }));
 
       function Update(_x12, _x13) {

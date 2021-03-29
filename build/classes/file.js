@@ -83,7 +83,7 @@ var _default = /*#__PURE__*/function () {
 
               case 15:
                 result = _context.sent;
-                return _context.abrupt("return", result[0].id);
+                return _context.abrupt("return", result[0]);
 
               case 19:
                 _context.prev = 19;
