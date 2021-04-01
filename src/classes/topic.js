@@ -27,8 +27,8 @@ export default class {
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
-                if (item.files)
-                    item.files = await CFile.GetById(item.files);
+                if (item.file_ids)
+                    item.file_ids = await CFile.GetById(item.file_ids);
 
                 return item;
             }));
@@ -61,8 +61,8 @@ export default class {
                     item.create_id = Number (item.create_id);
 
                 /* загрузка инфы о файле */
-                if (item.files)
-                    item.files = await CFile.GetById(item.files);
+                if (item.file_ids)
+                    item.file_ids = await CFile.GetById(item.file_ids);
 
                 return item;
             }));

@@ -31,7 +31,7 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}video WHERE id in (${ids})`)
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids}) AND (type='video/mp4')`)
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
@@ -59,27 +59,22 @@ export default class {
     //загрузка
     static async Get ( fields ) {
         try {
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}video WHERE owner_id=${fields.owner_id}`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND (type='video/mp4')`
 
             /* видео из альбома */
             if (fields.album_id)
-                sql = `SELECT ${DB.Init.TablePrefix}video.*
+                sql = `SELECT ${DB.Init.TablePrefix}file.*
                     FROM ${DB.Init.TablePrefix}album_link
-                    INNER JOIN ${DB.Init.TablePrefix}video ON ${DB.Init.TablePrefix}video.id = ${DB.Init.TablePrefix}album_link.object_id WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id}`
+                    INNER JOIN ${DB.Init.TablePrefix}file ON ${DB.Init.TablePrefix}file.id = ${DB.Init.TablePrefix}album_link.file_id WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id} AND (${DB.Init.TablePrefix}file.type='video/mp4')`
 
             sql += ` LIMIT $1 OFFSET $2 `
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
-                if (item.file) {
-                    item.file = await CFile.GetById([item.file]);
-                    item.file = item.file[0]
-                }
-
-                if (item.file_preview) {
-                    item.file_preview = await CFile.GetById([item.file_preview]);
-                    item.file_preview = item.file_preview[0]
+                if (item.file_id) {
+                    item.file_id = await CFile.GetById([item.file_id]);
+                    item.file_id = item.file_id[0]
                 }
 
                 return item;
@@ -95,16 +90,17 @@ export default class {
     //количество
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}video WHERE owner_id=${fields.owner_id}`
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND (type='video/mp4')`
 
+            console.log(sql)
             /* видео из альбома */
             if (fields.album_id)
                 sql = `SELECT COUNT(*)
                     FROM ${DB.Init.TablePrefix}album_link
-                    WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id}`
+                    WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id} AND (${DB.Init.TablePrefix}file.type='video/mp4')`
 
             let result = await DB.Init.Query(sql)
-
+            console.log(result)
             return Number (result[0].count)
 
         } catch (err) {
