@@ -162,7 +162,7 @@ CREATE TABLE sf_album_link (
     create_date     timestamp with time zone DEFAULT NOW()
 );
 /* уникальный файл и альбом / индексированный */
-CREATE UNIQUE INDEX unique_file_album ON sf_album_link (file_ids, album_id);
+CREATE UNIQUE INDEX unique_file_album ON sf_album_link (file_id, album_id);
 
 /* -------------------------------------------------- */
 
