@@ -31,7 +31,7 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids}) AND (type='video/mp4')`)
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids}) AND ((type='video/mp4') OR (type='video/avi'))`)
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
@@ -59,7 +59,7 @@ export default class {
     //загрузка
     static async Get ( fields ) {
         try {
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND (type='video/mp4')`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND ((type='video/mp4') OR (type='video/avi'))`
 
             /* видео из альбома */
             if (fields.album_id)
@@ -90,14 +90,14 @@ export default class {
     //количество
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND (type='video/mp4')`
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND ((type='video/mp4') OR (type='video/avi'))`
 
             console.log(sql)
             /* видео из альбома */
             if (fields.album_id)
                 sql = `SELECT COUNT(*)
                     FROM ${DB.Init.TablePrefix}album_link
-                    WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id} AND (${DB.Init.TablePrefix}file.type='video/mp4')`
+                    WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id} AND ((${DB.Init.TablePrefix}file.type='video/mp4') OR (${DB.Init.TablePrefix}file.type='video/avi'))`
 
             let result = await DB.Init.Query(sql)
             console.log(result)

@@ -104,7 +104,7 @@ var _default = /*#__PURE__*/function () {
                 _context4.prev = 0;
                 ids = ids.join(',');
                 _context4.next = 4;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE id in (").concat(ids, ") AND (type='video/mp4')"));
+                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE id in (").concat(ids, ") AND ((type='video/mp4') OR (type='video/avi'))"));
 
               case 4:
                 _result = _context4.sent;
@@ -195,7 +195,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context6.prev = _context6.next) {
               case 0:
                 _context6.prev = 0;
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE owner_id=").concat(fields.owner_id, " AND (type='video/mp4')");
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE owner_id=").concat(fields.owner_id, " AND ((type='video/mp4') OR (type='video/avi'))");
                 /* видео из альбома */
 
                 if (fields.album_id) sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "file.*\n                    FROM ").concat(_db.DB.Init.TablePrefix, "album_link\n                    INNER JOIN ").concat(_db.DB.Init.TablePrefix, "file ON ").concat(_db.DB.Init.TablePrefix, "file.id = ").concat(_db.DB.Init.TablePrefix, "album_link.file_id WHERE ").concat(_db.DB.Init.TablePrefix, "album_link.album_id = ").concat(fields.album_id, " AND (").concat(_db.DB.Init.TablePrefix, "file.type='video/mp4')");
@@ -279,11 +279,11 @@ var _default = /*#__PURE__*/function () {
             switch (_context7.prev = _context7.next) {
               case 0:
                 _context7.prev = 0;
-                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE owner_id=").concat(fields.owner_id, " AND (type='video/mp4')");
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE owner_id=").concat(fields.owner_id, " AND ((type='video/mp4') OR (type='video/avi'))");
                 console.log(sql);
                 /* видео из альбома */
 
-                if (fields.album_id) sql = "SELECT COUNT(*)\n                    FROM ".concat(_db.DB.Init.TablePrefix, "album_link\n                    WHERE ").concat(_db.DB.Init.TablePrefix, "album_link.album_id = ").concat(fields.album_id, " AND (").concat(_db.DB.Init.TablePrefix, "file.type='video/mp4')");
+                if (fields.album_id) sql = "SELECT COUNT(*)\n                    FROM ".concat(_db.DB.Init.TablePrefix, "album_link\n                    WHERE ").concat(_db.DB.Init.TablePrefix, "album_link.album_id = ").concat(fields.album_id, " AND ((").concat(_db.DB.Init.TablePrefix, "file.type='video/mp4') OR (").concat(_db.DB.Init.TablePrefix, "file.type='video/avi'))");
                 _context7.next = 6;
                 return _db.DB.Init.Query(sql);
 
