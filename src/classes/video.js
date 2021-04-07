@@ -10,16 +10,18 @@ export default class {
 
             //раскидываем файл по альбомам
             fields.album_ids.map(async (item, i)=>{
+
                 let arFields = {
                     album_id: item,
                     file_id: fields.file_id,
 
                     create_id: fields.create_id
                 }
+                console.log(arFields)
                 await DB.Init.Insert(`${DB.Init.TablePrefix}album_link`, arFields, `ID`)
             })
 
-            return result[0]
+            return true
 
         } catch (err) {
             console.log(err)
@@ -92,15 +94,14 @@ export default class {
         try {
             let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND ((type='video/mp4') OR (type='video/avi'))`
 
-            console.log(sql)
             /* видео из альбома */
             if (fields.album_id)
                 sql = `SELECT COUNT(*)
                     FROM ${DB.Init.TablePrefix}album_link
+                    LEFT JOIN ${DB.Init.TablePrefix}file ON ${DB.Init.TablePrefix}album_link.file_id = ${DB.Init.TablePrefix}file.id
                     WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id} AND ((${DB.Init.TablePrefix}file.type='video/mp4') OR (${DB.Init.TablePrefix}file.type='video/avi'))`
 
             let result = await DB.Init.Query(sql)
-            console.log(result)
             return Number (result[0].count)
 
         } catch (err) {
