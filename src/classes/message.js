@@ -17,6 +17,64 @@ export default class {
     }
 
     //загрузка
+    static async GetById ( fields ) {
+        try {
+
+            let sql = `SELECT *
+FROM ${DB.Init.TablePrefix}message
+WHERE id=$1 AND (from_id=$2 OR to_id=$2) AND delete_from IS NOT true`
+
+            let result = await DB.Init.Query(sql, [fields.id, fields.from_id])
+
+            let arMessages = [] //массив сообщений уникальных пользователей
+
+            //уникальность массива
+            for (let i=0; i < result.length; i++) {
+
+                //добавление новых полей к массиву
+                let messages = {}
+
+                //добавление новых полей
+                if (Number (result[i].from_id) === fields.from_id) {
+                    messages.user_id = Number (result[i].to_id)
+                    messages.in = false
+                } else {
+                    messages.user_id = Number (result[i].from_id)
+                    messages.in = true
+                }
+
+                messages.from_id = Number(result[i].from_id)
+                messages.to_id = Number(result[i].to_id)
+
+                //удаление не актуальных полей
+                //delete result[i].id
+                //delete result[i].from_id
+                //delete result[i].to_id
+
+                arMessages.push({...result[i], ...messages})
+
+            }
+
+            result = await Promise.all(arMessages.map(async (item, i) => {
+
+                /* загрузка инфы о файле */
+                if (item.file_ids) {
+                    item.file_ids = await CFile.GetById(item.file_ids);
+
+                    if (item.file_ids.file_id)
+                        item.file_ids.file_id = await CFile.GetById(item.file_ids.file_id);
+                }
+
+                return item;
+            }));
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 5002000, msg: 'CMessage GetById'})
+        }
+    }
+    //загрузка
     static async GetByUserId ( fields ) {
         try {
 
@@ -231,7 +289,7 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1) AND delete_from IS 
     //прочитать все сообщения с пользователем
     static async MarkAsReadAll( fields ) {
         try {
-            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_id=${fields.from_id} AND to_id=${fields.to_id} AND id < ${fields.start_message_id}`
+            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_id=${fields.from_id} AND to_id=${fields.to_id} AND id < ${fields.start_id}`
             console.log(sql)
             let result = await DB.Init.Query(sql)
 
@@ -244,7 +302,7 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1) AND delete_from IS 
     //прочитать выбранные сообщения
     static async MarkAsRead( fields ) {
         try {
-            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_id=${fields.from_id} AND id in (${fields.message_ids})`
+            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE (from_id=${fields.from_id} OR to_id=${fields.from_id}) AND id in (${fields.ids})`
             let result = await DB.Init.Query(sql)
 
         } catch (err) {
