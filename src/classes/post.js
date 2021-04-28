@@ -23,7 +23,7 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}post WHERE id in (${ids})`)
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}post WHERE id in (${ids}) ORDER BY id DESC`)
 
             result = await Promise.all(result.map(async (item, i) => {
                 /* загрузка инфы о файле */
@@ -51,7 +51,7 @@ export default class {
     static async Get ( fields ) {
         try {
 
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id}`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id} ORDER BY id DESC`
             sql += ` LIMIT $1 OFFSET $2 `
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])

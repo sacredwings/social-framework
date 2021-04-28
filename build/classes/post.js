@@ -83,7 +83,7 @@ var _default = /*#__PURE__*/function () {
                 _context3.prev = 0;
                 ids = ids.join(',');
                 _context3.next = 4;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "post WHERE id in (").concat(ids, ")"));
+                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "post WHERE id in (").concat(ids, ") ORDER BY id DESC"));
 
               case 4:
                 result = _context3.sent;
@@ -161,7 +161,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "post WHERE owner_id=").concat(fields.owner_id);
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "post WHERE owner_id=").concat(fields.owner_id, " ORDER BY id DESC");
                 sql += " LIMIT $1 OFFSET $2 ";
                 _context5.next = 5;
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
