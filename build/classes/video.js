@@ -115,35 +115,22 @@ var _default = /*#__PURE__*/function () {
                       while (1) {
                         switch (_context3.prev = _context3.next) {
                           case 0:
-                            if (!item.file) {
+                            if (!item.file_id) {
                               _context3.next = 5;
                               break;
                             }
 
                             _context3.next = 3;
-                            return _file["default"].GetById([item.file]);
+                            return _file["default"].GetById([item.file_id]);
 
                           case 3:
-                            item.file = _context3.sent;
-                            item.file = item.file[0];
+                            item.file_id = _context3.sent;
+                            item.file_id = item.file_id[0];
 
                           case 5:
-                            if (!item.file_preview) {
-                              _context3.next = 10;
-                              break;
-                            }
-
-                            _context3.next = 8;
-                            return _file["default"].GetById([item.file_preview]);
-
-                          case 8:
-                            item.file_preview = _context3.sent;
-                            item.file_preview = item.file_preview[0];
-
-                          case 10:
                             return _context3.abrupt("return", item);
 
-                          case 11:
+                          case 6:
                           case "end":
                             return _context3.stop();
                         }

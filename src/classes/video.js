@@ -36,7 +36,9 @@ export default class {
             let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids}) AND ((type='video/mp4') OR (type='video/avi'))`)
 
             result = await Promise.all(result.map(async (item, i) => {
+
                 /* загрузка инфы о файле */
+                /*
                 if (item.file) {
                     item.file = await CFile.GetById([item.file]);
                     item.file = item.file[0]
@@ -45,6 +47,12 @@ export default class {
                 if (item.file_preview) {
                     item.file_preview = await CFile.GetById([item.file_preview]);
                     item.file_preview = item.file_preview[0]
+                }*/
+
+                /* загрузка инфы о файле */
+                if (item.file_id) {
+                    item.file_id = await CFile.GetById([item.file_id]);
+                    item.file_id = item.file_id[0]
                 }
 
                 return item;
