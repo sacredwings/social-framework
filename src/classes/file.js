@@ -14,10 +14,10 @@ export default class {
                 await this.Delete(fields.old_file, true)
 
             //содержимое файла
-            let file_buffer = fs.readFileSync(fields.file.path);
+            //let file_buffer = await fs.readFile(fields.file.path);
 
             //хеш содержимого
-            let hash = crypto.createHash('md5').update(file_buffer).digest("hex")
+            let hash = crypto.createHash('md5').update(fields.file.name).digest("hex")
 
             //вытаскиваем расширение
             let type = fields.file.type.split('/');
