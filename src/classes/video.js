@@ -173,7 +173,7 @@ export default class {
     //загрузка
     static async GetAlbums ( fields ) {
         try {
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}album WHERE owner_id=${fields.owner_id} AND module='video'`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}album WHERE owner_id=${fields.owner_id} AND module='video' ORDER BY title DESC`
             sql += ` LIMIT $1 OFFSET $2 `
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])

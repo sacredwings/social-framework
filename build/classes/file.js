@@ -9,8 +9,6 @@ var _fsExtra = _interopRequireDefault(require("fs-extra"));
 
 var _crypto = _interopRequireDefault(require("crypto"));
 
-var _lazy = _interopRequireDefault(require("lazy"));
-
 var _db = require("./db");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
