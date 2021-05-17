@@ -15,22 +15,31 @@ export default class {
 
             //содержимое файла
             //let file_buffer = await fs.readFile(fields.file.path);
+            let file_buffer = fs.createReadStream(fields.file.path)
+
+            file_buffer = await new Promise(function(resolve,reject){
+                file_buffer.on('data', (data) => resolve(data));
+                //file_buffer.on('error', reject);
+            })
 
             //хеш содержимого
-            let hash = crypto.createHash('md5').update(fields.file.name).digest("hex")
+            //let hash = crypto.createHash('md5').update(fields.file.name).digest("hex")
+            let hash = crypto.createHash('md5').update(file_buffer).digest("hex")
 
             //вытаскиваем расширение
             let type = fields.file.type.split('/');
             type = type[1]
 
             //url путь к файлу
-            let url = `files/${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.${type}`
+            let url = `${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.${type}`
 
             //полный путь к файлу
             savePath = `${savePath}${url}`
 
             //копирование файла в постоянную папку
             await fs.copy(fields.file.path, savePath)
+
+            url = `files/${url}`
 
             //добавление записи о файле в таблицу
             let arFields = {

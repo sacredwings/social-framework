@@ -33,7 +33,7 @@ var _default = /*#__PURE__*/function () {
     value: //Сохраняем новый вайл в таблицу файлов и сам файл
     function () {
       var _SaveFile = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields, savePath) {
-        var hash, type, url, arFields, result;
+        var file_buffer, hash, type, url, arFields, result;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -51,21 +51,33 @@ var _default = /*#__PURE__*/function () {
               case 4:
                 //содержимое файла
                 //let file_buffer = await fs.readFile(fields.file.path);
+                file_buffer = _fsExtra["default"].createReadStream(fields.file.path);
+                _context.next = 7;
+                return new Promise(function (resolve, reject) {
+                  file_buffer.on('data', function (data) {
+                    return resolve(data);
+                  }); //file_buffer.on('error', reject);
+                });
+
+              case 7:
+                file_buffer = _context.sent;
                 //хеш содержимого
-                hash = _crypto["default"].createHash('md5').update(fields.file.name).digest("hex"); //вытаскиваем расширение
+                //let hash = crypto.createHash('md5').update(fields.file.name).digest("hex")
+                hash = _crypto["default"].createHash('md5').update(file_buffer).digest("hex"); //вытаскиваем расширение
 
                 type = fields.file.type.split('/');
                 type = type[1]; //url путь к файлу
 
-                url = "files/".concat(hash[0]).concat(hash[1], "/").concat(hash[2]).concat(hash[3], "/").concat(hash, ".").concat(type); //полный путь к файлу
+                url = "".concat(hash[0]).concat(hash[1], "/").concat(hash[2]).concat(hash[3], "/").concat(hash, ".").concat(type); //полный путь к файлу
 
                 savePath = "".concat(savePath).concat(url); //копирование файла в постоянную папку
 
-                _context.next = 11;
+                _context.next = 15;
                 return _fsExtra["default"].copy(fields.file.path, savePath);
 
-              case 11:
-                //добавление записи о файле в таблицу
+              case 15:
+                url = "files/".concat(url); //добавление записи о файле в таблицу
+
                 arFields = {
                   size: fields.file.size,
                   path: savePath,
@@ -78,15 +90,15 @@ var _default = /*#__PURE__*/function () {
                   text: fields.text,
                   create_id: fields.create_id
                 };
-                _context.next = 14;
+                _context.next = 19;
                 return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "file"), arFields, "id");
 
-              case 14:
+              case 19:
                 result = _context.sent;
                 return _context.abrupt("return", result[0]);
 
-              case 18:
-                _context.prev = 18;
+              case 23:
+                _context.prev = 23;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
@@ -94,12 +106,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CFile SaveFile'
                 };
 
-              case 22:
+              case 27:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[0, 18]]);
+        }, _callee, this, [[0, 23]]);
       }));
 
       function SaveFile(_x, _x2) {

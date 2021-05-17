@@ -447,7 +447,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context12.prev = _context12.next) {
               case 0:
                 _context12.prev = 0;
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "album WHERE owner_id=").concat(fields.owner_id, " AND module='video'");
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "album WHERE owner_id=").concat(fields.owner_id, " AND module='video' ORDER BY title ASC");
                 sql += " LIMIT $1 OFFSET $2 ";
                 _context12.next = 5;
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
