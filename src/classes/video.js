@@ -44,8 +44,6 @@ export default class {
             if (!fields.title) delete fields.title
             //if (!fields.text) delete fields.text
 
-            console.log(fields)
-            console.log(where)
             await DB.Init.Update ( `${DB.Init.TablePrefix}file`, fields, where, null )
 
             return true

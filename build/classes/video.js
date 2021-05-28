@@ -113,16 +113,14 @@ var _default = /*#__PURE__*/function () {
                 if (!fields.file_id) delete fields.file_id;
                 if (!fields.title) delete fields.title; //if (!fields.text) delete fields.text
 
-                console.log(fields);
-                console.log(where);
-                _context3.next = 7;
+                _context3.next = 5;
                 return _db.DB.Init.Update("".concat(_db.DB.Init.TablePrefix, "file"), fields, where, null);
 
-              case 7:
+              case 5:
                 return _context3.abrupt("return", true);
 
-              case 10:
-                _context3.prev = 10;
+              case 8:
+                _context3.prev = 8;
                 _context3.t0 = _context3["catch"](0);
                 console.log(_context3.t0);
                 throw {
@@ -130,12 +128,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CVideo Edit'
                 };
 
-              case 14:
+              case 12:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[0, 10]]);
+        }, _callee3, null, [[0, 8]]);
       }));
 
       function Edit(_x4, _x5) {
