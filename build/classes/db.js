@@ -247,17 +247,19 @@ var DB = /*#__PURE__*/function () {
 
                 sql = "UPDATE ".concat(tableName, " SET ").concat(field, "  ");
                 if (arWhere) sql += " WHERE ".concat(where);
-                if (arReturn) sql += " RETURNING ".concat(arReturn); //выполнение
+                if (arReturn) sql += " RETURNING ".concat(arReturn);
+                console.log(sql);
+                console.log(value); //выполнение
 
-                _context3.next = 19;
+                _context3.next = 21;
                 return this.pool.query(sql, value);
 
-              case 19:
+              case 21:
                 result = _context3.sent;
                 return _context3.abrupt("return", result.rows);
 
-              case 23:
-                _context3.prev = 23;
+              case 25:
+                _context3.prev = 25;
                 _context3.t0 = _context3["catch"](2);
                 if (!_context3.t0.err) console.log(_context3.t0);
                 throw {
@@ -265,12 +267,12 @@ var DB = /*#__PURE__*/function () {
                   msg: 'DB Update'
                 };
 
-              case 27:
+              case 29:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, this, [[2, 23]]);
+        }, _callee3, this, [[2, 25]]);
       }));
 
       function Update(_x4, _x5) {

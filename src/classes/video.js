@@ -29,6 +29,33 @@ export default class {
         }
     }
 
+    //добавить новое видео
+    static async Edit ( fields, where ) {
+        try {
+            // сделать проверку, что файл и альбом твои
+/*
+            let arFields = {
+                file_id: fields.file_id,
+                title: fields.title,
+                text: fields.text
+            }
+*/
+            if (!fields.file_id) delete fields.file_id
+            if (!fields.title) delete fields.title
+            //if (!fields.text) delete fields.text
+
+            console.log(fields)
+            console.log(where)
+            await DB.Init.Update ( `${DB.Init.TablePrefix}file`, fields, where, null )
+
+            return true
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CVideo Edit'})
+        }
+    }
+
     //загрузка по id
     static async GetById ( ids ) {
         try {
@@ -48,6 +75,8 @@ export default class {
                     item.file_preview = await CFile.GetById([item.file_preview]);
                     item.file_preview = item.file_preview[0]
                 }*/
+
+                if (item.text === null) item.text = ''
 
                 /* загрузка инфы о файле */
                 if (item.file_id) {
