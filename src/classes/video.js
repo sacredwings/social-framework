@@ -58,7 +58,7 @@ export default class {
     static async GetById ( ids ) {
         try {
             ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids}) AND ((type='video/mp4') OR (type='video/avi'))`)
+            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids}) AND ((type='video/mp4') OR (type='video/avi')) ORDER BY id DESC`)
 
             result = await Promise.all(result.map(async (item, i) => {
 
@@ -96,7 +96,7 @@ export default class {
     //загрузка
     static async Get ( fields ) {
         try {
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND ((type='video/mp4') OR (type='video/avi'))`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND ((type='video/mp4') OR (type='video/avi')) ORDER BY id DESC`
 
             /* видео из альбома */
             if (fields.album_id)

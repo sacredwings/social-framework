@@ -155,7 +155,7 @@ var _default = /*#__PURE__*/function () {
                 _context5.prev = 0;
                 ids = ids.join(',');
                 _context5.next = 4;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE id in (").concat(ids, ") AND ((type='video/mp4') OR (type='video/avi'))"));
+                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE id in (").concat(ids, ") AND ((type='video/mp4') OR (type='video/avi')) ORDER BY id DESC"));
 
               case 4:
                 result = _context5.sent;
@@ -246,7 +246,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context7.prev = _context7.next) {
               case 0:
                 _context7.prev = 0;
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE owner_id=").concat(fields.owner_id, " AND ((type='video/mp4') OR (type='video/avi'))");
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE owner_id=").concat(fields.owner_id, " AND ((type='video/mp4') OR (type='video/avi')) ORDER BY id DESC");
                 /* видео из альбома */
 
                 if (fields.album_id) sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "file.*\n                    FROM ").concat(_db.DB.Init.TablePrefix, "album_link\n                    INNER JOIN ").concat(_db.DB.Init.TablePrefix, "file ON ").concat(_db.DB.Init.TablePrefix, "file.id = ").concat(_db.DB.Init.TablePrefix, "album_link.file_id WHERE ").concat(_db.DB.Init.TablePrefix, "album_link.album_id = ").concat(fields.album_id, " AND (").concat(_db.DB.Init.TablePrefix, "file.type='video/mp4')");
