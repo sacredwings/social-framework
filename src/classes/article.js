@@ -54,15 +54,14 @@ export default class {
             /*
             result = await Promise.all(result.map(async (item, i) => {
                 // загрузка инфы о файле
+
                 if (item.file_ids)
                     item.file_ids = await CFile.GetById(item.file_ids);
 
                 return item;
             }));
-
-            return result
             */
-
+            return result
 
         } catch (err) {
             console.log(err)
@@ -79,7 +78,7 @@ export default class {
             if (fields.album_id)
                 sql = `SELECT ${DB.Init.TablePrefix}article.*
                     FROM ${DB.Init.TablePrefix}album_article_link
-                    INNER JOIN ${DB.Init.TablePrefix}article ON ${DB.Init.TablePrefix}article.id = ${DB.Init.TablePrefix}album_article_link.object_id WHERE ${DB.Init.TablePrefix}album_article_link.album_id = ${fields.album_id} AND owner_id=${fields.owner_id}`
+                    INNER JOIN ${DB.Init.TablePrefix}article ON ${DB.Init.TablePrefix}article.id = ${DB.Init.TablePrefix}album_article_link.object_id WHERE ${DB.Init.TablePrefix}album_article_link.album_id = ${fields.album_id} AND owner_id=${fields.owner_id} ORDER BY id DESC`
 
             sql += ` LIMIT $1 OFFSET $2 `
 

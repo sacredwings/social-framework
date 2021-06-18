@@ -152,11 +152,10 @@ var _default = /*#__PURE__*/function () {
 
               case 4:
                 result = _context4.sent;
-                _context4.next = 11;
-                break;
+                return _context4.abrupt("return", result);
 
-              case 7:
-                _context4.prev = 7;
+              case 8:
+                _context4.prev = 8;
                 _context4.t0 = _context4["catch"](0);
                 console.log(_context4.t0);
                 throw {
@@ -164,12 +163,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CArticle GetById'
                 };
 
-              case 11:
+              case 12:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, null, [[0, 7]]);
+        }, _callee4, null, [[0, 8]]);
       }));
 
       function GetById(_x5) {
@@ -192,7 +191,7 @@ var _default = /*#__PURE__*/function () {
                 sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "article WHERE owner_id=").concat(fields.owner_id);
                 /* видео из альбома */
 
-                if (fields.album_id) sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "article.*\n                    FROM ").concat(_db.DB.Init.TablePrefix, "album_article_link\n                    INNER JOIN ").concat(_db.DB.Init.TablePrefix, "article ON ").concat(_db.DB.Init.TablePrefix, "article.id = ").concat(_db.DB.Init.TablePrefix, "album_article_link.object_id WHERE ").concat(_db.DB.Init.TablePrefix, "album_article_link.album_id = ").concat(fields.album_id, " AND owner_id=").concat(fields.owner_id);
+                if (fields.album_id) sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "article.*\n                    FROM ").concat(_db.DB.Init.TablePrefix, "album_article_link\n                    INNER JOIN ").concat(_db.DB.Init.TablePrefix, "article ON ").concat(_db.DB.Init.TablePrefix, "article.id = ").concat(_db.DB.Init.TablePrefix, "album_article_link.object_id WHERE ").concat(_db.DB.Init.TablePrefix, "album_article_link.album_id = ").concat(fields.album_id, " AND owner_id=").concat(fields.owner_id, " ORDER BY id DESC");
                 sql += " LIMIT $1 OFFSET $2 ";
                 _context5.next = 6;
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
