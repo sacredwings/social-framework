@@ -78,7 +78,7 @@ export default class {
     }
 
     //количество
-    static async Count ( fields ) {
+    static async GetCount ( fields ) {
         try {
             let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}group WHERE create_id=${fields.owner_id}`
             let result = await DB.Init.Query(sql)
@@ -86,7 +86,21 @@ export default class {
             return Number (result[0].count)
         } catch (err) {
             console.log(err)
-            throw ({err: 4004000, msg: 'CGroup Count'})
+            throw ({err: 4004000, msg: 'CGroup GetCount'})
+        }
+    }
+
+    //количество всех видео
+    static async Count ( fields ) {
+        try {
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}group`
+
+            let result = await DB.Init.Query(sql)
+            return Number (result[0].count)
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CGroup Count'})
         }
     }
 

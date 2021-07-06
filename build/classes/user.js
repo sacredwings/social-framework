@@ -737,6 +737,48 @@ var _default = /*#__PURE__*/function () {
       }
 
       return SearchCount;
+    }() //количество всех видео
+
+  }, {
+    key: "Count",
+    value: function () {
+      var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(fields) {
+        var sql, result;
+        return regeneratorRuntime.wrap(function _callee13$(_context13) {
+          while (1) {
+            switch (_context13.prev = _context13.next) {
+              case 0:
+                _context13.prev = 0;
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "user");
+                _context13.next = 4;
+                return _db.DB.Init.Query(sql);
+
+              case 4:
+                result = _context13.sent;
+                return _context13.abrupt("return", Number(result[0].count));
+
+              case 8:
+                _context13.prev = 8;
+                _context13.t0 = _context13["catch"](0);
+                console.log(_context13.t0);
+                throw {
+                  err: 8001000,
+                  msg: 'CVideo Count'
+                };
+
+              case 12:
+              case "end":
+                return _context13.stop();
+            }
+          }
+        }, _callee13, null, [[0, 8]]);
+      }));
+
+      function Count(_x16) {
+        return _Count.apply(this, arguments);
+      }
+
+      return Count;
     }()
     /*
     static async reset (value) {

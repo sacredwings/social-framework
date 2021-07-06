@@ -226,7 +226,8 @@ var _default = /*#__PURE__*/function () {
 
   }, {
     key: "Count",
-    value: function () {
+    value: //количество всех видео
+    function () {
       var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(fields) {
         var sql, result;
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
@@ -234,7 +235,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context6.prev = _context6.next) {
               case 0:
                 _context6.prev = 0;
-                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "article WHERE owner_id=").concat(fields.owner_id);
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "article");
                 _context6.next = 4;
                 return _db.DB.Init.Query(sql);
 

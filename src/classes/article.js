@@ -121,6 +121,20 @@ export default class {
 
         } catch (err) {
             console.log(err)
+            throw ({err: 8001000, msg: 'CArticle GetCount'})
+        }
+    }
+
+    //количество всех видео
+    static async Count ( fields ) {
+        try {
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}article`
+
+            let result = await DB.Init.Query(sql)
+            return Number (result[0].count)
+
+        } catch (err) {
+            console.log(err)
             throw ({err: 8001000, msg: 'CArticle Count'})
         }
     }

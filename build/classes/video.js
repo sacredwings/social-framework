@@ -320,9 +320,9 @@ var _default = /*#__PURE__*/function () {
     }() //количество
 
   }, {
-    key: "Count",
+    key: "GetCount",
     value: function () {
-      var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(fields) {
+      var _GetCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(fields) {
         var sql, result;
         return regeneratorRuntime.wrap(function _callee8$(_context8) {
           while (1) {
@@ -346,7 +346,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context8.t0);
                 throw {
                   err: 8001000,
-                  msg: 'CVideo Count'
+                  msg: 'CVideo GetCount'
                 };
 
               case 13:
@@ -357,7 +357,49 @@ var _default = /*#__PURE__*/function () {
         }, _callee8, null, [[0, 9]]);
       }));
 
-      function Count(_x12) {
+      function GetCount(_x12) {
+        return _GetCount.apply(this, arguments);
+      }
+
+      return GetCount;
+    }() //количество всех видео
+
+  }, {
+    key: "Count",
+    value: function () {
+      var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(fields) {
+        var sql, result;
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                _context9.prev = 0;
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE (type='video/mp4') OR (type='video/avi')");
+                _context9.next = 4;
+                return _db.DB.Init.Query(sql);
+
+              case 4:
+                result = _context9.sent;
+                return _context9.abrupt("return", Number(result[0].count));
+
+              case 8:
+                _context9.prev = 8;
+                _context9.t0 = _context9["catch"](0);
+                console.log(_context9.t0);
+                throw {
+                  err: 8001000,
+                  msg: 'CVideo Count'
+                };
+
+              case 12:
+              case "end":
+                return _context9.stop();
+            }
+          }
+        }, _callee9, null, [[0, 8]]);
+      }));
+
+      function Count(_x13) {
         return _Count.apply(this, arguments);
       }
 
@@ -367,20 +409,20 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetUsers",
     value: function () {
-      var _GetUsers = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(items) {
+      var _GetUsers = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(items) {
         var arUsersId, sql, users;
-        return regeneratorRuntime.wrap(function _callee10$(_context10) {
+        return regeneratorRuntime.wrap(function _callee11$(_context11) {
           while (1) {
-            switch (_context10.prev = _context10.next) {
+            switch (_context11.prev = _context11.next) {
               case 0:
-                _context10.prev = 0;
+                _context11.prev = 0;
 
                 if (!(!items || !items.length)) {
-                  _context10.next = 3;
+                  _context11.next = 3;
                   break;
                 }
 
-                return _context10.abrupt("return", []);
+                return _context11.abrupt("return", []);
 
               case 3:
                 /* выгрузка индентификаторов из объектов / пользователей */
@@ -390,54 +432,54 @@ var _default = /*#__PURE__*/function () {
 
                 arUsersId = Array.from(new Set(arUsersId));
                 sql = "SELECT id,login,first_name,create_date,birthday,photo FROM ".concat(_db.DB.Init.TablePrefix, "user WHERE id in (").concat(arUsersId, ")");
-                _context10.next = 8;
+                _context11.next = 8;
                 return _db.DB.Init.Query(sql);
 
               case 8:
-                users = _context10.sent;
-                _context10.next = 11;
+                users = _context11.sent;
+                _context11.next = 11;
                 return Promise.all(users.map( /*#__PURE__*/function () {
-                  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(user, i) {
-                    return regeneratorRuntime.wrap(function _callee9$(_context9) {
+                  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(user, i) {
+                    return regeneratorRuntime.wrap(function _callee10$(_context10) {
                       while (1) {
-                        switch (_context9.prev = _context9.next) {
+                        switch (_context10.prev = _context10.next) {
                           case 0:
                             if (!user.photo) {
-                              _context9.next = 5;
+                              _context10.next = 5;
                               break;
                             }
 
-                            _context9.next = 3;
+                            _context10.next = 3;
                             return _file["default"].GetById([user.photo]);
 
                           case 3:
-                            user.photo = _context9.sent;
+                            user.photo = _context10.sent;
                             user.photo = user.photo[0];
 
                           case 5:
-                            return _context9.abrupt("return", user);
+                            return _context10.abrupt("return", user);
 
                           case 6:
                           case "end":
-                            return _context9.stop();
+                            return _context10.stop();
                         }
                       }
-                    }, _callee9);
+                    }, _callee10);
                   }));
 
-                  return function (_x14, _x15) {
+                  return function (_x15, _x16) {
                     return _ref4.apply(this, arguments);
                   };
                 }()));
 
               case 11:
-                users = _context10.sent;
-                return _context10.abrupt("return", users);
+                users = _context11.sent;
+                return _context11.abrupt("return", users);
 
               case 15:
-                _context10.prev = 15;
-                _context10.t0 = _context10["catch"](0);
-                console.log(_context10.t0);
+                _context11.prev = 15;
+                _context11.t0 = _context11["catch"](0);
+                console.log(_context11.t0);
                 throw {
                   err: 8001000,
                   msg: 'CVideo GetUsers'
@@ -445,13 +487,13 @@ var _default = /*#__PURE__*/function () {
 
               case 19:
               case "end":
-                return _context10.stop();
+                return _context11.stop();
             }
           }
-        }, _callee10, null, [[0, 15]]);
+        }, _callee11, null, [[0, 15]]);
       }));
 
-      function GetUsers(_x13) {
+      function GetUsers(_x14) {
         return _GetUsers.apply(this, arguments);
       }
 
@@ -461,26 +503,26 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "EditAlbum",
     value: function () {
-      var _EditAlbum = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(id, fields) {
+      var _EditAlbum = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(id, fields) {
         var result;
-        return regeneratorRuntime.wrap(function _callee11$(_context11) {
+        return regeneratorRuntime.wrap(function _callee12$(_context12) {
           while (1) {
-            switch (_context11.prev = _context11.next) {
+            switch (_context12.prev = _context12.next) {
               case 0:
-                _context11.prev = 0;
-                _context11.next = 3;
+                _context12.prev = 0;
+                _context12.next = 3;
                 return _db.DB.Init.Update("".concat(_db.DB.Init.TablePrefix, "album"), fields, {
                   id: id
                 }, "ID");
 
               case 3:
-                result = _context11.sent;
-                return _context11.abrupt("return", result[0]);
+                result = _context12.sent;
+                return _context12.abrupt("return", result[0]);
 
               case 7:
-                _context11.prev = 7;
-                _context11.t0 = _context11["catch"](0);
-                console.log(_context11.t0);
+                _context12.prev = 7;
+                _context12.t0 = _context12["catch"](0);
+                console.log(_context12.t0);
                 throw {
                   err: 8001000,
                   msg: 'CVideo Edit'
@@ -488,13 +530,13 @@ var _default = /*#__PURE__*/function () {
 
               case 11:
               case "end":
-                return _context11.stop();
+                return _context12.stop();
             }
           }
-        }, _callee11, null, [[0, 7]]);
+        }, _callee12, null, [[0, 7]]);
       }));
 
-      function EditAlbum(_x16, _x17) {
+      function EditAlbum(_x17, _x18) {
         return _EditAlbum.apply(this, arguments);
       }
 
@@ -504,27 +546,27 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "AddAlbum",
     value: function () {
-      var _AddAlbum = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(fields) {
+      var _AddAlbum = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(fields) {
         var result;
-        return regeneratorRuntime.wrap(function _callee12$(_context12) {
+        return regeneratorRuntime.wrap(function _callee13$(_context13) {
           while (1) {
-            switch (_context12.prev = _context12.next) {
+            switch (_context13.prev = _context13.next) {
               case 0:
-                _context12.prev = 0;
+                _context13.prev = 0;
                 fields.module = 'video'; //если владелец не указан
 
                 if (!fields.owner_id) fields.owner_id = fields.from_id;
-                _context12.next = 5;
+                _context13.next = 5;
                 return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "album"), fields, "ID");
 
               case 5:
-                result = _context12.sent;
-                return _context12.abrupt("return", result[0]);
+                result = _context13.sent;
+                return _context13.abrupt("return", result[0]);
 
               case 9:
-                _context12.prev = 9;
-                _context12.t0 = _context12["catch"](0);
-                console.log(_context12.t0);
+                _context13.prev = 9;
+                _context13.t0 = _context13["catch"](0);
+                console.log(_context13.t0);
                 throw {
                   err: 8001000,
                   msg: 'CVideo Add'
@@ -532,13 +574,13 @@ var _default = /*#__PURE__*/function () {
 
               case 13:
               case "end":
-                return _context12.stop();
+                return _context13.stop();
             }
           }
-        }, _callee12, null, [[0, 9]]);
+        }, _callee13, null, [[0, 9]]);
       }));
 
-      function AddAlbum(_x18) {
+      function AddAlbum(_x19) {
         return _AddAlbum.apply(this, arguments);
       }
 
@@ -548,63 +590,63 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetAlbums",
     value: function () {
-      var _GetAlbums = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14(fields) {
+      var _GetAlbums = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(fields) {
         var sql, result;
-        return regeneratorRuntime.wrap(function _callee14$(_context14) {
+        return regeneratorRuntime.wrap(function _callee15$(_context15) {
           while (1) {
-            switch (_context14.prev = _context14.next) {
+            switch (_context15.prev = _context15.next) {
               case 0:
-                _context14.prev = 0;
+                _context15.prev = 0;
                 sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "album WHERE owner_id=").concat(fields.owner_id, " AND module='video' ORDER BY title ASC");
                 sql += " LIMIT $1 OFFSET $2 ";
-                _context14.next = 5;
+                _context15.next = 5;
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
 
               case 5:
-                result = _context14.sent;
-                _context14.next = 8;
+                result = _context15.sent;
+                _context15.next = 8;
                 return Promise.all(result.map( /*#__PURE__*/function () {
-                  var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(item, i) {
-                    return regeneratorRuntime.wrap(function _callee13$(_context13) {
+                  var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14(item, i) {
+                    return regeneratorRuntime.wrap(function _callee14$(_context14) {
                       while (1) {
-                        switch (_context13.prev = _context13.next) {
+                        switch (_context14.prev = _context14.next) {
                           case 0:
                             if (!item.image_id) {
-                              _context13.next = 5;
+                              _context14.next = 5;
                               break;
                             }
 
-                            _context13.next = 3;
+                            _context14.next = 3;
                             return _file["default"].GetById([item.image_id]);
 
                           case 3:
-                            item.image_id = _context13.sent;
+                            item.image_id = _context14.sent;
                             item.image_id = item.image_id[0];
 
                           case 5:
-                            return _context13.abrupt("return", item);
+                            return _context14.abrupt("return", item);
 
                           case 6:
                           case "end":
-                            return _context13.stop();
+                            return _context14.stop();
                         }
                       }
-                    }, _callee13);
+                    }, _callee14);
                   }));
 
-                  return function (_x20, _x21) {
+                  return function (_x21, _x22) {
                     return _ref5.apply(this, arguments);
                   };
                 }()));
 
               case 8:
-                result = _context14.sent;
-                return _context14.abrupt("return", result);
+                result = _context15.sent;
+                return _context15.abrupt("return", result);
 
               case 12:
-                _context14.prev = 12;
-                _context14.t0 = _context14["catch"](0);
-                console.log(_context14.t0);
+                _context15.prev = 12;
+                _context15.t0 = _context15["catch"](0);
+                console.log(_context15.t0);
                 throw {
                   err: 8001000,
                   msg: 'CVideo GetAlbums'
@@ -612,13 +654,13 @@ var _default = /*#__PURE__*/function () {
 
               case 16:
               case "end":
-                return _context14.stop();
+                return _context15.stop();
             }
           }
-        }, _callee14, null, [[0, 12]]);
+        }, _callee15, null, [[0, 12]]);
       }));
 
-      function GetAlbums(_x19) {
+      function GetAlbums(_x20) {
         return _GetAlbums.apply(this, arguments);
       }
 
@@ -628,25 +670,25 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "CountAlbums",
     value: function () {
-      var _CountAlbums = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(fields) {
+      var _CountAlbums = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(fields) {
         var sql, result;
-        return regeneratorRuntime.wrap(function _callee15$(_context15) {
+        return regeneratorRuntime.wrap(function _callee16$(_context16) {
           while (1) {
-            switch (_context15.prev = _context15.next) {
+            switch (_context16.prev = _context16.next) {
               case 0:
-                _context15.prev = 0;
+                _context16.prev = 0;
                 sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "album WHERE owner_id=").concat(fields.owner_id, " AND module='video'");
-                _context15.next = 4;
+                _context16.next = 4;
                 return _db.DB.Init.Query(sql);
 
               case 4:
-                result = _context15.sent;
-                return _context15.abrupt("return", Number(result[0].count));
+                result = _context16.sent;
+                return _context16.abrupt("return", Number(result[0].count));
 
               case 8:
-                _context15.prev = 8;
-                _context15.t0 = _context15["catch"](0);
-                console.log(_context15.t0);
+                _context16.prev = 8;
+                _context16.t0 = _context16["catch"](0);
+                console.log(_context16.t0);
                 throw {
                   err: 8001000,
                   msg: 'CVideo CountAlbums'
@@ -654,13 +696,13 @@ var _default = /*#__PURE__*/function () {
 
               case 12:
               case "end":
-                return _context15.stop();
+                return _context16.stop();
             }
           }
-        }, _callee15, null, [[0, 8]]);
+        }, _callee16, null, [[0, 8]]);
       }));
 
-      function CountAlbums(_x22) {
+      function CountAlbums(_x23) {
         return _CountAlbums.apply(this, arguments);
       }
 

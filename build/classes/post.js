@@ -236,9 +236,9 @@ var _default = /*#__PURE__*/function () {
     }() //количество
 
   }, {
-    key: "Count",
+    key: "GetCount",
     value: function () {
-      var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(fields) {
+      var _GetCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(fields) {
         var sql, result;
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
@@ -259,7 +259,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context6.t0);
                 throw {
                   err: 6004000,
-                  msg: 'CPost Count'
+                  msg: 'CPost GetCount'
                 };
 
               case 12:
@@ -270,7 +270,49 @@ var _default = /*#__PURE__*/function () {
         }, _callee6, null, [[0, 8]]);
       }));
 
-      function Count(_x8) {
+      function GetCount(_x8) {
+        return _GetCount.apply(this, arguments);
+      }
+
+      return GetCount;
+    }() //количество всех видео
+
+  }, {
+    key: "Count",
+    value: function () {
+      var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(fields) {
+        var sql, result;
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                _context7.prev = 0;
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "post");
+                _context7.next = 4;
+                return _db.DB.Init.Query(sql);
+
+              case 4:
+                result = _context7.sent;
+                return _context7.abrupt("return", Number(result[0].count));
+
+              case 8:
+                _context7.prev = 8;
+                _context7.t0 = _context7["catch"](0);
+                console.log(_context7.t0);
+                throw {
+                  err: 8001000,
+                  msg: 'CPost Count'
+                };
+
+              case 12:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, _callee7, null, [[0, 8]]);
+      }));
+
+      function Count(_x9) {
         return _Count.apply(this, arguments);
       }
 
@@ -280,20 +322,20 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetUsers",
     value: function () {
-      var _GetUsers = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(items) {
+      var _GetUsers = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(items) {
         var arUsersId, sql, users;
-        return regeneratorRuntime.wrap(function _callee8$(_context8) {
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
           while (1) {
-            switch (_context8.prev = _context8.next) {
+            switch (_context9.prev = _context9.next) {
               case 0:
-                _context8.prev = 0;
+                _context9.prev = 0;
 
                 if (!(!items || !items.length)) {
-                  _context8.next = 3;
+                  _context9.next = 3;
                   break;
                 }
 
-                return _context8.abrupt("return", []);
+                return _context9.abrupt("return", []);
 
               case 3:
                 /* выгрузка индентификаторов из объектов / пользователей */
@@ -303,54 +345,54 @@ var _default = /*#__PURE__*/function () {
 
                 arUsersId = Array.from(new Set(arUsersId));
                 sql = "SELECT id,login,first_name,create_date,birthday,photo FROM ".concat(_db.DB.Init.TablePrefix, "user WHERE id in (").concat(arUsersId, ")");
-                _context8.next = 8;
+                _context9.next = 8;
                 return _db.DB.Init.Query(sql);
 
               case 8:
-                users = _context8.sent;
-                _context8.next = 11;
+                users = _context9.sent;
+                _context9.next = 11;
                 return Promise.all(users.map( /*#__PURE__*/function () {
-                  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(user, i) {
-                    return regeneratorRuntime.wrap(function _callee7$(_context7) {
+                  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(user, i) {
+                    return regeneratorRuntime.wrap(function _callee8$(_context8) {
                       while (1) {
-                        switch (_context7.prev = _context7.next) {
+                        switch (_context8.prev = _context8.next) {
                           case 0:
                             if (!user.photo) {
-                              _context7.next = 5;
+                              _context8.next = 5;
                               break;
                             }
 
-                            _context7.next = 3;
+                            _context8.next = 3;
                             return _file["default"].GetById([user.photo]);
 
                           case 3:
-                            user.photo = _context7.sent;
+                            user.photo = _context8.sent;
                             user.photo = user.photo[0];
 
                           case 5:
-                            return _context7.abrupt("return", user);
+                            return _context8.abrupt("return", user);
 
                           case 6:
                           case "end":
-                            return _context7.stop();
+                            return _context8.stop();
                         }
                       }
-                    }, _callee7);
+                    }, _callee8);
                   }));
 
-                  return function (_x10, _x11) {
+                  return function (_x11, _x12) {
                     return _ref3.apply(this, arguments);
                   };
                 }()));
 
               case 11:
-                users = _context8.sent;
-                return _context8.abrupt("return", users);
+                users = _context9.sent;
+                return _context9.abrupt("return", users);
 
               case 15:
-                _context8.prev = 15;
-                _context8.t0 = _context8["catch"](0);
-                console.log(_context8.t0);
+                _context9.prev = 15;
+                _context9.t0 = _context9["catch"](0);
+                console.log(_context9.t0);
                 throw {
                   err: 6005000,
                   msg: 'CPost GetUsers'
@@ -358,13 +400,13 @@ var _default = /*#__PURE__*/function () {
 
               case 19:
               case "end":
-                return _context8.stop();
+                return _context9.stop();
             }
           }
-        }, _callee8, null, [[0, 15]]);
+        }, _callee9, null, [[0, 15]]);
       }));
 
-      function GetUsers(_x9) {
+      function GetUsers(_x10) {
         return _GetUsers.apply(this, arguments);
       }
 
@@ -374,98 +416,7 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Search",
     value: function () {
-      var _Search = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(fields) {
-        var there, sql, result;
-        return regeneratorRuntime.wrap(function _callee10$(_context10) {
-          while (1) {
-            switch (_context10.prev = _context10.next) {
-              case 0:
-                _context10.prev = 0;
-                there = [];
-                if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
-                //запрос
-
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "post "); //объединеие параметров запроса
-
-                if (there.length) sql += "WHERE " + there.join(' AND ');
-                sql += " LIMIT $1 OFFSET $2";
-                _context10.next = 8;
-                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
-
-              case 8:
-                result = _context10.sent;
-                console.log(sql);
-                _context10.next = 12;
-                return Promise.all(result.map( /*#__PURE__*/function () {
-                  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(item, i) {
-                    return regeneratorRuntime.wrap(function _callee9$(_context9) {
-                      while (1) {
-                        switch (_context9.prev = _context9.next) {
-                          case 0:
-                            if (item.from_id) item.from_id = Number(item.from_id);
-                            if (item.owner_id) item.owner_id = Number(item.owner_id);
-                            if (item.create_id) item.create_id = Number(item.create_id);
-                            /* загрузка инфы о файле */
-
-                            if (!item.files) {
-                              _context9.next = 7;
-                              break;
-                            }
-
-                            _context9.next = 6;
-                            return _file["default"].GetById(item.files);
-
-                          case 6:
-                            item.files = _context9.sent;
-
-                          case 7:
-                            return _context9.abrupt("return", item);
-
-                          case 8:
-                          case "end":
-                            return _context9.stop();
-                        }
-                      }
-                    }, _callee9);
-                  }));
-
-                  return function (_x13, _x14) {
-                    return _ref4.apply(this, arguments);
-                  };
-                }()));
-
-              case 12:
-                result = _context10.sent;
-                return _context10.abrupt("return", result);
-
-              case 16:
-                _context10.prev = 16;
-                _context10.t0 = _context10["catch"](0);
-                console.log(_context10.t0);
-                throw {
-                  err: 7001000,
-                  msg: 'CPost Search'
-                };
-
-              case 20:
-              case "end":
-                return _context10.stop();
-            }
-          }
-        }, _callee10, null, [[0, 16]]);
-      }));
-
-      function Search(_x12) {
-        return _Search.apply(this, arguments);
-      }
-
-      return Search;
-    }() //количество / поиск по обсуждениям
-
-  }, {
-    key: "SearchCount",
-    value: function () {
-      var _SearchCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(fields) {
+      var _Search = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(fields) {
         var there, sql, result;
         return regeneratorRuntime.wrap(function _callee11$(_context11) {
           while (1) {
@@ -476,21 +427,112 @@ var _default = /*#__PURE__*/function () {
                 if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
                 //запрос
 
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "post "); //объединеие параметров запроса
+
+                if (there.length) sql += "WHERE " + there.join(' AND ');
+                sql += " LIMIT $1 OFFSET $2";
+                _context11.next = 8;
+                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
+
+              case 8:
+                result = _context11.sent;
+                console.log(sql);
+                _context11.next = 12;
+                return Promise.all(result.map( /*#__PURE__*/function () {
+                  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(item, i) {
+                    return regeneratorRuntime.wrap(function _callee10$(_context10) {
+                      while (1) {
+                        switch (_context10.prev = _context10.next) {
+                          case 0:
+                            if (item.from_id) item.from_id = Number(item.from_id);
+                            if (item.owner_id) item.owner_id = Number(item.owner_id);
+                            if (item.create_id) item.create_id = Number(item.create_id);
+                            /* загрузка инфы о файле */
+
+                            if (!item.files) {
+                              _context10.next = 7;
+                              break;
+                            }
+
+                            _context10.next = 6;
+                            return _file["default"].GetById(item.files);
+
+                          case 6:
+                            item.files = _context10.sent;
+
+                          case 7:
+                            return _context10.abrupt("return", item);
+
+                          case 8:
+                          case "end":
+                            return _context10.stop();
+                        }
+                      }
+                    }, _callee10);
+                  }));
+
+                  return function (_x14, _x15) {
+                    return _ref4.apply(this, arguments);
+                  };
+                }()));
+
+              case 12:
+                result = _context11.sent;
+                return _context11.abrupt("return", result);
+
+              case 16:
+                _context11.prev = 16;
+                _context11.t0 = _context11["catch"](0);
+                console.log(_context11.t0);
+                throw {
+                  err: 7001000,
+                  msg: 'CPost Search'
+                };
+
+              case 20:
+              case "end":
+                return _context11.stop();
+            }
+          }
+        }, _callee11, null, [[0, 16]]);
+      }));
+
+      function Search(_x13) {
+        return _Search.apply(this, arguments);
+      }
+
+      return Search;
+    }() //количество / поиск по обсуждениям
+
+  }, {
+    key: "SearchCount",
+    value: function () {
+      var _SearchCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(fields) {
+        var there, sql, result;
+        return regeneratorRuntime.wrap(function _callee12$(_context12) {
+          while (1) {
+            switch (_context12.prev = _context12.next) {
+              case 0:
+                _context12.prev = 0;
+                there = [];
+                if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
+                //запрос
+
                 sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "post "); //объединеие параметров запроса
 
                 if (there.length) sql += "WHERE " + there.join(' AND ');
                 console.log(sql);
-                _context11.next = 8;
+                _context12.next = 8;
                 return _db.DB.Init.Query(sql);
 
               case 8:
-                result = _context11.sent;
-                return _context11.abrupt("return", Number(result[0].count));
+                result = _context12.sent;
+                return _context12.abrupt("return", Number(result[0].count));
 
               case 12:
-                _context11.prev = 12;
-                _context11.t0 = _context11["catch"](0);
-                console.log(_context11.t0);
+                _context12.prev = 12;
+                _context12.t0 = _context12["catch"](0);
+                console.log(_context12.t0);
                 throw {
                   err: 7001000,
                   msg: 'CPost SearchCount'
@@ -498,13 +540,13 @@ var _default = /*#__PURE__*/function () {
 
               case 16:
               case "end":
-                return _context11.stop();
+                return _context12.stop();
             }
           }
-        }, _callee11, null, [[0, 12]]);
+        }, _callee12, null, [[0, 12]]);
       }));
 
-      function SearchCount(_x15) {
+      function SearchCount(_x16) {
         return _SearchCount.apply(this, arguments);
       }
 
@@ -514,24 +556,24 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Delete",
     value: function () {
-      var _Delete = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(id) {
+      var _Delete = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(id) {
         var result;
-        return regeneratorRuntime.wrap(function _callee12$(_context12) {
+        return regeneratorRuntime.wrap(function _callee13$(_context13) {
           while (1) {
-            switch (_context12.prev = _context12.next) {
+            switch (_context13.prev = _context13.next) {
               case 0:
-                _context12.prev = 0;
-                _context12.next = 3;
+                _context13.prev = 0;
+                _context13.next = 3;
                 return _db.DB.Init.Query("DELETE FROM sf_post WHERE id = ".concat(id));
 
               case 3:
-                result = _context12.sent;
-                return _context12.abrupt("return", true);
+                result = _context13.sent;
+                return _context13.abrupt("return", true);
 
               case 7:
-                _context12.prev = 7;
-                _context12.t0 = _context12["catch"](0);
-                console.log(_context12.t0);
+                _context13.prev = 7;
+                _context13.t0 = _context13["catch"](0);
+                console.log(_context13.t0);
                 throw {
                   err: 7001000,
                   msg: 'CPost Delete'
@@ -539,13 +581,13 @@ var _default = /*#__PURE__*/function () {
 
               case 11:
               case "end":
-                return _context12.stop();
+                return _context13.stop();
             }
           }
-        }, _callee12, null, [[0, 7]]);
+        }, _callee13, null, [[0, 7]]);
       }));
 
-      function Delete(_x16) {
+      function Delete(_x17) {
         return _Delete.apply(this, arguments);
       }
 

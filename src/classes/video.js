@@ -125,7 +125,7 @@ export default class {
     }
 
     //количество
-    static async Count ( fields ) {
+    static async GetCount ( fields ) {
         try {
             let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND ((type='video/mp4') OR (type='video/avi'))`
 
@@ -135,6 +135,20 @@ export default class {
                     FROM ${DB.Init.TablePrefix}album_link
                     LEFT JOIN ${DB.Init.TablePrefix}file ON ${DB.Init.TablePrefix}album_link.file_id = ${DB.Init.TablePrefix}file.id
                     WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id} AND ((${DB.Init.TablePrefix}file.type='video/mp4') OR (${DB.Init.TablePrefix}file.type='video/avi'))`
+
+            let result = await DB.Init.Query(sql)
+            return Number (result[0].count)
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CVideo GetCount'})
+        }
+    }
+
+    //количество всех видео
+    static async Count ( fields ) {
+        try {
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}file WHERE (type='video/mp4') OR (type='video/avi')`
 
             let result = await DB.Init.Query(sql)
             return Number (result[0].count)

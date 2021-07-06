@@ -81,7 +81,7 @@ export default class {
     }
 
     //количество
-    static async Count ( fields ) {
+    static async GetCount ( fields ) {
         try {
             let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id}`
             let result = await DB.Init.Query(sql)
@@ -89,7 +89,21 @@ export default class {
             return Number (result[0].count)
         } catch (err) {
             console.log(err)
-            throw ({err: 6004000, msg: 'CPost Count'})
+            throw ({err: 6004000, msg: 'CPost GetCount'})
+        }
+    }
+
+    //количество всех видео
+    static async Count ( fields ) {
+        try {
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}post`
+
+            let result = await DB.Init.Query(sql)
+            return Number (result[0].count)
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CPost Count'})
         }
     }
 
