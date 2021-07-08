@@ -112,7 +112,7 @@ export default class {
     }
 
     //количество
-    static async Count ( fields ) {
+    static async GetCount ( fields ) {
         try {
             let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}article WHERE owner_id=${fields.owner_id}`
             let result = await DB.Init.Query(sql)
