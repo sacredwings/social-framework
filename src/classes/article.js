@@ -175,6 +175,17 @@ export default class {
     }
 
     //добавить новый видео альбом
+    static async EditAlbum ( id, fields ) {
+        try {
+            let result = await DB.Init.Update(`${DB.Init.TablePrefix}album`, fields, {id: id},`ID`)
+            return result[0]
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CArticle Edit'})
+        }
+    }
+
+    //добавить новый видео альбом
     static async AddAlbum ( fields ) {
         try {
             fields.module = 'article'
