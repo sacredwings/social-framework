@@ -614,81 +614,7 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Search",
     value: function () {
-      var _Search = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(fields) {
-        var there, sql, result;
-        return regeneratorRuntime.wrap(function _callee15$(_context15) {
-          while (1) {
-            switch (_context15.prev = _context15.next) {
-              case 0:
-                _context15.prev = 0;
-                there = [];
-                if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
-                //запрос
-
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "article "); //объединеие параметров запроса
-
-                if (there.length) sql += "WHERE " + there.join(' AND ');
-                sql += " LIMIT $1 OFFSET $2";
-                _context15.next = 8;
-                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
-
-              case 8:
-                result = _context15.sent;
-                console.log(sql);
-                _context15.next = 12;
-                return Promise.all(result.map( /*#__PURE__*/function () {
-                  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14(item, i) {
-                    return regeneratorRuntime.wrap(function _callee14$(_context14) {
-                      while (1) {
-                        switch (_context14.prev = _context14.next) {
-                          case 0:
-                            return _context14.abrupt("return", item);
-
-                          case 1:
-                          case "end":
-                            return _context14.stop();
-                        }
-                      }
-                    }, _callee14);
-                  }));
-
-                  return function (_x18, _x19) {
-                    return _ref4.apply(this, arguments);
-                  };
-                }()));
-
-              case 12:
-                result = _context15.sent;
-                return _context15.abrupt("return", result);
-
-              case 16:
-                _context15.prev = 16;
-                _context15.t0 = _context15["catch"](0);
-                console.log(_context15.t0);
-                throw {
-                  err: 7001000,
-                  msg: 'CArticle Search'
-                };
-
-              case 20:
-              case "end":
-                return _context15.stop();
-            }
-          }
-        }, _callee15, null, [[0, 16]]);
-      }));
-
-      function Search(_x17) {
-        return _Search.apply(this, arguments);
-      }
-
-      return Search;
-    }() //количество / поиск
-
-  }, {
-    key: "SearchCount",
-    value: function () {
-      var _SearchCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(fields) {
+      var _Search = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(fields) {
         var there, sql, result;
         return regeneratorRuntime.wrap(function _callee16$(_context16) {
           while (1) {
@@ -699,21 +625,95 @@ var _default = /*#__PURE__*/function () {
                 if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
                 //запрос
 
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "article "); //объединеие параметров запроса
+
+                if (there.length) sql += "WHERE " + there.join(' AND ');
+                sql += " LIMIT $1 OFFSET $2";
+                _context16.next = 8;
+                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
+
+              case 8:
+                result = _context16.sent;
+                console.log(sql);
+                _context16.next = 12;
+                return Promise.all(result.map( /*#__PURE__*/function () {
+                  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(item, i) {
+                    return regeneratorRuntime.wrap(function _callee15$(_context15) {
+                      while (1) {
+                        switch (_context15.prev = _context15.next) {
+                          case 0:
+                            return _context15.abrupt("return", item);
+
+                          case 1:
+                          case "end":
+                            return _context15.stop();
+                        }
+                      }
+                    }, _callee15);
+                  }));
+
+                  return function (_x20, _x21) {
+                    return _ref4.apply(this, arguments);
+                  };
+                }()));
+
+              case 12:
+                result = _context16.sent;
+                return _context16.abrupt("return", result);
+
+              case 16:
+                _context16.prev = 16;
+                _context16.t0 = _context16["catch"](0);
+                console.log(_context16.t0);
+                throw {
+                  err: 7001000,
+                  msg: 'CArticle Search'
+                };
+
+              case 20:
+              case "end":
+                return _context16.stop();
+            }
+          }
+        }, _callee16, null, [[0, 16]]);
+      }));
+
+      function Search(_x19) {
+        return _Search.apply(this, arguments);
+      }
+
+      return Search;
+    }() //количество / поиск
+
+  }, {
+    key: "SearchCount",
+    value: function () {
+      var _SearchCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17(fields) {
+        var there, sql, result;
+        return regeneratorRuntime.wrap(function _callee17$(_context17) {
+          while (1) {
+            switch (_context17.prev = _context17.next) {
+              case 0:
+                _context17.prev = 0;
+                there = [];
+                if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
+                //запрос
+
                 sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "article "); //объединеие параметров запроса
 
                 if (there.length) sql += "WHERE " + there.join(' AND ');
                 console.log(sql);
-                _context16.next = 8;
+                _context17.next = 8;
                 return _db.DB.Init.Query(sql);
 
               case 8:
-                result = _context16.sent;
-                return _context16.abrupt("return", Number(result[0].count));
+                result = _context17.sent;
+                return _context17.abrupt("return", Number(result[0].count));
 
               case 12:
-                _context16.prev = 12;
-                _context16.t0 = _context16["catch"](0);
-                console.log(_context16.t0);
+                _context17.prev = 12;
+                _context17.t0 = _context17["catch"](0);
+                console.log(_context17.t0);
                 throw {
                   err: 7001000,
                   msg: 'CArticle SearchCount'
@@ -721,13 +721,13 @@ var _default = /*#__PURE__*/function () {
 
               case 16:
               case "end":
-                return _context16.stop();
+                return _context17.stop();
             }
           }
-        }, _callee16, null, [[0, 12]]);
+        }, _callee17, null, [[0, 12]]);
       }));
 
-      function SearchCount(_x20) {
+      function SearchCount(_x22) {
         return _SearchCount.apply(this, arguments);
       }
 

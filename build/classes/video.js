@@ -719,11 +719,12 @@ var _default = /*#__PURE__*/function () {
             switch (_context18.prev = _context18.next) {
               case 0:
                 _context18.prev = 0;
-                there = [];
+                there = [" ((type='video/mp4') OR (type='video/avi')) "];
                 if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
                 //запрос
+                //let sql = `SELECT * FROM ${DB.Init.TablePrefix}video `
 
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "video "); //объединеие параметров запроса
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file "); //объединеие параметров запроса
 
                 if (there.length) sql += "WHERE " + there.join(' AND ');
                 sql += " LIMIT $1 OFFSET $2";
@@ -805,11 +806,12 @@ var _default = /*#__PURE__*/function () {
             switch (_context19.prev = _context19.next) {
               case 0:
                 _context19.prev = 0;
-                there = [];
+                there = [" ((type='video/mp4') OR (type='video/avi')) "];
                 if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
                 //запрос
+                //let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}video `
 
-                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "video "); //объединеие параметров запроса
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "file "); //объединеие параметров запроса
 
                 if (there.length) sql += "WHERE " + there.join(' AND ');
                 console.log(sql);

@@ -262,13 +262,14 @@ export default class {
     //поиск по обсуждениям
     static async Search ( fields ) {
         try {
-            let there = []
+            let there = [` ((type='video/mp4') OR (type='video/avi')) `]
 
             if (fields.q)
                 there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
 
             //запрос
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}video `
+            //let sql = `SELECT * FROM ${DB.Init.TablePrefix}video `
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}file `
 
             //объединеие параметров запроса
             if (there.length)
@@ -308,13 +309,14 @@ export default class {
     //количество / поиск
     static async SearchCount ( fields ) {
         try {
-            let there = []
+            let there = [` ((type='video/mp4') OR (type='video/avi')) `]
 
             if (fields.q)
                 there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
 
             //запрос
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}video `
+            //let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}video `
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}file `
 
             //объединеие параметров запроса
             if (there.length)
