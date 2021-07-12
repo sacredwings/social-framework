@@ -176,7 +176,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CGroup Search'})
+            throw ({err: 7001000, msg: 'CTopic Search'})
         }
     }
 
@@ -202,7 +202,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CGroup SearchCount'})
+            throw ({err: 7001000, msg: 'CTopic SearchCount'})
         }
     }
 }

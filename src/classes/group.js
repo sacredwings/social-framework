@@ -207,7 +207,7 @@ export default class {
         }
     }
 
-    //количество / поиск по группам
+    //количество / поиск
     static async SearchCount ( fields ) {
         try {
             let there = []

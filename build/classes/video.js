@@ -707,6 +707,141 @@ var _default = /*#__PURE__*/function () {
       }
 
       return CountAlbums;
+    }() //поиск по обсуждениям
+
+  }, {
+    key: "Search",
+    value: function () {
+      var _Search = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18(fields) {
+        var there, sql, result;
+        return regeneratorRuntime.wrap(function _callee18$(_context18) {
+          while (1) {
+            switch (_context18.prev = _context18.next) {
+              case 0:
+                _context18.prev = 0;
+                there = [];
+                if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
+                //запрос
+
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "video "); //объединеие параметров запроса
+
+                if (there.length) sql += "WHERE " + there.join(' AND ');
+                sql += " LIMIT $1 OFFSET $2";
+                _context18.next = 8;
+                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
+
+              case 8:
+                result = _context18.sent;
+                console.log(sql);
+                _context18.next = 12;
+                return Promise.all(result.map( /*#__PURE__*/function () {
+                  var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17(item, i) {
+                    return regeneratorRuntime.wrap(function _callee17$(_context17) {
+                      while (1) {
+                        switch (_context17.prev = _context17.next) {
+                          case 0:
+                            if (!item.file_id) {
+                              _context17.next = 4;
+                              break;
+                            }
+
+                            _context17.next = 3;
+                            return _file["default"].GetById(item.file_id);
+
+                          case 3:
+                            item.file_id = _context17.sent;
+
+                          case 4:
+                            return _context17.abrupt("return", item);
+
+                          case 5:
+                          case "end":
+                            return _context17.stop();
+                        }
+                      }
+                    }, _callee17);
+                  }));
+
+                  return function (_x25, _x26) {
+                    return _ref6.apply(this, arguments);
+                  };
+                }()));
+
+              case 12:
+                result = _context18.sent;
+                return _context18.abrupt("return", result);
+
+              case 16:
+                _context18.prev = 16;
+                _context18.t0 = _context18["catch"](0);
+                console.log(_context18.t0);
+                throw {
+                  err: 7001000,
+                  msg: 'CVideo Search'
+                };
+
+              case 20:
+              case "end":
+                return _context18.stop();
+            }
+          }
+        }, _callee18, null, [[0, 16]]);
+      }));
+
+      function Search(_x24) {
+        return _Search.apply(this, arguments);
+      }
+
+      return Search;
+    }() //количество / поиск
+
+  }, {
+    key: "SearchCount",
+    value: function () {
+      var _SearchCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(fields) {
+        var there, sql, result;
+        return regeneratorRuntime.wrap(function _callee19$(_context19) {
+          while (1) {
+            switch (_context19.prev = _context19.next) {
+              case 0:
+                _context19.prev = 0;
+                there = [];
+                if (fields.q) there.push(" to_tsvector(title) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
+                //запрос
+
+                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "video "); //объединеие параметров запроса
+
+                if (there.length) sql += "WHERE " + there.join(' AND ');
+                console.log(sql);
+                _context19.next = 8;
+                return _db.DB.Init.Query(sql);
+
+              case 8:
+                result = _context19.sent;
+                return _context19.abrupt("return", Number(result[0].count));
+
+              case 12:
+                _context19.prev = 12;
+                _context19.t0 = _context19["catch"](0);
+                console.log(_context19.t0);
+                throw {
+                  err: 7001000,
+                  msg: 'CVideo SearchCount'
+                };
+
+              case 16:
+              case "end":
+                return _context19.stop();
+            }
+          }
+        }, _callee19, null, [[0, 12]]);
+      }));
+
+      function SearchCount(_x27) {
+        return _SearchCount.apply(this, arguments);
+      }
+
+      return SearchCount;
     }()
   }]);
 

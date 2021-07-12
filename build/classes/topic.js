@@ -484,7 +484,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context11.t0);
                 throw {
                   err: 7001000,
-                  msg: 'CGroup Search'
+                  msg: 'CTopic Search'
                 };
 
               case 20:
@@ -533,7 +533,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(_context12.t0);
                 throw {
                   err: 7001000,
-                  msg: 'CGroup SearchCount'
+                  msg: 'CTopic SearchCount'
                 };
 
               case 16:

@@ -588,7 +588,7 @@ var _default = /*#__PURE__*/function () {
       }
 
       return Search;
-    }() //количество / поиск по группам
+    }() //количество / поиск
 
   }, {
     key: "SearchCount",

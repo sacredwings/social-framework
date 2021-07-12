@@ -227,4 +227,80 @@ export default class {
             throw ({err: 8001000, msg: 'CArticle CountAlbums'})
         }
     }
+
+    //поиск
+    static async Search ( fields ) {
+        try {
+            let there = []
+
+            if (fields.q)
+                there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+
+            //запрос
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}article `
+
+            //объединеие параметров запроса
+            if (there.length)
+                sql += `WHERE ` + there.join(' AND ')
+
+            sql += ` LIMIT $1 OFFSET $2`
+
+            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
+            console.log(sql)
+
+            result = await Promise.all(result.map(async (item, i) => {
+
+                /*
+                if (item.type)
+                    item.type = Number (item.type);
+
+                if (item.photo)
+                    item.photo = Number (item.photo);
+
+                if (item.create_id)
+                    item.create_id = Number (item.create_id);
+
+                /* загрузка инфы о файле */
+                /*
+                if (item.photo) {
+                    item.photo = await CFile.GetById([item.photo]);
+                    item.photo = item.photo[0]
+                }*/
+
+                return item;
+            }));
+
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 7001000, msg: 'CArticle Search'})
+        }
+    }
+
+    //количество / поиск
+    static async SearchCount ( fields ) {
+        try {
+            let there = []
+
+            if (fields.q)
+                there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+
+            //запрос
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}article `
+
+            //объединеие параметров запроса
+            if (there.length)
+                sql += `WHERE ` + there.join(' AND ')
+
+            console.log(sql)
+            let result = await DB.Init.Query(sql)
+
+            return Number (result[0].count)
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 7001000, msg: 'CArticle SearchCount'})
+        }
+    }
 }
