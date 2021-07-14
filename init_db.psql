@@ -10,7 +10,7 @@ CREATE DATABASE social_network;
 /* -------------------------------------------------- */
 /* авторизация */
 CREATE TABLE sf_token (
-	id              serial primary key,
+	id              bigserial primary key,
 	token           character varying (32) NOT NULL,
 	user_id         bigint NOT NULL,
 	ip              character varying (255) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE sf_token (
 /* -------------------------------------------------- */
 /* группы */
 CREATE TABLE sf_group (
-    id              serial primary key,
+    id              bigserial primary key,
 
     title           character varying (255) NOT NULL,
     active          boolean,	/* активен (y|n). */
@@ -50,7 +50,7 @@ CREATE TABLE sf_group (
 /* -------------------------------------------------- */
 /* пользователи */
 CREATE TABLE sf_user (
-    id              serial primary key,	/* id пользователя. */
+    id              bigserial primary key,	/* id пользователя. */
     timestamp_x     timestamp with time zone, /* последнее изменение. */
     email	        character varying (100), /* e-mail адрес. */
     phone	        character varying (100), /* телефон. */
@@ -93,7 +93,7 @@ INSERT INTO sf_user (login, password, email, first_name, create_date) VALUES ('t
 /* -------------------------------------------------- */
 /* сообщения */
 CREATE TABLE sf_message (
-    id              serial primary key,	/* id пользователя. */
+    id              bigserial primary key,	/* id пользователя. */
 
     from_id         bigint NOT NULL, /* от кого (обязательное поле) */
     to_id           bigint NOT NULL, /* кому (обязательное поле), */
@@ -113,7 +113,7 @@ CREATE TABLE sf_message (
 /* -------------------------------------------------- */
 /* файлы */
 CREATE TABLE sf_file (
-    id	            serial primary key,
+    id	            bigserial primary key,
 
     from_id         bigint NOT NULL, /* от кого */
     owner_id        bigint NOT NULL, /* где */
@@ -136,7 +136,8 @@ CREATE TABLE sf_file (
 
 /* альбомы */
 CREATE TABLE sf_album (
-    id	            serial primary key,
+    id	            bigserial primary key,
+    tid             bigserial primary key,
 
     owner_id        bigint NOT NULL, /* где */
     module          character varying (100) NOT NULL, /* в каком модуле (фото, видео) */
@@ -152,7 +153,7 @@ CREATE TABLE sf_album (
 
 /* альбомы, связи */
 CREATE TABLE sf_album_link (
-    id	            serial primary key,
+    id	            bigserial primary key,
 
     file_id         bigint NOT NULL, /* id файла */
     album_id        bigint NOT NULL, /* id альбома */
@@ -166,7 +167,7 @@ CREATE UNIQUE INDEX unique_file_album ON sf_album_link (file_id, album_id);
 
 /* альбомы, связи с статьями */
 CREATE TABLE sf_album_article_link (
-    id	            serial primary key,
+    id	            bigserial primary key,
 
     object_id       bigint NOT NULL, /* id файла */
     album_id        bigint NOT NULL, /* id альбома */
@@ -181,7 +182,7 @@ CREATE UNIQUE INDEX unique_article_object_album ON sf_album_article_link (object
 
 /* ОБСУЖДЕНИЯ */
 CREATE TABLE sf_topic (
-    id	            serial primary key,
+    id	            bigserial primary key,
 
     from_id         bigint NOT NULL, /* от кого */
     owner_id        bigint NOT NULL, /* где */
@@ -197,7 +198,7 @@ CREATE TABLE sf_topic (
 
 /* СТАТЬИ */
 CREATE TABLE sf_article (
-    id	            serial primary key,
+    id	            bigserial primary key,
 
     from_id         bigint NOT NULL, /* от кого */
     owner_id        bigint NOT NULL, /* где */
@@ -212,7 +213,7 @@ CREATE TABLE sf_article (
 
 /* ПОСТЫ */
 CREATE TABLE sf_post (
-    id	            serial primary key,
+    id	            bigserial primary key,
 
     from_id         bigint NOT NULL, /* от кого */
     owner_id        bigint NOT NULL, /* где */
@@ -227,7 +228,7 @@ CREATE TABLE sf_post (
 
 /* КОММЕНТАРИИ */
 CREATE TABLE sf_comment (
-    id              serial primary key,
+    id              bigserial primary key,
 
     from_id         bigint NOT NULL, /* от кого */
     object_id       bigint NOT NULL, /* какому объекту принадлежит */
@@ -244,14 +245,14 @@ CREATE TABLE sf_comment (
 /* -------------------------------------------------- */
 /* пользователи - во время регистрации */
 CREATE TABLE sf_user_no_reg (
-    id serial primary key,
-    phone bigint,
-    login character varying(50) NOT NULL,
-    email character varying(100) NOT NULL,
-    password character varying(60) NOT NULL,
-    first_name character varying(30) NOT NULL,
-    gender character varying(1),
-    code character varying(32) NOT NULL,
+    id              bigserial primary key,
+    phone           bigint,
+    login           character varying(50) NOT NULL,
+    email           character varying(100) NOT NULL,
+    password        character varying(60) NOT NULL,
+    first_name      character varying(30) NOT NULL,
+    gender          character varying(1),
+    code            character varying(32) NOT NULL,
 
-    create_date timestamp with time zone DEFAULT NOW()
+    create_date     timestamp with time zone DEFAULT NOW()
 );
