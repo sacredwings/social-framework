@@ -137,7 +137,7 @@ CREATE TABLE sf_file (
 /* альбомы */
 CREATE TABLE sf_album (
     id	            bigserial primary key,
-    tid             bigserial primary key,
+    album_id        bigserial primary key,
 
     owner_id        bigint NOT NULL, /* где */
     module          character varying (100) NOT NULL, /* в каком модуле (фото, видео) */

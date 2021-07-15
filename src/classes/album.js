@@ -32,11 +32,18 @@ export default class {
 //загрузка
     static async Get(fields) {
         try {
+            if (fields.album_id)
+                fields.album_id = ` album_id=${fields.album_id} `
+            else
+                fields.album_id = ` album_id IS NULL `
+
             let sql = `SELECT *
                        FROM ${DB.Init.TablePrefix}album
-                       WHERE owner_id = ${fields.owner_id} AND module = '${fields.module}'
+                       WHERE owner_id = ${fields.owner_id} AND module = '${fields.module}' AND ${fields.album_id}
                        ORDER BY title ASC`
             sql += ` LIMIT $1 OFFSET $2 `
+
+            console.log(sql)
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
             result = await Promise.all(result.map(async (item, i) => {
@@ -59,9 +66,14 @@ export default class {
 //количество
     static async Count(fields) {
         try {
+            if (fields.album_id)
+                fields.album_id = ` album_id=${fields.album_id} `
+            else
+                fields.album_id = ` album_id IS NULL `
+
             let sql = `SELECT COUNT(*)
                        FROM ${DB.Init.TablePrefix}album
-                       WHERE owner_id = ${fields.owner_id} AND module = '${fields.module}'`
+                       WHERE owner_id = ${fields.owner_id} AND module = '${fields.module}' AND ${fields.album_id}`
 
             let result = await DB.Init.Query(sql)
 

@@ -122,14 +122,16 @@ var _default = /*#__PURE__*/function () {
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.prev = 0;
-                sql = "SELECT *\n                       FROM ".concat(_db.DB.Init.TablePrefix, "album\n                       WHERE owner_id = ").concat(fields.owner_id, " AND module = '").concat(fields.module, "'\n                       ORDER BY title ASC");
+                if (fields.album_id) fields.album_id = " album_id=".concat(fields.album_id, " ");else fields.album_id = " album_id IS NULL ";
+                sql = "SELECT *\n                       FROM ".concat(_db.DB.Init.TablePrefix, "album\n                       WHERE owner_id = ").concat(fields.owner_id, " AND module = '").concat(fields.module, "' AND ").concat(fields.album_id, "\n                       ORDER BY title ASC");
                 sql += " LIMIT $1 OFFSET $2 ";
-                _context4.next = 5;
+                console.log(sql);
+                _context4.next = 7;
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
 
-              case 5:
+              case 7:
                 result = _context4.sent;
-                _context4.next = 8;
+                _context4.next = 10;
                 return Promise.all(result.map( /*#__PURE__*/function () {
                   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(item, i) {
                     return regeneratorRuntime.wrap(function _callee3$(_context3) {
@@ -164,12 +166,12 @@ var _default = /*#__PURE__*/function () {
                   };
                 }()));
 
-              case 8:
+              case 10:
                 result = _context4.sent;
                 return _context4.abrupt("return", result);
 
-              case 12:
-                _context4.prev = 12;
+              case 14:
+                _context4.prev = 14;
                 _context4.t0 = _context4["catch"](0);
                 console.log(_context4.t0);
                 throw {
@@ -177,12 +179,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CAlbum Get'
                 };
 
-              case 16:
+              case 18:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, null, [[0, 12]]);
+        }, _callee4, null, [[0, 14]]);
       }));
 
       function Get(_x4) {
@@ -202,16 +204,17 @@ var _default = /*#__PURE__*/function () {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                sql = "SELECT COUNT(*)\n                       FROM ".concat(_db.DB.Init.TablePrefix, "album\n                       WHERE owner_id = ").concat(fields.owner_id, " AND module = '").concat(fields.module, "'");
-                _context5.next = 4;
+                if (fields.album_id) fields.album_id = " album_id=".concat(fields.album_id, " ");else fields.album_id = " album_id IS NULL ";
+                sql = "SELECT COUNT(*)\n                       FROM ".concat(_db.DB.Init.TablePrefix, "album\n                       WHERE owner_id = ").concat(fields.owner_id, " AND module = '").concat(fields.module, "' AND ").concat(fields.album_id);
+                _context5.next = 5;
                 return _db.DB.Init.Query(sql);
 
-              case 4:
+              case 5:
                 result = _context5.sent;
                 return _context5.abrupt("return", Number(result[0].count));
 
-              case 8:
-                _context5.prev = 8;
+              case 9:
+                _context5.prev = 9;
                 _context5.t0 = _context5["catch"](0);
                 console.log(_context5.t0);
                 throw {
@@ -219,12 +222,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CAlbum Count'
                 };
 
-              case 12:
+              case 13:
               case "end":
                 return _context5.stop();
             }
           }
-        }, _callee5, null, [[0, 8]]);
+        }, _callee5, null, [[0, 9]]);
       }));
 
       function Count(_x7) {
