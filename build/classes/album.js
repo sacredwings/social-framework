@@ -235,6 +235,71 @@ var _default = /*#__PURE__*/function () {
       }
 
       return Count;
+    }() //добавить новое в альбом
+
+  }, {
+    key: "InAlbum",
+    value: function () {
+      var _InAlbum = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(fields) {
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                _context7.prev = 0;
+                // сделать проверку, что файл и альбом твои
+                //раскидываем файл по альбомам
+                fields.album_ids.map( /*#__PURE__*/function () {
+                  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(item, i) {
+                    var arFields;
+                    return regeneratorRuntime.wrap(function _callee6$(_context6) {
+                      while (1) {
+                        switch (_context6.prev = _context6.next) {
+                          case 0:
+                            arFields = {
+                              album_id: item,
+                              object_id: fields.object_id,
+                              create_id: fields.create_id
+                            };
+                            console.log(arFields);
+                            _context6.next = 4;
+                            return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "album_").concat(fields.module, "_link"), arFields, "ID");
+
+                          case 4:
+                          case "end":
+                            return _context6.stop();
+                        }
+                      }
+                    }, _callee6);
+                  }));
+
+                  return function (_x9, _x10) {
+                    return _ref2.apply(this, arguments);
+                  };
+                }());
+                return _context7.abrupt("return", true);
+
+              case 5:
+                _context7.prev = 5;
+                _context7.t0 = _context7["catch"](0);
+                console.log(_context7.t0);
+                throw {
+                  err: 8001000,
+                  msg: 'CArticle InAlbum'
+                };
+
+              case 9:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, _callee7, null, [[0, 5]]);
+      }));
+
+      function InAlbum(_x8) {
+        return _InAlbum.apply(this, arguments);
+      }
+
+      return InAlbum;
     }()
   }]);
 

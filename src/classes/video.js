@@ -4,32 +4,6 @@ import CFile from "./file";
 export default class {
 
     //добавить новое видео
-    static async InAlbum ( fields ) {
-        try {
-            // сделать проверку, что файл и альбом твои
-
-            //раскидываем файл по альбомам
-            fields.album_ids.map(async (item, i)=>{
-
-                let arFields = {
-                    album_id: item,
-                    file_id: fields.file_id,
-
-                    create_id: fields.create_id
-                }
-                console.log(arFields)
-                await DB.Init.Insert(`${DB.Init.TablePrefix}album_link`, arFields, `ID`)
-            })
-
-            return true
-
-        } catch (err) {
-            console.log(err)
-            throw ({err: 8001000, msg: 'CVideo InAlbum'})
-        }
-    }
-
-    //добавить новое видео
     static async Edit ( fields, where ) {
         try {
             // сделать проверку, что файл и альбом твои

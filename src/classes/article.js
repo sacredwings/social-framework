@@ -19,32 +19,6 @@ export default class {
         }
     }
 
-    //добавить новое видео
-    static async InAlbum ( fields ) {
-        try {
-            // сделать проверку, что файл и альбом твои
-
-            //раскидываем файл по альбомам
-            fields.album_ids.map(async (item, i)=>{
-
-                let arFields = {
-                    album_id: item,
-                    object_id: fields.object_id,
-
-                    create_id: fields.create_id
-                }
-                console.log(arFields)
-                await DB.Init.Insert(`${DB.Init.TablePrefix}album_article_link`, arFields, `ID`)
-            })
-
-            return true
-
-        } catch (err) {
-            console.log(err)
-            throw ({err: 8001000, msg: 'CArticle InAlbum'})
-        }
-    }
-
     //загрузка по id
     static async GetById ( ids ) {
         try {
