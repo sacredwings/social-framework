@@ -184,7 +184,7 @@ var _default = /*#__PURE__*/function () {
                 sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE owner_id=").concat(fields.owner_id, " AND ((type='video/mp4') OR (type='video/avi')) ORDER BY id DESC");
                 /* видео из альбома */
 
-                if (fields.album_id) sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "file.*\n                    FROM ").concat(_db.DB.Init.TablePrefix, "album_link\n                    INNER JOIN ").concat(_db.DB.Init.TablePrefix, "file ON ").concat(_db.DB.Init.TablePrefix, "file.id = ").concat(_db.DB.Init.TablePrefix, "album_link.file_id WHERE ").concat(_db.DB.Init.TablePrefix, "album_link.album_id = ").concat(fields.album_id, " AND (").concat(_db.DB.Init.TablePrefix, "file.type='video/mp4') ORDER BY id DESC");
+                if (fields.album_id) sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "file.*\n                    FROM ").concat(_db.DB.Init.TablePrefix, "album_video_link\n                    INNER JOIN ").concat(_db.DB.Init.TablePrefix, "file ON ").concat(_db.DB.Init.TablePrefix, "file.id = ").concat(_db.DB.Init.TablePrefix, "album_video_link.file_id WHERE ").concat(_db.DB.Init.TablePrefix, "album_video_link.album_id = ").concat(fields.album_id, " AND (").concat(_db.DB.Init.TablePrefix, "file.type='video/mp4') ORDER BY id DESC");
                 sql += " LIMIT $1 OFFSET $2 ";
                 _context5.next = 6;
                 return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
@@ -267,7 +267,7 @@ var _default = /*#__PURE__*/function () {
                 sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE owner_id=").concat(fields.owner_id, " AND ((type='video/mp4') OR (type='video/avi'))");
                 /* видео из альбома */
 
-                if (fields.album_id) sql = "SELECT COUNT(*)\n                    FROM ".concat(_db.DB.Init.TablePrefix, "album_link\n                    LEFT JOIN ").concat(_db.DB.Init.TablePrefix, "file ON ").concat(_db.DB.Init.TablePrefix, "album_link.file_id = ").concat(_db.DB.Init.TablePrefix, "file.id\n                    WHERE ").concat(_db.DB.Init.TablePrefix, "album_link.album_id = ").concat(fields.album_id, " AND ((").concat(_db.DB.Init.TablePrefix, "file.type='video/mp4') OR (").concat(_db.DB.Init.TablePrefix, "file.type='video/avi'))");
+                if (fields.album_id) sql = "SELECT COUNT(*)\n                    FROM ".concat(_db.DB.Init.TablePrefix, "album_video_link\n                    LEFT JOIN ").concat(_db.DB.Init.TablePrefix, "file ON ").concat(_db.DB.Init.TablePrefix, "album_video_link.file_id = ").concat(_db.DB.Init.TablePrefix, "file.id\n                    WHERE ").concat(_db.DB.Init.TablePrefix, "album_video_link.album_id = ").concat(fields.album_id, " AND ((").concat(_db.DB.Init.TablePrefix, "file.type='video/mp4') OR (").concat(_db.DB.Init.TablePrefix, "file.type='video/avi'))");
                 _context6.next = 5;
                 return _db.DB.Init.Query(sql);
 
