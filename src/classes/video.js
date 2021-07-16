@@ -75,8 +75,8 @@ export default class {
             /* видео из альбома */
             if (fields.album_id)
                 sql = `SELECT ${DB.Init.TablePrefix}file.*
-                    FROM ${DB.Init.TablePrefix}album_link
-                    INNER JOIN ${DB.Init.TablePrefix}file ON ${DB.Init.TablePrefix}file.id = ${DB.Init.TablePrefix}album_link.file_id WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id} AND (${DB.Init.TablePrefix}file.type='video/mp4') ORDER BY id DESC`
+                    FROM ${DB.Init.TablePrefix}album_video_link
+                    INNER JOIN ${DB.Init.TablePrefix}file ON ${DB.Init.TablePrefix}file.id = ${DB.Init.TablePrefix}album_video_link.file_id WHERE ${DB.Init.TablePrefix}album_video_link.album_id = ${fields.album_id} AND (${DB.Init.TablePrefix}file.type='video/mp4') ORDER BY id DESC`
 
             sql += ` LIMIT $1 OFFSET $2 `
 
@@ -106,9 +106,9 @@ export default class {
             /* видео из альбома */
             if (fields.album_id)
                 sql = `SELECT COUNT(*)
-                    FROM ${DB.Init.TablePrefix}album_link
-                    LEFT JOIN ${DB.Init.TablePrefix}file ON ${DB.Init.TablePrefix}album_link.file_id = ${DB.Init.TablePrefix}file.id
-                    WHERE ${DB.Init.TablePrefix}album_link.album_id = ${fields.album_id} AND ((${DB.Init.TablePrefix}file.type='video/mp4') OR (${DB.Init.TablePrefix}file.type='video/avi'))`
+                    FROM ${DB.Init.TablePrefix}album_video_link
+                    LEFT JOIN ${DB.Init.TablePrefix}file ON ${DB.Init.TablePrefix}album_video_link.file_id = ${DB.Init.TablePrefix}file.id
+                    WHERE ${DB.Init.TablePrefix}album_video_link.album_id = ${fields.album_id} AND ((${DB.Init.TablePrefix}file.type='video/mp4') OR (${DB.Init.TablePrefix}file.type='video/avi'))`
 
             let result = await DB.Init.Query(sql)
             return Number (result[0].count)
