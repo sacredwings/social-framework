@@ -155,7 +155,7 @@ CREATE TABLE sf_album (
 CREATE TABLE sf_album_video_link (
     id	            bigserial primary key,
 
-    file_id         bigint NOT NULL, /* id файла */
+    object_id         bigint NOT NULL, /* id файла */
     album_id        bigint NOT NULL, /* id альбома */
 
     /* о создании */
