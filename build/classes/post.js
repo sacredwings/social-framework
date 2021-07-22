@@ -449,16 +449,16 @@ var _default = /*#__PURE__*/function () {
                             if (item.create_id) item.create_id = Number(item.create_id);
                             /* загрузка инфы о файле */
 
-                            if (!item.files) {
+                            if (!item.file_ids) {
                               _context10.next = 7;
                               break;
                             }
 
                             _context10.next = 6;
-                            return _file["default"].GetById(item.files);
+                            return _file["default"].GetById(item.file_ids);
 
                           case 6:
-                            item.files = _context10.sent;
+                            item.file_ids = _context10.sent;
 
                           case 7:
                             return _context10.abrupt("return", item);
