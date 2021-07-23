@@ -137,7 +137,7 @@ CREATE TABLE sf_file (
 /* альбомы */
 CREATE TABLE sf_album (
     id	            bigserial primary key,
-    album_id        bigserial primary key,
+    album_id        bigserial,
 
     owner_id        bigint NOT NULL, /* где */
     module          character varying (100) NOT NULL, /* в каком модуле (фото, видео) */
@@ -155,7 +155,7 @@ CREATE TABLE sf_album (
 CREATE TABLE sf_album_video_link (
     id	            bigserial primary key,
 
-    object_id         bigint NOT NULL, /* id файла */
+    object_id       bigint NOT NULL, /* id файла */
     album_id        bigint NOT NULL, /* id альбома */
 
     /* о создании */
@@ -163,7 +163,7 @@ CREATE TABLE sf_album_video_link (
     create_date     timestamp with time zone DEFAULT NOW()
 );
 /* уникальный файл и альбом / индексированный */
-CREATE UNIQUE INDEX unique_file_album ON sf_album_link (file_id, album_id);
+CREATE UNIQUE INDEX unique_album_video_link ON sf_album_video_link (object_id, album_id);
 
 /* альбомы, связи с статьями */
 CREATE TABLE sf_album_article_link (
@@ -177,7 +177,7 @@ CREATE TABLE sf_album_article_link (
     create_date     timestamp with time zone DEFAULT NOW()
 );
 /* уникальный файл и альбом / индексированный */
-CREATE UNIQUE INDEX unique_article_object_album ON sf_album_article_link (object_id, album_id);
+CREATE UNIQUE INDEX unique_album_article_link ON sf_album_article_link (object_id, album_id);
 /* -------------------------------------------------- */
 
 /* ОБСУЖДЕНИЯ */
