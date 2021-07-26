@@ -9,6 +9,8 @@ var _fsExtra = _interopRequireDefault(require("fs-extra"));
 
 var _crypto = _interopRequireDefault(require("crypto"));
 
+var _ffmpegExtractFrame = _interopRequireDefault(require("ffmpeg-extract-frame"));
+
 var _db = require("./db");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -33,7 +35,8 @@ var _default = /*#__PURE__*/function () {
     value: //Сохраняем новый вайл в таблицу файлов и сам файл
     function () {
       var _SaveFile = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields, savePath) {
-        var file_buffer, hash, type, url, arFields, result;
+        var file_buffer, hash, type, url, newPathVideo, newIdImg, urlImg, newPathImg, _arFields, _result, arFields, result;
+
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -70,19 +73,34 @@ var _default = /*#__PURE__*/function () {
 
                 url = "".concat(hash[0]).concat(hash[1], "/").concat(hash[2]).concat(hash[3], "/").concat(hash, ".").concat(type); //полный путь к файлу
 
-                savePath = "".concat(savePath).concat(url); //копирование файла в постоянную папку
+                newPathVideo = "".concat(savePath).concat(url); //копирование файла в постоянную папку
 
                 _context.next = 15;
-                return _fsExtra["default"].copy(fields.file.path, savePath);
+                return _fsExtra["default"].copy(fields.file.path, newPathVideo);
 
               case 15:
-                url = "files/".concat(url); //добавление записи о файле в таблицу
+                url = "files/".concat(url);
+                newIdImg = null; //картинки не существует
 
-                arFields = {
-                  size: fields.file.size,
-                  path: savePath,
-                  type: fields.file.type,
-                  url: url,
+                if (fields.file_id) {
+                  _context.next = 28;
+                  break;
+                }
+
+                urlImg = "".concat(hash[0]).concat(hash[1], "/").concat(hash[2]).concat(hash[3], "/").concat(hash, ".jpeg"); //полный путь к файлу
+
+                newPathImg = "".concat(savePath).concat(urlImg); //вытаскиваем видео
+
+                _context.next = 22;
+                return ImageSave(newPathVideo, newPathImg);
+
+              case 22:
+                urlImg = "files/".concat(urlImg);
+                _arFields = {
+                  size: 0,
+                  path: newPathImg,
+                  type: 'image/jpeg',
+                  url: urlImg,
                   from_id: fields.from_id,
                   owner_id: fields.owner_id,
                   file_id: fields.file_id,
@@ -90,15 +108,36 @@ var _default = /*#__PURE__*/function () {
                   text: fields.text,
                   create_id: fields.create_id
                 };
-                _context.next = 19;
+                _context.next = 26;
+                return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "file"), _arFields, "id");
+
+              case 26:
+                _result = _context.sent;
+                newIdImg = _result[0].id;
+
+              case 28:
+                //добавление записи о файле в таблицу
+                arFields = {
+                  size: fields.file.size,
+                  path: newPathVideo,
+                  type: fields.file.type,
+                  url: url,
+                  from_id: fields.from_id,
+                  owner_id: fields.owner_id,
+                  file_id: fields.file_id ? fields.file_id : newIdImg,
+                  title: fields.title ? fields.title : fields.file.title,
+                  text: fields.text,
+                  create_id: fields.create_id
+                };
+                _context.next = 31;
                 return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "file"), arFields, "id");
 
-              case 19:
+              case 31:
                 result = _context.sent;
                 return _context.abrupt("return", result[0]);
 
-              case 23:
-                _context.prev = 23;
+              case 35:
+                _context.prev = 35;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
@@ -106,12 +145,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CFile SaveFile'
                 };
 
-              case 27:
+              case 39:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[0, 23]]);
+        }, _callee, this, [[0, 35]]);
       }));
 
       function SaveFile(_x, _x2) {
@@ -214,7 +253,7 @@ var _default = /*#__PURE__*/function () {
     key: "Delete",
     value: function () {
       var _Delete = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(id, deleteFile) {
-        var _result, result;
+        var _result2, result;
 
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
@@ -231,9 +270,9 @@ var _default = /*#__PURE__*/function () {
                 return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "file WHERE id=$1"), [id]);
 
               case 4:
-                _result = _context4.sent;
+                _result2 = _context4.sent;
 
-                if (_result[0]) {
+                if (_result2[0]) {
                   _context4.next = 7;
                   break;
                 }
@@ -242,10 +281,10 @@ var _default = /*#__PURE__*/function () {
 
               case 7:
                 _context4.next = 9;
-                return _fsExtra["default"].remove("".concat(_result[0].path, "/").concat(_result[0].name));
+                return _fsExtra["default"].remove("".concat(_result2[0].path, "/").concat(_result2[0].name));
 
               case 9:
-                _result = _context4.sent;
+                _result2 = _context4.sent;
 
               case 10:
                 _context4.next = 12;
@@ -284,3 +323,30 @@ var _default = /*#__PURE__*/function () {
 }();
 
 exports["default"] = _default;
+
+var ImageSave = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(pathVideo, pathImg) {
+    return regeneratorRuntime.wrap(function _callee5$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
+            _context5.next = 2;
+            return (0, _ffmpegExtractFrame["default"])({
+              input: pathVideo,
+              output: pathImg,
+              offset: 3000 // seek offset in milliseconds
+
+            });
+
+          case 2:
+          case "end":
+            return _context5.stop();
+        }
+      }
+    }, _callee5);
+  }));
+
+  return function ImageSave(_x8, _x9) {
+    return _ref2.apply(this, arguments);
+  };
+}();

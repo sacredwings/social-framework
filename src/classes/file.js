@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import crypto from "crypto";
-//import fs from "fs";
+import extractFrame from "ffmpeg-extract-frame";
 
 import {DB} from "./db";
 
@@ -34,25 +34,62 @@ export default class {
             let url = `${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.${type}`
 
             //полный путь к файлу
-            savePath = `${savePath}${url}`
+            let newPathVideo = `${savePath}${url}`
 
             //копирование файла в постоянную папку
-            await fs.copy(fields.file.path, savePath)
+            await fs.copy(fields.file.path, newPathVideo)
 
             url = `files/${url}`
+
+            let newIdImg = null
+
+            //картинки не существует
+            if (!fields.file_id) {
+
+                let urlImg = `${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.jpeg`
+
+                //полный путь к файлу
+                let newPathImg = `${savePath}${urlImg}`
+
+                //вытаскиваем видео
+                await ImageSave(newPathVideo, newPathImg)
+
+                urlImg = `files/${urlImg}`
+
+                let arFields = {
+
+                    size: 0,
+                    path: newPathImg,
+                    type: 'image/jpeg',
+                    url: urlImg,
+
+                    from_id: fields.from_id,
+                    owner_id: fields.owner_id,
+
+                    file_id: fields.file_id,
+
+                    title: (fields.title) ? fields.title : fields.file.title,
+                    text: fields.text,
+
+                    create_id: fields.create_id
+                }
+
+                let result = await DB.Init.Insert(`${DB.Init.TablePrefix}file`, arFields, `id`)
+                newIdImg = result[0].id
+            }
 
             //добавление записи о файле в таблицу
             let arFields = {
 
                 size: fields.file.size,
-                path: savePath,
+                path: newPathVideo,
                 type: fields.file.type,
                 url: url,
 
                 from_id: fields.from_id,
                 owner_id: fields.owner_id,
 
-                file_id: fields.file_id,
+                file_id: (fields.file_id) ? fields.file_id : newIdImg,
 
                 title: (fields.title) ? fields.title : fields.file.title,
                 text: fields.text,
@@ -120,4 +157,12 @@ export default class {
         }
 
     }
+}
+
+const ImageSave = async (pathVideo, pathImg) => {
+    await extractFrame({
+        input: pathVideo,
+        output: pathImg,
+        offset: 3000 // seek offset in milliseconds
+    })
 }
