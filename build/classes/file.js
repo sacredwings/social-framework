@@ -34,7 +34,7 @@ var _default = /*#__PURE__*/function () {
     key: "SaveFile",
     value: //Сохраняем новый вайл в таблицу файлов и сам файл
     function () {
-      var _SaveFile = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields, savePath) {
+      var _SaveFile = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields, savePath, preview) {
         var file_buffer, hash, type, url, newPathVideo, newIdImg, urlImg, newPathImg, _arFields, _result, arFields, result;
 
         return regeneratorRuntime.wrap(function _callee$(_context) {
@@ -82,7 +82,7 @@ var _default = /*#__PURE__*/function () {
                 url = "files/".concat(url);
                 newIdImg = null; //картинки не существует
 
-                if (fields.file_id) {
+                if (!(!fields.file_id && preview)) {
                   _context.next = 28;
                   break;
                 }
@@ -153,7 +153,7 @@ var _default = /*#__PURE__*/function () {
         }, _callee, this, [[0, 35]]);
       }));
 
-      function SaveFile(_x, _x2) {
+      function SaveFile(_x, _x2, _x3) {
         return _SaveFile.apply(this, arguments);
       }
 
@@ -216,7 +216,7 @@ var _default = /*#__PURE__*/function () {
                     }, _callee2);
                   }));
 
-                  return function (_x4, _x5) {
+                  return function (_x5, _x6) {
                     return _ref.apply(this, arguments);
                   };
                 }()));
@@ -242,7 +242,7 @@ var _default = /*#__PURE__*/function () {
         }, _callee3, null, [[0, 13]]);
       }));
 
-      function GetById(_x3) {
+      function GetById(_x4) {
         return _GetById.apply(this, arguments);
       }
 
@@ -311,7 +311,7 @@ var _default = /*#__PURE__*/function () {
         }, _callee4, null, [[0, 16]]);
       }));
 
-      function Delete(_x6, _x7) {
+      function Delete(_x7, _x8) {
         return _Delete.apply(this, arguments);
       }
 
@@ -346,7 +346,7 @@ var ImageSave = /*#__PURE__*/function () {
     }, _callee5);
   }));
 
-  return function ImageSave(_x8, _x9) {
+  return function ImageSave(_x9, _x10) {
     return _ref2.apply(this, arguments);
   };
 }();

@@ -7,7 +7,7 @@ import {DB} from "./db";
 export default class {
 
     //Сохраняем новый вайл в таблицу файлов и сам файл
-    static async SaveFile ( fields, savePath ) {
+    static async SaveFile ( fields, savePath, preview ) {
         try {
             //удаление файла с диска и базы
             if (fields.old_file)
@@ -44,7 +44,7 @@ export default class {
             let newIdImg = null
 
             //картинки не существует
-            if (!fields.file_id) {
+            if ((!fields.file_id) && (preview)) {
 
                 let urlImg = `${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.jpeg`
 
