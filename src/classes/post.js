@@ -66,6 +66,7 @@ export default class {
                 if (item.create_id)
                     item.create_id = Number (item.create_id);
 
+                console.log(item.file_ids)
                 /* загрузка инфы о файле */
                 if (item.file_ids)
                     item.file_ids = await CFile.GetById(item.file_ids);

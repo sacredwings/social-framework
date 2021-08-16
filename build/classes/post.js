@@ -178,23 +178,24 @@ var _default = /*#__PURE__*/function () {
                             if (item.from_id) item.from_id = Number(item.from_id);
                             if (item.owner_id) item.owner_id = Number(item.owner_id);
                             if (item.create_id) item.create_id = Number(item.create_id);
+                            console.log(item.file_ids);
                             /* загрузка инфы о файле */
 
                             if (!item.file_ids) {
-                              _context4.next = 7;
+                              _context4.next = 8;
                               break;
                             }
 
-                            _context4.next = 6;
+                            _context4.next = 7;
                             return _file["default"].GetById(item.file_ids);
 
-                          case 6:
+                          case 7:
                             item.file_ids = _context4.sent;
 
-                          case 7:
+                          case 8:
                             return _context4.abrupt("return", item);
 
-                          case 8:
+                          case 9:
                           case "end":
                             return _context4.stop();
                         }

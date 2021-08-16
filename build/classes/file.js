@@ -200,7 +200,7 @@ var _default = /*#__PURE__*/function () {
                             }
 
                             _context2.next = 3;
-                            return _this.GetById(item.file_id);
+                            return _this.GetById([item.file_id]);
 
                           case 3:
                             item.file_id = _context2.sent;

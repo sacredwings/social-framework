@@ -116,12 +116,11 @@ export default class {
             ids = ids.join(',');
 
             let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids})`)
-
             result = await Promise.all(result.map(async (item, i) => {
 
                 /* загрузка инфы о файле */
                 if (item.file_id)
-                    item.file_id = await this.GetById(item.file_id);
+                    item.file_id = await this.GetById([item.file_id]);
 
                 return item;
             }));
