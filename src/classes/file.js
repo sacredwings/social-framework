@@ -119,8 +119,11 @@ export default class {
             result = await Promise.all(result.map(async (item, i) => {
 
                 /* загрузка инфы о файле */
-                if (item.file_id)
+                if (item.file_id) {
                     item.file_id = await this.GetById([item.file_id]);
+                    item.file_id = item.file_id[0]
+                }
+
 
                 return item;
             }));

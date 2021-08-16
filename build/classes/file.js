@@ -195,7 +195,7 @@ var _default = /*#__PURE__*/function () {
                         switch (_context2.prev = _context2.next) {
                           case 0:
                             if (!item.file_id) {
-                              _context2.next = 4;
+                              _context2.next = 5;
                               break;
                             }
 
@@ -204,11 +204,12 @@ var _default = /*#__PURE__*/function () {
 
                           case 3:
                             item.file_id = _context2.sent;
-
-                          case 4:
-                            return _context2.abrupt("return", item);
+                            item.file_id = item.file_id[0];
 
                           case 5:
+                            return _context2.abrupt("return", item);
+
+                          case 6:
                           case "end":
                             return _context2.stop();
                         }
