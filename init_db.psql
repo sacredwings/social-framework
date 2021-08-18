@@ -256,3 +256,32 @@ CREATE TABLE sf_user_no_reg (
 
     create_date     timestamp with time zone DEFAULT NOW()
 );
+
+/* -------------------------------------------------- */
+/* ЛАЙКИ */
+CREATE TABLE sf_like (
+    id	            bigserial primary key,
+
+    user_id         bigint NOT NULL,
+    object_id       bigint NOT NULL,
+    module          character varying (100) NOT NULL,
+    yes            boolean, /* лайк или дизлайк */
+
+    /* о создании */
+    create_date     timestamp with time zone DEFAULT NOW()
+);
+CREATE UNIQUE INDEX unique_like ON sf_like (user_id, object_id, module);
+/* -------------------------------------------------- */
+/* ДРУЗЬЯ */
+CREATE TABLE sf_friend (
+    id	            bigserial primary key,
+
+    user_id         bigint NOT NULL,
+    friend_id       bigint NOT NULL,
+    viewed          boolean, /* просмотрено */
+    allowed         boolean, /* принято */
+
+    /* о создании */
+    create_date     timestamp with time zone DEFAULT NOW()
+);
+CREATE UNIQUE INDEX unique_friend ON sf_friend (user_id, friend_id);
