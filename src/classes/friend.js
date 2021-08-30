@@ -128,7 +128,11 @@ export default class {
     static async Get ( fields ) {
         try {
 
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}friend WHERE user_id=${fields.user_id} OR friend_id=${fields.user_id} AND allowed=true ORDER BY id DESC`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}friend WHERE
+                ((user_id=${fields.user_id} AND friend_id=${fields.friend_id}) OR
+                 (user_id=${fields.friend_id} AND friend_id=${fields.user_id})) 
+                            AND allowed=true ORDER BY id DESC`
+
             sql += ` LIMIT $1 OFFSET $2 `
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
