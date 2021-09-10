@@ -146,6 +146,8 @@ CREATE TABLE sf_album (
     text            text, /* текст */
     image_id        bigint, /* id файла */
 
+    site_id         bigint, /* id другого сайта */
+
     /* о создании */
     create_id       bigint NOT NULL, /* кто создал */
     create_date     timestamp with time zone DEFAULT NOW()
@@ -157,6 +159,8 @@ CREATE TABLE sf_album_video_link (
 
     object_id       bigint NOT NULL, /* id файла */
     album_id        bigint NOT NULL, /* id альбома */
+
+    site_id         bigint, /* id другого сайта */
 
     /* о создании */
     create_id       bigint NOT NULL, /* кто создал */
