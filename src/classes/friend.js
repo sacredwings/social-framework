@@ -128,28 +128,30 @@ export default class {
     static async Get ( fields ) {
         try {
 
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}friend WHERE
-                ((user_id=${fields.user_id} AND friend_id=${fields.friend_id}) OR
-                 (user_id=${fields.friend_id} AND friend_id=${fields.user_id})) 
-                            AND allowed=true ORDER BY id DESC`
-
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}friend WHERE (user_id=${fields.user_id} OR friend_id=${fields.user_id}) AND allowed=true ORDER BY id DESC`
             sql += ` LIMIT $1 OFFSET $2 `
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
 
+            //друзей нет, выходим
+            if (!result.length)
+                return []
+
             let arUsers = []
+            //вытаскиваем id пользователей из массива / кроме своего
             result = await Promise.all(result.map(async (item, i) => {
 
                 //сохраняем из одного поля в общий массив
-                if (Number (item.user_id) !== fields.user_id)
+                if (Number (item.user_id) !== Number (fields.user_id))
                     arUsers.push(item.user_id)
 
                 //сохраняем из другого поля в общий массив
-                if (Number (item.friend_id) !== fields.friend_id)
+                if (Number (item.friend_id) !== Number (fields.user_id))
                     arUsers.push(item.friend_id)
 
                 return item;
             }));
+
 
             arUsers = await CUser.GetById ( arUsers );
 
@@ -180,8 +182,9 @@ export default class {
     //количество
     static async GetCount ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}friend WHERE user_id=${fields.user_id} OR friend_id=${fields.user_id} AND allowed=true`
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}friend WHERE (user_id=${fields.user_id} OR friend_id=${fields.user_id}) AND allowed=true`
             //let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id}`
+
             let result = await DB.Init.Query(sql)
 
             return Number (result[0].count)
