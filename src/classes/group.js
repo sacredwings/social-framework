@@ -232,4 +232,42 @@ export default class {
             throw ({err: 7001000, msg: 'CGroup SearchCount'})
         }
     }
+
+    static async GetByField ( items, fieldName ) {
+        try {
+            //нет массива для обработки
+            if ((!items) || (!items.length))
+                return []
+
+            let arGroupId = []
+
+            /* выгрузка индентификаторов из объектов / пользователей */
+            items.forEach((item, i) => {
+                if (item[fieldName] < 0)
+                    arGroupId.push(-item[fieldName])
+            })
+
+            if (!arGroupId.length) return []
+
+            //удаление одинаковых id из массива
+            arGroupId = Array.from(new Set(arGroupId))
+
+            let sql = `SELECT id,title FROM ${DB.Init.TablePrefix}group WHERE id in (${arGroupId})`
+            let users = await DB.Init.Query(sql)
+
+            users = await Promise.all(users.map(async (user, i)=>{
+                if (user.photo) {
+                    user.photo = await CFile.GetById([user.photo]);
+                    user.photo = user.photo[0]
+                }
+                return user
+            }))
+
+            return users
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 6005000, msg: 'CGroup GetByField'})
+        }
+    }
 }

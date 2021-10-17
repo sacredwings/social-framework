@@ -203,8 +203,10 @@ export default class {
                     item.create_id = Number (item.create_id);
 */
                 /* загрузка инфы о файле */
-                if (item.file_id)
-                    item.file_id = await CFile.GetById(item.file_id);
+                if (item.file_id) {
+                    item.file_id = await CFile.GetById([item.file_id]);
+                    item.file_id = item.file_id[0]
+                }
 
                 return item;
             }));

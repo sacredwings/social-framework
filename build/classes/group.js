@@ -638,6 +638,111 @@ var _default = /*#__PURE__*/function () {
 
       return SearchCount;
     }()
+  }, {
+    key: "GetByField",
+    value: function () {
+      var _GetByField = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(items, fieldName) {
+        var arGroupId, sql, users;
+        return regeneratorRuntime.wrap(function _callee16$(_context16) {
+          while (1) {
+            switch (_context16.prev = _context16.next) {
+              case 0:
+                _context16.prev = 0;
+
+                if (!(!items || !items.length)) {
+                  _context16.next = 3;
+                  break;
+                }
+
+                return _context16.abrupt("return", []);
+
+              case 3:
+                arGroupId = [];
+                /* выгрузка индентификаторов из объектов / пользователей */
+
+                items.forEach(function (item, i) {
+                  if (item[fieldName] < 0) arGroupId.push(-item[fieldName]);
+                });
+
+                if (arGroupId.length) {
+                  _context16.next = 7;
+                  break;
+                }
+
+                return _context16.abrupt("return", []);
+
+              case 7:
+                //удаление одинаковых id из массива
+                arGroupId = Array.from(new Set(arGroupId));
+                sql = "SELECT id,title FROM ".concat(_db.DB.Init.TablePrefix, "group WHERE id in (").concat(arGroupId, ")");
+                console.log(sql);
+                _context16.next = 12;
+                return _db.DB.Init.Query(sql);
+
+              case 12:
+                users = _context16.sent;
+                _context16.next = 15;
+                return Promise.all(users.map( /*#__PURE__*/function () {
+                  var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(user, i) {
+                    return regeneratorRuntime.wrap(function _callee15$(_context15) {
+                      while (1) {
+                        switch (_context15.prev = _context15.next) {
+                          case 0:
+                            if (!user.photo) {
+                              _context15.next = 5;
+                              break;
+                            }
+
+                            _context15.next = 3;
+                            return _file["default"].GetById([user.photo]);
+
+                          case 3:
+                            user.photo = _context15.sent;
+                            user.photo = user.photo[0];
+
+                          case 5:
+                            return _context15.abrupt("return", user);
+
+                          case 6:
+                          case "end":
+                            return _context15.stop();
+                        }
+                      }
+                    }, _callee15);
+                  }));
+
+                  return function (_x22, _x23) {
+                    return _ref5.apply(this, arguments);
+                  };
+                }()));
+
+              case 15:
+                users = _context16.sent;
+                return _context16.abrupt("return", users);
+
+              case 19:
+                _context16.prev = 19;
+                _context16.t0 = _context16["catch"](0);
+                console.log(_context16.t0);
+                throw {
+                  err: 6005000,
+                  msg: 'CGroup GetByField'
+                };
+
+              case 23:
+              case "end":
+                return _context16.stop();
+            }
+          }
+        }, _callee16, null, [[0, 19]]);
+      }));
+
+      function GetByField(_x20, _x21) {
+        return _GetByField.apply(this, arguments);
+      }
+
+      return GetByField;
+    }()
   }]);
 
   return _default;

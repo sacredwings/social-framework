@@ -779,6 +779,111 @@ var _default = /*#__PURE__*/function () {
       }
 
       return Count;
+    }() //пользователи
+
+  }, {
+    key: "GetByField",
+    value: function () {
+      var _GetByField = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(items, fieldName) {
+        var arUsersId, sql, users;
+        return regeneratorRuntime.wrap(function _callee15$(_context15) {
+          while (1) {
+            switch (_context15.prev = _context15.next) {
+              case 0:
+                _context15.prev = 0;
+
+                if (!(!items || !items.length)) {
+                  _context15.next = 3;
+                  break;
+                }
+
+                return _context15.abrupt("return", []);
+
+              case 3:
+                arUsersId = [];
+                /* выгрузка индентификаторов из объектов / пользователей */
+
+                items.forEach(function (item, i) {
+                  if (item[fieldName] > 0) arUsersId.push(item[fieldName]);
+                });
+
+                if (arUsersId.length) {
+                  _context15.next = 7;
+                  break;
+                }
+
+                return _context15.abrupt("return", []);
+
+              case 7:
+                //удаление одинаковых id из массива
+                arUsersId = Array.from(new Set(arUsersId));
+                sql = "SELECT id,login,first_name,create_date,birthday,photo FROM ".concat(_db.DB.Init.TablePrefix, "user WHERE id in (").concat(arUsersId, ")");
+                _context15.next = 11;
+                return _db.DB.Init.Query(sql);
+
+              case 11:
+                users = _context15.sent;
+                _context15.next = 14;
+                return Promise.all(users.map( /*#__PURE__*/function () {
+                  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14(user, i) {
+                    return regeneratorRuntime.wrap(function _callee14$(_context14) {
+                      while (1) {
+                        switch (_context14.prev = _context14.next) {
+                          case 0:
+                            if (!user.photo) {
+                              _context14.next = 5;
+                              break;
+                            }
+
+                            _context14.next = 3;
+                            return _file["default"].GetById([user.photo]);
+
+                          case 3:
+                            user.photo = _context14.sent;
+                            user.photo = user.photo[0];
+
+                          case 5:
+                            return _context14.abrupt("return", user);
+
+                          case 6:
+                          case "end":
+                            return _context14.stop();
+                        }
+                      }
+                    }, _callee14);
+                  }));
+
+                  return function (_x19, _x20) {
+                    return _ref3.apply(this, arguments);
+                  };
+                }()));
+
+              case 14:
+                users = _context15.sent;
+                return _context15.abrupt("return", users);
+
+              case 18:
+                _context15.prev = 18;
+                _context15.t0 = _context15["catch"](0);
+                console.log(_context15.t0);
+                throw {
+                  err: 6005000,
+                  msg: 'CUser GetByField'
+                };
+
+              case 22:
+              case "end":
+                return _context15.stop();
+            }
+          }
+        }, _callee15, null, [[0, 18]]);
+      }));
+
+      function GetByField(_x17, _x18) {
+        return _GetByField.apply(this, arguments);
+      }
+
+      return GetByField;
     }()
     /*
     static async reset (value) {

@@ -468,20 +468,21 @@ var _default = /*#__PURE__*/function () {
                         switch (_context10.prev = _context10.next) {
                           case 0:
                             if (!item.file_id) {
-                              _context10.next = 4;
+                              _context10.next = 5;
                               break;
                             }
 
                             _context10.next = 3;
-                            return _file["default"].GetById(item.file_id);
+                            return _file["default"].GetById([item.file_id]);
 
                           case 3:
                             item.file_id = _context10.sent;
-
-                          case 4:
-                            return _context10.abrupt("return", item);
+                            item.file_id = item.file_id[0];
 
                           case 5:
+                            return _context10.abrupt("return", item);
+
+                          case 6:
                           case "end":
                             return _context10.stop();
                         }
