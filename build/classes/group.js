@@ -675,13 +675,12 @@ var _default = /*#__PURE__*/function () {
                 //удаление одинаковых id из массива
                 arGroupId = Array.from(new Set(arGroupId));
                 sql = "SELECT id,title FROM ".concat(_db.DB.Init.TablePrefix, "group WHERE id in (").concat(arGroupId, ")");
-                console.log(sql);
-                _context16.next = 12;
+                _context16.next = 11;
                 return _db.DB.Init.Query(sql);
 
-              case 12:
+              case 11:
                 users = _context16.sent;
-                _context16.next = 15;
+                _context16.next = 14;
                 return Promise.all(users.map( /*#__PURE__*/function () {
                   var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(user, i) {
                     return regeneratorRuntime.wrap(function _callee15$(_context15) {
@@ -716,12 +715,12 @@ var _default = /*#__PURE__*/function () {
                   };
                 }()));
 
-              case 15:
+              case 14:
                 users = _context16.sent;
                 return _context16.abrupt("return", users);
 
-              case 19:
-                _context16.prev = 19;
+              case 18:
+                _context16.prev = 18;
                 _context16.t0 = _context16["catch"](0);
                 console.log(_context16.t0);
                 throw {
@@ -729,12 +728,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CGroup GetByField'
                 };
 
-              case 23:
+              case 22:
               case "end":
                 return _context16.stop();
             }
           }
-        }, _callee16, null, [[0, 19]]);
+        }, _callee16, null, [[0, 18]]);
       }));
 
       function GetByField(_x20, _x21) {

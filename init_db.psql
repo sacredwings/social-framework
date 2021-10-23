@@ -34,6 +34,7 @@ CREATE TABLE sf_group (
     ban_reason      character varying (255),
 
     photo           bigint,	/* фотография. */
+    photo_big       bigint, /* фотография. */
     logo            bigint,	/* логотип. */
     www             character varying (255),	/* www-страница. */
     phone           character varying (255),	/* телефон. */
@@ -62,7 +63,8 @@ CREATE TABLE sf_user (
     first_name	    character varying (50),	/* имя. */
     last_name	    character varying (50),	/* фамилия. */
     second_name	    character varying (50),	/* отчество. */
-    photo           int, /* фотография. */
+    photo           bigint, /* фотография. */
+    photo_big       bigint, /* фотография. */
 
     ban_date        timestamp with time zone, /* время, до которого получен бан */
     ban_reason      character varying (255), /* причина бана */
