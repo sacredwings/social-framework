@@ -28,6 +28,11 @@ export default class {
                     item.photo = item.photo[0]
                 }
 
+                if (item.photo_big) {
+                    item.photo_big = await CFile.GetById([item.photo_big]);
+                    item.photo_big = item.photo_big[0]
+                }
+
                 item.create_id = Number (item.create_id)
 
                 return item;

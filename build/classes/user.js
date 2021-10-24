@@ -161,9 +161,22 @@ var _default = /*#__PURE__*/function () {
                             item.photo = item.photo[0];
 
                           case 5:
+                            if (!item.photo_big) {
+                              _context3.next = 10;
+                              break;
+                            }
+
+                            _context3.next = 8;
+                            return _file["default"].GetById([item.photo_big]);
+
+                          case 8:
+                            item.photo_big = _context3.sent;
+                            item.photo_big = item.photo_big[0];
+
+                          case 10:
                             return _context3.abrupt("return", item);
 
-                          case 6:
+                          case 11:
                           case "end":
                             return _context3.stop();
                         }

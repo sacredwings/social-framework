@@ -104,10 +104,23 @@ var _default = /*#__PURE__*/function () {
                             item.photo = item.photo[0];
 
                           case 5:
+                            if (!item.photo_big) {
+                              _context2.next = 10;
+                              break;
+                            }
+
+                            _context2.next = 8;
+                            return _file["default"].GetById([item.photo_big]);
+
+                          case 8:
+                            item.photo_big = _context2.sent;
+                            item.photo_big = item.photo_big[0];
+
+                          case 10:
                             item.create_id = Number(item.create_id);
                             return _context2.abrupt("return", item);
 
-                          case 7:
+                          case 12:
                           case "end":
                             return _context2.stop();
                         }
