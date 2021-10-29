@@ -57,6 +57,16 @@ export default class {
             sql += ` LIMIT $1 OFFSET $2 `
 
             let result = await DB.Init.Query(sql, [fields.count, fields.offset])
+            result = await Promise.all(result.map(async (item, i) => {
+                /* загрузка инфы о файле */
+                if (item.image_id) {
+                    item.image_id = await CFile.GetById([item.image_id]);
+                    item.image_id = item.image_id[0]
+                }
+
+                return item;
+            }));
+            return result
 
             /*
             result = await Promise.all(result.map(async (item, i) => {
@@ -76,8 +86,6 @@ export default class {
                 return item;
             }));
             */
-
-            return result
 
         } catch (err) {
             console.log(err)
@@ -221,6 +229,16 @@ export default class {
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CArticle SearchCount'})
+        }
+    }
+
+    static async Edit(id, fields) {
+        try {
+            let result = await DB.Init.Update(`${DB.Init.TablePrefix}article`, fields, {id: id}, `ID`)
+            return result[0]
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CArticle Edit'})
         }
     }
 }
