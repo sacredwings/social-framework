@@ -46,7 +46,7 @@ export default class {
     //загрузка
     static async Get ( fields ) {
         try {
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}article WHERE owner_id=${fields.owner_id}`
+            let sql = `SELECT * FROM ${DB.Init.TablePrefix}article WHERE owner_id=${fields.owner_id} ORDER BY id DESC`
 
             /* видео из альбома */
             if (fields.album_id)

@@ -123,7 +123,7 @@ var _default = /*#__PURE__*/function () {
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.prev = 0;
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "article WHERE owner_id=").concat(fields.owner_id);
+                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "article WHERE owner_id=").concat(fields.owner_id, " ORDER BY id DESC");
                 /* видео из альбома */
 
                 if (fields.album_id) sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "article.*\n                    FROM ").concat(_db.DB.Init.TablePrefix, "album_article_link\n                    INNER JOIN ").concat(_db.DB.Init.TablePrefix, "article ON ").concat(_db.DB.Init.TablePrefix, "article.id = ").concat(_db.DB.Init.TablePrefix, "album_article_link.object_id WHERE ").concat(_db.DB.Init.TablePrefix, "album_article_link.album_id = ").concat(fields.album_id, " AND owner_id=").concat(fields.owner_id, " ORDER BY id DESC");
