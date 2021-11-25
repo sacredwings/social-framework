@@ -81,7 +81,7 @@ var _default = /*#__PURE__*/function () {
 
               case 11:
                 _context.next = 13;
-                return this.AddToken(user.id, fields.ip, fields.browser);
+                return this.AddToken(user._id, fields.ip, fields.browser);
 
               case 13:
                 token = _context.sent;
@@ -98,7 +98,7 @@ var _default = /*#__PURE__*/function () {
 
               case 16:
                 return _context.abrupt("return", {
-                  tid: token.id,
+                  tid: token._id,
                   token: token.token,
                   id: user.id,
                   login: user.login
@@ -129,31 +129,38 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetById",
     value: function () {
-      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(id) {
-        var result;
+      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(ids) {
+        var collection, result;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.prev = 0;
-                _context2.next = 3;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "token WHERE id=$1"), [id]);
+                ids = new _db.DB().arObjectID(ids);
+                console.log(ids);
+                collection = _db.DB.Client.collection('auth');
+                _context2.next = 6;
+                return collection.find({
+                  _id: {
+                    $in: ids
+                  }
+                }).toArray();
 
-              case 3:
+              case 6:
                 result = _context2.sent;
 
-                if (!result.length) {
-                  _context2.next = 6;
+                if (!result) {
+                  _context2.next = 9;
                   break;
                 }
 
-                return _context2.abrupt("return", result[0]);
-
-              case 6:
-                return _context2.abrupt("return", false);
+                return _context2.abrupt("return", result);
 
               case 9:
-                _context2.prev = 9;
+                return _context2.abrupt("return", false);
+
+              case 12:
+                _context2.prev = 12;
                 _context2.t0 = _context2["catch"](0);
                 console.log(_context2.t0);
                 throw {
@@ -161,12 +168,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CAuth GetById'
                 };
 
-              case 13:
+              case 16:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, null, [[0, 9]]);
+        }, _callee2, null, [[0, 12]]);
       }));
 
       function GetById(_x2) {
@@ -179,13 +186,14 @@ var _default = /*#__PURE__*/function () {
     key: "AddToken",
     value: function () {
       var _AddToken = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(userId, ip, browser) {
-        var hash, arFields, result;
+        var collection, hash, arFields, result;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
                 _context3.prev = 0;
-                //создаем hash /нужно поменять на дату
+                collection = _db.DB.Client.collection('auth'); //создаем hash /нужно поменять на дату
+
                 hash = new Date().toString();
                 hash = _crypto["default"].createHash('md5').update(hash).digest("hex"); //подготовка полей
 
@@ -194,17 +202,16 @@ var _default = /*#__PURE__*/function () {
                   user_id: userId,
                   ip: ip,
                   browser: browser
-                }; //запись
+                };
+                _context3.next = 7;
+                return collection.insertOne(arFields);
 
-                _context3.next = 6;
-                return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "token"), arFields, "id, token");
-
-              case 6:
+              case 7:
                 result = _context3.sent;
-                return _context3.abrupt("return", result[0]);
+                return _context3.abrupt("return", arFields);
 
-              case 10:
-                _context3.prev = 10;
+              case 11:
+                _context3.prev = 11;
                 _context3.t0 = _context3["catch"](0);
                 console.log(_context3.t0);
                 throw {
@@ -212,12 +219,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CAuth AddToken'
                 };
 
-              case 14:
+              case 15:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[0, 10]]);
+        }, _callee3, null, [[0, 11]]);
       }));
 
       function AddToken(_x3, _x4, _x5) {

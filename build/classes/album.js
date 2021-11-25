@@ -68,44 +68,119 @@ var _default = /*#__PURE__*/function () {
       }
 
       return Add;
-    }()
+    }() //загрузка по id
+
   }, {
-    key: "Edit",
+    key: "GetById",
     value: function () {
-      var _Edit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(id, fields) {
-        var result;
+      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(ids) {
+        var collection, result;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.prev = 0;
-                _context2.next = 3;
-                return _db.DB.Init.Update("".concat(_db.DB.Init.TablePrefix, "album"), fields, {
-                  id: id
-                }, "ID");
+                ids = new _db.DB().arObjectID(ids);
+                collection = _db.DB.Client.collection('album');
+                _context2.next = 5;
+                return collection.aggregate([{
+                  $match: {
+                    _id: {
+                      $in: ids
+                    }
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'image_id',
+                    foreignField: '_id',
+                    as: '_image_id',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
+                      }
+                    }, {
+                      $unwind: {
+                        path: '$_file_id',
+                        preserveNullAndEmptyArrays: true
+                      }
+                    }]
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_image_id',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }]).toArray();
 
-              case 3:
+              case 5:
                 result = _context2.sent;
-                return _context2.abrupt("return", result[0]);
+                return _context2.abrupt("return", result);
 
-              case 7:
-                _context2.prev = 7;
+              case 9:
+                _context2.prev = 9;
                 _context2.t0 = _context2["catch"](0);
                 console.log(_context2.t0);
                 throw {
                   err: 8001000,
-                  msg: 'CAlbum Edit'
+                  msg: 'CArticle GetById'
                 };
 
-              case 11:
+              case 13:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, null, [[0, 7]]);
+        }, _callee2, null, [[0, 9]]);
       }));
 
-      function Edit(_x2, _x3) {
+      function GetById(_x2) {
+        return _GetById.apply(this, arguments);
+      }
+
+      return GetById;
+    }()
+  }, {
+    key: "Edit",
+    value: function () {
+      var _Edit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(id, fields) {
+        var collection, arFields, result;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.prev = 0;
+                id = new _db.DB().ObjectID(id);
+                collection = _db.DB.Client.collection('album');
+                arFields = {
+                  _id: id
+                };
+                result = collection.updateOne(arFields, {
+                  $set: fields
+                });
+                return _context3.abrupt("return", result);
+
+              case 8:
+                _context3.prev = 8;
+                _context3.t0 = _context3["catch"](0);
+                console.log(_context3.t0);
+                throw {
+                  err: 8001000,
+                  msg: 'CArticle Edit'
+                };
+
+              case 12:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, null, [[0, 8]]);
+      }));
+
+      function Edit(_x3, _x4) {
         return _Edit.apply(this, arguments);
       }
 
@@ -116,62 +191,58 @@ var _default = /*#__PURE__*/function () {
     key: "Get",
     value: function () {
       var _Get = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(fields) {
-        var sql, result;
+        var collection, arAggregate, result;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.prev = 0;
-                if (fields.album_id) fields.album_id = " album_id=".concat(fields.album_id, " ");else fields.album_id = " album_id IS NULL ";
-                sql = "SELECT *\n                       FROM ".concat(_db.DB.Init.TablePrefix, "album\n                       WHERE owner_id = ").concat(fields.owner_id, " AND module = '").concat(fields.module, "' AND ").concat(fields.album_id, "\n                       ORDER BY title ASC");
-                sql += " LIMIT $1 OFFSET $2 ";
-                console.log(sql);
-                _context4.next = 7;
-                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
-
-              case 7:
-                result = _context4.sent;
-                _context4.next = 10;
-                return Promise.all(result.map( /*#__PURE__*/function () {
-                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(item, i) {
-                    return regeneratorRuntime.wrap(function _callee3$(_context3) {
-                      while (1) {
-                        switch (_context3.prev = _context3.next) {
-                          case 0:
-                            if (!item.image_id) {
-                              _context3.next = 5;
-                              break;
-                            }
-
-                            _context3.next = 3;
-                            return _file["default"].GetById([item.image_id]);
-
-                          case 3:
-                            item.image_id = _context3.sent;
-                            item.image_id = item.image_id[0];
-
-                          case 5:
-                            return _context3.abrupt("return", item);
-
-                          case 6:
-                          case "end":
-                            return _context3.stop();
-                        }
+                fields.to_user_id = new _db.DB().ObjectID(fields.to_user_id);
+                fields.to_group_id = new _db.DB().ObjectID(fields.to_group_id);
+                fields.album_id = new _db.DB().ObjectID(fields.album_id);
+                collection = _db.DB.Client.collection('album');
+                arAggregate = [{
+                  $match: {
+                    module: fields.module
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'image_id',
+                    foreignField: '_id',
+                    as: '_image_id',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
                       }
-                    }, _callee3);
-                  }));
+                    }, {
+                      $unwind: {
+                        path: '$_file_id',
+                        preserveNullAndEmptyArrays: true
+                      }
+                    }]
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_image_id',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }];
+                if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id;
+                if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id;
+                if (fields.album_id) arAggregate[0].$match.album_id = fields.album_id;
+                _context4.next = 11;
+                return collection.aggregate(arAggregate).limit(fields.count + fields.offset).skip(fields.offset).toArray();
 
-                  return function (_x5, _x6) {
-                    return _ref.apply(this, arguments);
-                  };
-                }()));
-
-              case 10:
+              case 11:
                 result = _context4.sent;
                 return _context4.abrupt("return", result);
 
-              case 14:
-                _context4.prev = 14;
+              case 15:
+                _context4.prev = 15;
                 _context4.t0 = _context4["catch"](0);
                 console.log(_context4.t0);
                 throw {
@@ -179,15 +250,15 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CAlbum Get'
                 };
 
-              case 18:
+              case 19:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, null, [[0, 14]]);
+        }, _callee4, null, [[0, 15]]);
       }));
 
-      function Get(_x4) {
+      function Get(_x5) {
         return _Get.apply(this, arguments);
       }
 
@@ -198,23 +269,31 @@ var _default = /*#__PURE__*/function () {
     key: "Count",
     value: function () {
       var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(fields) {
-        var sql, result;
+        var collection, count, result;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                if (fields.album_id) fields.album_id = " album_id=".concat(fields.album_id, " ");else fields.album_id = " album_id IS NULL ";
-                sql = "SELECT COUNT(*)\n                       FROM ".concat(_db.DB.Init.TablePrefix, "album\n                       WHERE owner_id = ").concat(fields.owner_id, " AND module = '").concat(fields.module, "' AND ").concat(fields.album_id);
-                _context5.next = 5;
-                return _db.DB.Init.Query(sql);
+                fields.to_user_id = new _db.DB().ObjectID(fields.to_user_id);
+                fields.to_group_id = new _db.DB().ObjectID(fields.to_group_id);
+                fields.album_id = new _db.DB().ObjectID(fields.album_id);
+                collection = _db.DB.Client.collection('album');
+                count = {
+                  module: fields.module
+                };
+                if (fields.to_user_id) count.to_user_id = fields.to_user_id;
+                if (fields.to_group_id) count.to_group_id = fields.to_group_id;
+                if (fields.album_id) count.album_id = fields.album_id;
+                _context5.next = 11;
+                return collection.count(count);
 
-              case 5:
+              case 11:
                 result = _context5.sent;
-                return _context5.abrupt("return", Number(result[0].count));
+                return _context5.abrupt("return", result);
 
-              case 9:
-                _context5.prev = 9;
+              case 15:
+                _context5.prev = 15;
                 _context5.t0 = _context5["catch"](0);
                 console.log(_context5.t0);
                 throw {
@@ -222,15 +301,15 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CAlbum Count'
                 };
 
-              case 13:
+              case 19:
               case "end":
                 return _context5.stop();
             }
           }
-        }, _callee5, null, [[0, 9]]);
+        }, _callee5, null, [[0, 15]]);
       }));
 
-      function Count(_x7) {
+      function Count(_x6) {
         return _Count.apply(this, arguments);
       }
 
@@ -249,7 +328,7 @@ var _default = /*#__PURE__*/function () {
                 // сделать проверку, что файл и альбом твои
                 //раскидываем файл по альбомам
                 fields.album_ids.map( /*#__PURE__*/function () {
-                  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(item, i) {
+                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(item, i) {
                     var arFields;
                     return regeneratorRuntime.wrap(function _callee6$(_context6) {
                       while (1) {
@@ -272,8 +351,8 @@ var _default = /*#__PURE__*/function () {
                     }, _callee6);
                   }));
 
-                  return function (_x9, _x10) {
-                    return _ref2.apply(this, arguments);
+                  return function (_x8, _x9) {
+                    return _ref.apply(this, arguments);
                   };
                 }());
                 return _context7.abrupt("return", true);
@@ -295,7 +374,7 @@ var _default = /*#__PURE__*/function () {
         }, _callee7, null, [[0, 5]]);
       }));
 
-      function InAlbum(_x8) {
+      function InAlbum(_x7) {
         return _InAlbum.apply(this, arguments);
       }
 

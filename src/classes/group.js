@@ -18,11 +18,76 @@ export default class {
     //загрузка по id
     static async GetById ( ids ) {
         try {
+            ids = new DB().arObjectID(ids)
+
+            let collection = DB.Client.collection('group');
+            //let result = await collection.find({_id: { $in: ids}}).toArray()
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            _id: {$in: ids}
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo_big',
+                            foreignField: '_id',
+                            as: '_photo_big',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo_big',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }
+            ]).toArray();
+
+            return result
+
+            /*
             ids = ids.join(',');
             let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}group WHERE id in (${ids})`)
 
             result = await Promise.all(result.map(async (item, i) => {
-                /* загрузка инфы о файле */
+
                 if (item.photo) {
                     item.photo = await CFile.GetById([item.photo]);
                     item.photo = item.photo[0]
@@ -39,7 +104,7 @@ export default class {
             }));
 
             return result
-
+*/
         } catch (err) {
             console.log(err)
             throw ({err: 4002000, msg: 'CGroup GetById'})
@@ -49,31 +114,82 @@ export default class {
     //загрузка
     static async Get ( fields ) {
         try {
+            fields.user_id = new DB().ObjectID(fields.user_id)
 
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}group WHERE create_id=${fields.owner_id}`
-            sql += ` LIMIT $1 OFFSET $2 `
-
-            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
-
-            result = await Promise.all(result.map(async (item, i) => {
-
-                if (item.type)
-                    item.type = Number (item.type);
-
-                if (item.photo)
-                    item.photo = Number (item.photo);
-
-                if (item.create_id)
-                    item.create_id = Number (item.create_id);
-
-                /* загрузка инфы о файле */
-                if (item.photo) {
-                    item.photo = await CFile.GetById([item.photo]);
-                    item.photo = item.photo[0]
+            let collection = DB.Client.collection('group');
+            //let result = await collection.find({_id: { $in: ids}}).toArray()
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            create_id: fields.user_id
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        },
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo_big',
+                            foreignField: '_id',
+                            as: '_photo_big',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo_big',
+                            preserveNullAndEmptyArrays: true
+                        }
                 }
 
-                return item;
-            }));
+            ]).limit(fields.count).skip(fields.offset).toArray();
 
             return result
         } catch (err) {
@@ -85,10 +201,17 @@ export default class {
     //количество
     static async GetCount ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}group WHERE create_id=${fields.owner_id}`
-            let result = await DB.Init.Query(sql)
+            fields.user_id = new DB().ObjectID(fields.user_id)
+            let collection = DB.Client.collection('group');
 
-            return Number (result[0].count)
+            //let result = await collection.find({_id: { $in: ids}}).toArray()
+            let result = await collection.count(
+                {
+                    create_id: fields.user_id
+                }
+            )
+
+            return result
         } catch (err) {
             console.log(err)
             throw ({err: 4004000, msg: 'CGroup GetCount'})
@@ -98,11 +221,10 @@ export default class {
     //количество всех видео
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}group`
+            let collection = DB.Client.collection('group');
+            let result = await collection.count()
 
-            let result = await DB.Init.Query(sql)
-            return Number (result[0].count)
-
+            return result
         } catch (err) {
             console.log(err)
             throw ({err: 8001000, msg: 'CGroup Count'})
@@ -124,6 +246,48 @@ export default class {
             //удаление одинаковых id из массива
             arUsersId = Array.from(new Set(arUsersId))
 
+            let collection = DB.Client.collection('user');
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            _id: {$in: arUsersId}
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }
+            ]).toArray();
+
+            /*
             let sql = `SELECT id,login,first_name,create_date,birthday,photo FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsersId})`
             let users = await DB.Init.Query(sql)
 
@@ -133,9 +297,9 @@ export default class {
                     user.photo = user.photo[0]
                 }
                 return user
-            }))
+            }))*/
 
-            return users
+            return result
 
         } catch (err) {
             console.log(err)
@@ -167,43 +331,67 @@ export default class {
     //поиск по группам
     static async Search ( fields ) {
         try {
-            let there = []
+            let collection = DB.Client.collection('group');
 
-            if (fields.q)
-                there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+            let arAggregate = []
 
-            //запрос
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}group `
-
-            //объединеие параметров запроса
-            if (there.length)
-                sql += `WHERE ` + there.join(' AND ')
-
-            sql += ` LIMIT $1 OFFSET $2`
-
-            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
-            console.log(sql)
-
-            result = await Promise.all(result.map(async (item, i) => {
-
-                if (item.type)
-                    item.type = Number (item.type);
-
-                if (item.photo)
-                    item.photo = Number (item.photo);
-
-                if (item.create_id)
-                    item.create_id = Number (item.create_id);
-
-                /* загрузка инфы о файле */
-                if (item.photo) {
-                    item.photo = await CFile.GetById([item.photo]);
-                    item.photo = item.photo[0]
+            if (fields.q) arAggregate.push(
+                {
+                    $match:
+                        {
+                            $text: {
+                                $search: fields.q
+                            }
+                        },
                 }
+            )
 
-                return item;
-            }));
+            arAggregate.push(
+                {
+                    $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $lookup:
+                        {
+                            from: 'user',
+                            localField: 'create_id',
+                            foreignField: '_id',
+                            as: '_create_id',
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_create_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }
+            )
 
+            let result = await collection.aggregate(arAggregate).limit(fields.count).skip(fields.offset).toArray()
             return result
 
         } catch (err) {
@@ -215,29 +403,19 @@ export default class {
     //количество / поиск
     static async SearchCount ( fields ) {
         try {
-            let there = []
+            let collection = DB.Client.collection('group');
 
-            if (fields.q)
-                there.push(` to_tsvector(title) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+            let arSearch = {}
+            if (fields.q) arSearch = {$text: {$search: fields.q}}
 
-            //запрос
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}group `
-
-            //объединеие параметров запроса
-            if (there.length)
-                sql += `WHERE ` + there.join(' AND ')
-
-            console.log(sql)
-            let result = await DB.Init.Query(sql)
-
-            return Number (result[0].count)
-
+            let result = await collection.count(arSearch)
+            return result
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CGroup SearchCount'})
         }
     }
-
+/*
     static async GetByField ( items, fieldName ) {
         try {
             //нет массива для обработки
@@ -246,7 +424,6 @@ export default class {
 
             let arGroupId = []
 
-            /* выгрузка индентификаторов из объектов / пользователей */
             items.forEach((item, i) => {
                 if (item[fieldName] < 0)
                     arGroupId.push(-item[fieldName])
@@ -274,5 +451,5 @@ export default class {
             console.log(err)
             throw ({err: 6005000, msg: 'CGroup GetByField'})
         }
-    }
+    }*/
 }

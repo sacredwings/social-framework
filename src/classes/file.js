@@ -9,6 +9,10 @@ export default class {
     //Сохраняем новый вайл в таблицу файлов и сам файл
     static async SaveFile ( fields, savePath, preview ) {
         try {
+            fields.file_id = new DB().ObjectID(fields.file_id)
+
+            let collection = DB.Client.collection('file');
+
             //удаление файла с диска и базы
             if (fields.old_file)
                 await this.Delete(fields.old_file, true)
@@ -64,7 +68,8 @@ export default class {
                     url: urlImg,
 
                     from_id: fields.from_id,
-                    owner_id: fields.owner_id,
+                    to_user_id: fields.to_user_id,
+                    to_group_id: fields.to_group_id,
 
                     file_id: fields.file_id,
 
@@ -74,8 +79,8 @@ export default class {
                     create_id: fields.create_id
                 }
 
-                let result = await DB.Init.Insert(`${DB.Init.TablePrefix}file`, arFields, `id`)
-                newIdImg = result[0].id
+                let result = await collection.insertOne(arFields)
+                newIdImg = arFields._id
             }
 
             //добавление записи о файле в таблицу
@@ -87,7 +92,8 @@ export default class {
                 url: url,
 
                 from_id: fields.from_id,
-                owner_id: fields.owner_id,
+                to_user_id: fields.to_user_id,
+                to_group_id: fields.to_group_id,
 
                 file_id: (fields.file_id) ? fields.file_id : newIdImg,
 
@@ -97,8 +103,8 @@ export default class {
                 create_id: fields.create_id
             }
 
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}file`, arFields, `id`)
-            return result[0]
+            let result = await collection.insertOne(arFields)
+            return {id: arFields._id}
 
         } catch (err) {
             console.log(err)

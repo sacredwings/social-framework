@@ -35,34 +35,36 @@ var _default = /*#__PURE__*/function () {
     value: //Сохраняем новый вайл в таблицу файлов и сам файл
     function () {
       var _SaveFile = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields, savePath, preview) {
-        var file_buffer, hash, type, url, newPathVideo, newIdImg, urlImg, newPathImg, _arFields, _result, arFields, result;
+        var collection, file_buffer, hash, type, url, newPathVideo, newIdImg, urlImg, newPathImg, _arFields, _result, arFields, result;
 
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.prev = 0;
+                fields.file_id = new _db.DB().ObjectID(fields.file_id);
+                collection = _db.DB.Client.collection('file'); //удаление файла с диска и базы
 
                 if (!fields.old_file) {
-                  _context.next = 4;
+                  _context.next = 6;
                   break;
                 }
 
-                _context.next = 4;
+                _context.next = 6;
                 return this.Delete(fields.old_file, true);
 
-              case 4:
+              case 6:
                 //содержимое файла
                 //let file_buffer = await fs.readFile(fields.file.path);
                 file_buffer = _fsExtra["default"].createReadStream(fields.file.path);
-                _context.next = 7;
+                _context.next = 9;
                 return new Promise(function (resolve, reject) {
                   file_buffer.on('data', function (data) {
                     return resolve(data);
                   }); //file_buffer.on('error', reject);
                 });
 
-              case 7:
+              case 9:
                 file_buffer = _context.sent;
                 //хеш содержимого
                 //let hash = crypto.createHash('md5').update(fields.file.name).digest("hex")
@@ -75,15 +77,15 @@ var _default = /*#__PURE__*/function () {
 
                 newPathVideo = "".concat(savePath).concat(url); //копирование файла в постоянную папку
 
-                _context.next = 15;
+                _context.next = 17;
                 return _fsExtra["default"].copy(fields.file.path, newPathVideo);
 
-              case 15:
+              case 17:
                 url = "files/".concat(url);
                 newIdImg = null; //картинки не существует
 
                 if (!(!fields.file_id && preview)) {
-                  _context.next = 28;
+                  _context.next = 30;
                   break;
                 }
 
@@ -91,10 +93,10 @@ var _default = /*#__PURE__*/function () {
 
                 newPathImg = "".concat(savePath).concat(urlImg); //вытаскиваем видео
 
-                _context.next = 22;
+                _context.next = 24;
                 return ImageSave(newPathVideo, newPathImg);
 
-              case 22:
+              case 24:
                 urlImg = "files/".concat(urlImg);
                 _arFields = {
                   size: 0,
@@ -102,20 +104,21 @@ var _default = /*#__PURE__*/function () {
                   type: 'image/jpeg',
                   url: urlImg,
                   from_id: fields.from_id,
-                  owner_id: fields.owner_id,
+                  to_user_id: fields.to_user_id,
+                  to_group_id: fields.to_group_id,
                   file_id: fields.file_id,
                   title: fields.title ? fields.title : fields.file.title,
                   text: fields.text,
                   create_id: fields.create_id
                 };
-                _context.next = 26;
-                return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "file"), _arFields, "id");
-
-              case 26:
-                _result = _context.sent;
-                newIdImg = _result[0].id;
+                _context.next = 28;
+                return collection.insertOne(_arFields);
 
               case 28:
+                _result = _context.sent;
+                newIdImg = _arFields._id;
+
+              case 30:
                 //добавление записи о файле в таблицу
                 arFields = {
                   size: fields.file.size,
@@ -123,21 +126,24 @@ var _default = /*#__PURE__*/function () {
                   type: fields.file.type,
                   url: url,
                   from_id: fields.from_id,
-                  owner_id: fields.owner_id,
+                  to_user_id: fields.to_user_id,
+                  to_group_id: fields.to_group_id,
                   file_id: fields.file_id ? fields.file_id : newIdImg,
                   title: fields.title ? fields.title : fields.file.title,
                   text: fields.text,
                   create_id: fields.create_id
                 };
-                _context.next = 31;
-                return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "file"), arFields, "id");
+                _context.next = 33;
+                return collection.insertOne(arFields);
 
-              case 31:
+              case 33:
                 result = _context.sent;
-                return _context.abrupt("return", result[0]);
+                return _context.abrupt("return", {
+                  id: arFields._id
+                });
 
-              case 35:
-                _context.prev = 35;
+              case 37:
+                _context.prev = 37;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
@@ -145,12 +151,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CFile SaveFile'
                 };
 
-              case 39:
+              case 41:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[0, 35]]);
+        }, _callee, this, [[0, 37]]);
       }));
 
       function SaveFile(_x, _x2, _x3) {

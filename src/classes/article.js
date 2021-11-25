@@ -22,8 +22,49 @@ export default class {
     //загрузка по id
     static async GetById ( ids ) {
         try {
-            ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}article WHERE id in (${ids})`)
+            ids = new DB().arObjectID(ids)
+
+            let collection = DB.Client.collection('article');
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            _id: {$in: ids}
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'image_id',
+                            foreignField: '_id',
+                            as: '_image_id',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_image_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }
+            ]).toArray();
+            //let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}article WHERE id in (${ids})`)
 
             /*
             result = await Promise.all(result.map(async (item, i) => {
@@ -43,49 +84,98 @@ export default class {
         }
     }
 
+    static async Edit(id, fields) {
+        try {
+            id = new DB().ObjectID(id)
+
+            let collection = DB.Client.collection('article');
+            let arFields = {
+                _id: id
+            }
+
+            let result = collection.updateOne(arFields, {$set: fields})
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CArticle Edit'})
+        }
+    }
+
     //загрузка
     static async Get ( fields ) {
         try {
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}article WHERE owner_id=${fields.owner_id} ORDER BY id DESC`
+            let collection = DB.Client.collection('article');
 
-            /* видео из альбома */
-            if (fields.album_id)
-                sql = `SELECT ${DB.Init.TablePrefix}article.*
-                    FROM ${DB.Init.TablePrefix}album_article_link
-                    INNER JOIN ${DB.Init.TablePrefix}article ON ${DB.Init.TablePrefix}article.id = ${DB.Init.TablePrefix}album_article_link.object_id WHERE ${DB.Init.TablePrefix}album_article_link.album_id = ${fields.album_id} AND owner_id=${fields.owner_id} ORDER BY id DESC`
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            fields.album_id = new DB().ObjectID(fields.album_id)
 
-            sql += ` LIMIT $1 OFFSET $2 `
+            let arAggregate = [{
+                $match: {},
+            },{
+                $lookup:
+                    {
+                        from: 'file',
+                        localField: 'image_id',
+                        foreignField: '_id',
+                        as: '_image_id',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'file_id',
+                                        foreignField: '_id',
+                                        as: '_file_id'
+                                    }
+                            },{
+                                $unwind:
+                                    {
+                                        path: '$_file_id',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
+                    },
+            },{
+                $unwind:
+                    {
+                        path: '$_image_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            }]
 
-            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
-            result = await Promise.all(result.map(async (item, i) => {
-                /* загрузка инфы о файле */
-                if (item.image_id) {
-                    item.image_id = await CFile.GetById([item.image_id]);
-                    item.image_id = item.image_id[0]
-                }
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
-                return item;
-            }));
+            if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+
+
+            if (fields.album_id) {
+                arAggregate.push({
+                    $lookup:
+                        {
+                            from: 'album_article_link',
+                            localField: '_id',
+                            foreignField: 'object_id',
+                            as: '_album_article_link',
+                            pipeline: [
+                                { $match: {} },
+                            ]
+                        }
+                })
+                arAggregate.push({
+                    $unwind:
+                        {
+                            path: '$_album_article_link',
+                            preserveNullAndEmptyArrays: false
+                        }
+                })
+                arAggregate[2].$lookup.pipeline[0].$match.album_id = fields.album_id
+            }
+
+            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
-
-            /*
-            result = await Promise.all(result.map(async (item, i) => {
-                if (item.from_id)
-                    item.from_id = Number (item.from_id);
-
-                if (item.owner_id)
-                    item.owner_id = Number (item.owner_id);
-
-                if (item.create_id)
-                    item.create_id = Number (item.create_id);
-
-                // загрузка инфы о файле
-                if (item.file_ids)
-                    item.file_ids = await CFile.GetById(item.file_ids);
-
-                return item;
-            }));
-            */
 
         } catch (err) {
             console.log(err)
@@ -93,13 +183,54 @@ export default class {
         }
     }
 
+
     //количество
     static async GetCount ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}article WHERE owner_id=${fields.owner_id}`
-            let result = await DB.Init.Query(sql)
+            let collection = DB.Client.collection('article');
 
-            return Number (result[0].count)
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            fields.album_id = new DB().ObjectID(fields.album_id)
+
+            let arAggregate = [{
+                $match: {},
+            }]
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
+
+            if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+
+
+            if (fields.album_id) {
+                arAggregate.push({
+                    $lookup:
+                        {
+                            from: 'album_article_link',
+                            localField: '_id',
+                            foreignField: 'object_id',
+                            as: '_album_article_link',
+                            pipeline: [
+                                { $match: {} },
+                            ]
+                        }
+                })
+                arAggregate.push({
+                    $unwind:
+                        {
+                            path: '$_album_article_link',
+                            preserveNullAndEmptyArrays: false
+                        }
+                })
+                arAggregate[1].$lookup.pipeline[0].$match.album_id = fields.album_id
+            }
+
+            arAggregate.push({
+                $count: 'count'
+            })
+
+            let result = await collection.aggregate(arAggregate).toArray();
+            return result[0].count
 
         } catch (err) {
             console.log(err)
@@ -232,13 +363,5 @@ export default class {
         }
     }
 
-    static async Edit(id, fields) {
-        try {
-            let result = await DB.Init.Update(`${DB.Init.TablePrefix}article`, fields, {id: id}, `ID`)
-            return result[0]
-        } catch (err) {
-            console.log(err)
-            throw ({err: 8001000, msg: 'CArticle Edit'})
-        }
-    }
+
 }

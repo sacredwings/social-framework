@@ -1,5 +1,46 @@
-import { Pool } from 'pg'
+import { MongoClient, ObjectId } from 'mongodb'
 
+export class DB {
+    constructor( ) {
+    }
+
+    async Init(url, dbName, parameters) {
+        const client = new MongoClient(url, parameters);
+        await client.connect();
+        console.log('Connected successfully to server');
+        return client.db(dbName);
+    }
+
+    ObjectID (value) {
+        if ((value) && (typeof value === 'string'))
+            return ObjectId(value)
+
+        return value
+    }
+
+    arObjectID (arValue) {
+        let arResult = []
+        arValue.forEach(function(value, i, arr) {
+            if ((value) && (typeof value === 'string'))
+                arResult.push(ObjectId(value))
+
+            if ((value) && (typeof value === 'object'))
+                arResult.push(value)
+        });
+
+        if (arResult.length) return arResult
+
+        return arValue
+    }
+}
+
+
+
+
+
+//import { Pool } from 'pg'
+
+/*
 export class DB {
     //из конфига в пулы
     constructor( ) {
@@ -151,4 +192,4 @@ export class DB {
         }
     }
 
-}
+}*/

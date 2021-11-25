@@ -22,11 +22,56 @@ export default class {
     //загрузка по id
     static async GetById ( ids ) {
         try {
+            ids = new DB().arObjectID(ids)
+
+            let collection = DB.Client.collection('post');
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            _id: {$in: ids}
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'file_ids',
+                            foreignField: '_id',
+                            as: '_file_ids',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_file_ids',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }
+            ]).toArray();
+
+            return result
+            /*
             ids = ids.join(',');
             let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}post WHERE id in (${ids}) ORDER BY id DESC`)
 
             result = await Promise.all(result.map(async (item, i) => {
-                /* загрузка инфы о файле */
+
                 if (item.files)
                     item.files = await CFile.GetById(item.files);
 
@@ -39,7 +84,7 @@ export default class {
                 return item;
             }));
 
-            return result[0]
+            return result[0]*/
 
         } catch (err) {
             console.log(err)
@@ -51,6 +96,46 @@ export default class {
     static async Get ( fields ) {
         try {
 
+            let collection = DB.Client.collection('post');
+
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+
+            let arAggregate = [{
+                $match: {},
+            },{
+                $lookup:
+                    {
+                        from: 'file',
+                        localField: 'image_id',
+                        foreignField: '_id',
+                        as: '_image_id',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'file_id',
+                                        foreignField: '_id',
+                                        as: '_file_id'
+                                    }
+                            },{
+                                $unwind:
+                                    {
+                                        path: '$_file_id',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
+                    },
+            },{
+                $unwind:
+                    {
+                        path: '$_image_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            }]
+
+            /*
             let sql = `SELECT * FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id} ORDER BY id DESC`
             sql += ` LIMIT $1 OFFSET $2 `
 
@@ -67,14 +152,14 @@ export default class {
                     item.create_id = Number (item.create_id);
 
                 console.log(item.file_ids)
-                /* загрузка инфы о файле */
+
                 if (item.file_ids)
                     item.file_ids = await CFile.GetById(item.file_ids);
 
                 return item;
             }));
 
-            return result
+            return result*/
         } catch (err) {
             console.log(err)
             throw ({err: 6003000, msg: 'CPost Get'})

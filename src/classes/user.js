@@ -14,9 +14,15 @@ export default class {
             if (fields.login)
                 fields.login = fields.login.toLowerCase()
 
+            let collection = DB.Client.collection('user_no_reg');
+
+            let result = await collection.insertOne(fields)
+
+            return fields
+
             //запись
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}user_no_reg`, fields, `ID`)
-            return result[0]
+            //let result = await DB.Init.Insert(`${DB.Init.TablePrefix}user_no_reg`, fields, `ID`)
+            //return result[0]
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CUser AddNoReg'})
@@ -32,9 +38,16 @@ export default class {
             if (fields.login)
                 fields.login = fields.login.toLowerCase()
 
+
+            let collection = DB.Client.collection('user');
+
+            let result = await collection.insertOne(fields)
+
+            return fields
+
             //запись
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}user`, fields, `ID`)
-            return result[0]
+            //let result = await DB.Init.Insert(`${DB.Init.TablePrefix}user`, fields, `ID`)
+            //return result[0]
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CUser AddUser'})
@@ -44,23 +57,67 @@ export default class {
     //поиск по id
     static async GetById ( ids ) {
         try {
-            ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user WHERE id in (${ids})`)
+            ids = new DB().arObjectID(ids)
 
-            result = await Promise.all(result.map(async (item, i) => {
-                /* загрузка инфы о файле */
-                if (item.photo) {
-                    item.photo = await CFile.GetById([item.photo]);
-                    item.photo = item.photo[0]
+            let collection = DB.Client.collection('user');
+            //let result = await collection.find({_id: { $in: ids}}).toArray()
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            _id: {$in: ids}
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo_big',
+                            foreignField: '_id',
+                            as: '_photo_big',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo_big',
+                            preserveNullAndEmptyArrays: true
+                        }
                 }
-
-                if (item.photo_big) {
-                    item.photo_big = await CFile.GetById([item.photo_big]);
-                    item.photo_big = item.photo_big[0]
-                }
-
-                return item;
-            }));
+            ]).toArray();
 
             return result
 
@@ -76,20 +133,69 @@ export default class {
             //в нижний регистр
             email = email.toLowerCase()
 
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user WHERE email=$1`, [email])
+            let collection = DB.Client.collection('user');
+            //let result = await collection.findOne({login})
+
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            email: email
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo_big',
+                            foreignField: '_id',
+                            as: '_photo_big',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo_big',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }
+            ]).toArray();
+
             if (!result.length) return false
-            result = result[0]
-
-            //удаление пароля
-            //delete result.password
-
-            /* загрузка инфы о файле */
-            if (result.photo) {
-                result.photo = await CFile.GetById([result.photo]);
-                result.photo = result.photo[0]
-            }
-
-            return result
+            return result[0]
 
         } catch (err) {
             console.log(err)
@@ -103,6 +209,73 @@ export default class {
             //в нижний регистр
             login = login.toLowerCase()
 
+            let collection = DB.Client.collection('user');
+            //let result = await collection.findOne({login})
+
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            login: login
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo_big',
+                            foreignField: '_id',
+                            as: '_photo_big',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo_big',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }
+            ]).toArray();
+
+            if (!result.length) return false
+            return result[0]
+
+            //console.log(result)
+            //console.log(result[0].photo)
+            /*
             let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user WHERE login=$1`, [login])
             if (!result.length) return false
             result = result[0]
@@ -110,13 +283,13 @@ export default class {
             //удаление пароля
             //delete result.password
 
-            /* загрузка инфы о файле */
+
             if (result.photo) {
                 result.photo = await CFile.GetById([result.photo]);
                 result.photo = result.photo[0]
-            }
+            }*/
 
-            return result
+            //return result
 
         } catch (err) {
             console.log(err)
@@ -183,12 +356,17 @@ export default class {
 
     static async RegActivate ( code ) {
         try {
-            let noRegUser = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user_no_reg WHERE code=$1`, [code])
-            if (!noRegUser.length)
+            let collection = DB.Client.collection('user_no_reg');
+            let noRegUser = await collection.findOne({code: code})
+            if (!noRegUser)
                 throw ({err: 30030001, msg: 'Заявки не существует'});
 
+            //let noRegUser = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user_no_reg WHERE code=$1`, [code])
+            //if (!noRegUser.length)
+                //throw ({err: 30030001, msg: 'Заявки не существует'});
+
             //упрощаем
-            noRegUser = noRegUser[0]
+            //noRegUser = noRegUser[0]
 
             let arUsers = await this.GetByEmail(noRegUser.email);
 
@@ -220,35 +398,52 @@ export default class {
     //поиск по пользователям
     static async Search ( fields ) {
         try {
-            let there = []
+            let collection = DB.Client.collection('user');
 
-            if (fields.q)
-                there.push(` to_tsvector(first_name) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+            let arAggregate = []
 
-            //запрос
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}user `
-
-            //объединеие параметров запроса
-            if (there.length)
-                sql += `WHERE ` + there.join(' AND ')
-
-            sql += ` LIMIT $1 OFFSET $2`
-
-            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
-            console.log(sql)
-
-            result = await Promise.all(result.map(async (item, i) => {
-                /* загрузка инфы о файле */
-                if (item.photo) {
-                    item.photo = await CFile.GetById([item.photo]);
-                    item.photo = item.photo[0]
+            if (fields.q) arAggregate.push(
+                {
+                    $match:
+                        {
+                            $text: {
+                                $search: fields.q
+                            }
+                        },
                 }
+            )
 
-                return item;
-            }));
+            arAggregate.push(
+                {
+                    $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },
+            )
 
+            let result = await collection.aggregate(arAggregate).limit(fields.count).skip(fields.offset).toArray()
             return result
-
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CUser Search'})
@@ -258,29 +453,20 @@ export default class {
     //количество / поиск по пользователям
     static async SearchCount ( fields ) {
         try {
-            let there = []
+            let collection = DB.Client.collection('user');
 
-            if (fields.q)
-                there.push(` to_tsvector(first_name) @@ websearch_to_tsquery('${fields.q.toLowerCase()}') `) //в нижний регистр
+            let arSearch = {}
+            if (fields.q) arSearch = {$text: {$search: fields.q}}
 
-            //запрос
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}user `
-
-            //объединеие параметров запроса
-            if (there.length)
-                sql += `WHERE ` + there.join(' AND ')
-
-            console.log(sql)
-            let result = await DB.Init.Query(sql)
-
-            return Number (result[0].count)
-
+            let result = await collection.count(arSearch)
+            return result
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CUser SearchCount'})
         }
     }
 
+    /*
     //количество всех видео
     static async Count ( fields ) {
         try {
@@ -293,7 +479,7 @@ export default class {
             console.log(err)
             throw ({err: 8001000, msg: 'CVideo Count'})
         }
-    }
+    }*/
 
     //пользователи
     static async GetByField ( items, fieldName ) {
@@ -315,18 +501,48 @@ export default class {
             //удаление одинаковых id из массива
             arUsersId = Array.from(new Set(arUsersId))
 
-            let sql = `SELECT id,login,first_name,create_date,birthday,photo FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsersId})`
-            let users = await DB.Init.Query(sql)
-
-            users = await Promise.all(users.map(async (user, i)=>{
-                if (user.photo) {
-                    user.photo = await CFile.GetById([user.photo]);
-                    user.photo = user.photo[0]
+            let collection = DB.Client.collection('user');
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            _id: {$in: arUsersId}
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
                 }
-                return user
-            }))
+            ]).toArray();
 
-            return users
+            return result
 
         } catch (err) {
             console.log(err)

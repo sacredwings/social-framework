@@ -1,13 +1,13 @@
+
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import {DB} from "./db";
+import { DB } from "./db";
 import CUser from './user'
 
 export default class {
 
     static async Login ( fields ) {
         try {
-
             //поиск пользователя по логину
             let user = await CUser.GetByLogin(fields.login);
             if (!user)
@@ -18,22 +18,27 @@ export default class {
             if (!match)
                 throw ({err: 1001002, msg: 'Неверный пароль'});
 
-            let token = await this.AddToken(user.id, fields.ip, fields.browser);
+            let token = await this.AddToken(user._id, fields.ip, fields.browser);
             if (!token)
                 throw ({err: 1001003, msg: 'Токен не создан'});
 
-            return {tid: token.id, token: token.token, id: user.id, login: user.login}
+            return {tid: token._id, token: token.token, id: user.id, login: user.login}
 
         } catch (err) {
             throw ({...{err: 1001000, msg: 'CAuth Login'}, ...err});
         }
     }
 
-    static async GetById ( id ) {
+    static async GetById ( ids ) {
         try {
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}token WHERE id=$1`, [id])
-            if (result.length)
-                return result[0]
+            ids = new DB().arObjectID(ids)
+
+            console.log(ids)
+            let collection = DB.Client.collection('auth');
+            let result = await collection.find({_id: { $in: ids}}).toArray()
+
+            if (result)
+                return result
 
             return false
         } catch (err) {
@@ -44,6 +49,7 @@ export default class {
 
     static async AddToken ( userId, ip, browser ) {
         try {
+            let collection = DB.Client.collection('auth');
 
             //создаем hash /нужно поменять на дату
             let hash = new Date().toString()
@@ -57,9 +63,15 @@ export default class {
                 browser: browser
             };
 
+            let result = await collection.insertOne(arFields)
+
+            return arFields
+            //console.log(result)
+            //console.log(arFields)
+
             //запись
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}token`, arFields, `id, token`)
-            return result[0]
+            //let result = await DB.Init.Insert(`${DB.Init.TablePrefix}token`, arFields, `id, token`)
+            //return result[0]
 
         } catch (err) {
             console.log(err)

@@ -41,24 +41,24 @@ var _default = /*#__PURE__*/function () {
     value: //добавить незарегистрированного пользователя
     function () {
       var _AddNoReg = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fields) {
-        var result;
+        var collection, result;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.prev = 0;
                 if (fields.email) fields.email = fields.email.toLowerCase();
-                if (fields.login) fields.login = fields.login.toLowerCase(); //запись
+                if (fields.login) fields.login = fields.login.toLowerCase();
+                collection = _db.DB.Client.collection('user_no_reg');
+                _context.next = 6;
+                return collection.insertOne(fields);
 
-                _context.next = 5;
-                return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "user_no_reg"), fields, "ID");
-
-              case 5:
+              case 6:
                 result = _context.sent;
-                return _context.abrupt("return", result[0]);
+                return _context.abrupt("return", fields);
 
-              case 9:
-                _context.prev = 9;
+              case 10:
+                _context.prev = 10;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
                 throw {
@@ -66,12 +66,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CUser AddNoReg'
                 };
 
-              case 13:
+              case 14:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[0, 9]]);
+        }, _callee, null, [[0, 10]]);
       }));
 
       function AddNoReg(_x) {
@@ -85,24 +85,24 @@ var _default = /*#__PURE__*/function () {
     key: "Add",
     value: function () {
       var _Add = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(fields) {
-        var result;
+        var collection, result;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.prev = 0;
                 if (fields.email) fields.email = fields.email.toLowerCase();
-                if (fields.login) fields.login = fields.login.toLowerCase(); //запись
+                if (fields.login) fields.login = fields.login.toLowerCase();
+                collection = _db.DB.Client.collection('user');
+                _context2.next = 6;
+                return collection.insertOne(fields);
 
-                _context2.next = 5;
-                return _db.DB.Init.Insert("".concat(_db.DB.Init.TablePrefix, "user"), fields, "ID");
-
-              case 5:
+              case 6:
                 result = _context2.sent;
-                return _context2.abrupt("return", result[0]);
+                return _context2.abrupt("return", fields);
 
-              case 9:
-                _context2.prev = 9;
+              case 10:
+                _context2.prev = 10;
                 _context2.t0 = _context2["catch"](0);
                 console.log(_context2.t0);
                 throw {
@@ -110,12 +110,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CUser AddUser'
                 };
 
-              case 13:
+              case 14:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, null, [[0, 9]]);
+        }, _callee2, null, [[0, 10]]);
       }));
 
       function Add(_x2) {
@@ -128,86 +128,84 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetById",
     value: function () {
-      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(ids) {
-        var result;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+      var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(ids) {
+        var collection, result;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
-                _context4.prev = 0;
-                ids = ids.join(',');
-                _context4.next = 4;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "user WHERE id in (").concat(ids, ")"));
+                _context3.prev = 0;
+                ids = new _db.DB().arObjectID(ids);
+                collection = _db.DB.Client.collection('user'); //let result = await collection.find({_id: { $in: ids}}).toArray()
 
-              case 4:
-                result = _context4.sent;
-                _context4.next = 7;
-                return Promise.all(result.map( /*#__PURE__*/function () {
-                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(item, i) {
-                    return regeneratorRuntime.wrap(function _callee3$(_context3) {
-                      while (1) {
-                        switch (_context3.prev = _context3.next) {
-                          case 0:
-                            if (!item.photo) {
-                              _context3.next = 5;
-                              break;
-                            }
-
-                            _context3.next = 3;
-                            return _file["default"].GetById([item.photo]);
-
-                          case 3:
-                            item.photo = _context3.sent;
-                            item.photo = item.photo[0];
-
-                          case 5:
-                            if (!item.photo_big) {
-                              _context3.next = 10;
-                              break;
-                            }
-
-                            _context3.next = 8;
-                            return _file["default"].GetById([item.photo_big]);
-
-                          case 8:
-                            item.photo_big = _context3.sent;
-                            item.photo_big = item.photo_big[0];
-
-                          case 10:
-                            return _context3.abrupt("return", item);
-
-                          case 11:
-                          case "end":
-                            return _context3.stop();
-                        }
+                _context3.next = 5;
+                return collection.aggregate([{
+                  $match: {
+                    _id: {
+                      $in: ids
+                    }
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'photo',
+                    foreignField: '_id',
+                    as: '_photo',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
                       }
-                    }, _callee3);
-                  }));
+                    }]
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'photo_big',
+                    foreignField: '_id',
+                    as: '_photo_big',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
+                      }
+                    }]
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_photo',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_photo_big',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }]).toArray();
 
-                  return function (_x4, _x5) {
-                    return _ref.apply(this, arguments);
-                  };
-                }()));
+              case 5:
+                result = _context3.sent;
+                return _context3.abrupt("return", result);
 
-              case 7:
-                result = _context4.sent;
-                return _context4.abrupt("return", result);
-
-              case 11:
-                _context4.prev = 11;
-                _context4.t0 = _context4["catch"](0);
-                console.log(_context4.t0);
+              case 9:
+                _context3.prev = 9;
+                _context3.t0 = _context3["catch"](0);
+                console.log(_context3.t0);
                 throw {
                   err: 7001000,
                   msg: 'CUser GetById'
                 };
 
-              case 15:
+              case 13:
               case "end":
-                return _context4.stop();
+                return _context3.stop();
             }
           }
-        }, _callee4, null, [[0, 11]]);
+        }, _callee3, null, [[0, 9]]);
       }));
 
       function GetById(_x3) {
@@ -220,67 +218,95 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetByEmail",
     value: function () {
-      var _GetByEmail = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(email) {
-        var result;
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+      var _GetByEmail = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(email) {
+        var collection, result;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                _context5.prev = 0;
+                _context4.prev = 0;
                 //в нижний регистр
                 email = email.toLowerCase();
-                _context5.next = 4;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "user WHERE email=$1"), [email]);
+                collection = _db.DB.Client.collection('user'); //let result = await collection.findOne({login})
 
-              case 4:
-                result = _context5.sent;
+                _context4.next = 5;
+                return collection.aggregate([{
+                  $match: {
+                    email: email
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'photo',
+                    foreignField: '_id',
+                    as: '_photo',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
+                      }
+                    }]
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'photo_big',
+                    foreignField: '_id',
+                    as: '_photo_big',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
+                      }
+                    }]
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_photo',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_photo_big',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }]).toArray();
+
+              case 5:
+                result = _context4.sent;
 
                 if (result.length) {
-                  _context5.next = 7;
+                  _context4.next = 8;
                   break;
                 }
 
-                return _context5.abrupt("return", false);
+                return _context4.abrupt("return", false);
 
-              case 7:
-                result = result[0]; //удаление пароля
-                //delete result.password
-
-                /* загрузка инфы о файле */
-
-                if (!result.photo) {
-                  _context5.next = 13;
-                  break;
-                }
-
-                _context5.next = 11;
-                return _file["default"].GetById([result.photo]);
+              case 8:
+                return _context4.abrupt("return", result[0]);
 
               case 11:
-                result.photo = _context5.sent;
-                result.photo = result.photo[0];
-
-              case 13:
-                return _context5.abrupt("return", result);
-
-              case 16:
-                _context5.prev = 16;
-                _context5.t0 = _context5["catch"](0);
-                console.log(_context5.t0);
+                _context4.prev = 11;
+                _context4.t0 = _context4["catch"](0);
+                console.log(_context4.t0);
                 throw {
                   err: 7001000,
                   msg: 'CUser GetByEmail'
                 };
 
-              case 20:
+              case 15:
               case "end":
-                return _context5.stop();
+                return _context4.stop();
             }
           }
-        }, _callee5, null, [[0, 16]]);
+        }, _callee4, null, [[0, 11]]);
       }));
 
-      function GetByEmail(_x6) {
+      function GetByEmail(_x4) {
         return _GetByEmail.apply(this, arguments);
       }
 
@@ -290,67 +316,95 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "GetByLogin",
     value: function () {
-      var _GetByLogin = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(login) {
-        var result;
-        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+      var _GetByLogin = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(login) {
+        var collection, result;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context6.prev = _context6.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                _context6.prev = 0;
+                _context5.prev = 0;
                 //в нижний регистр
                 login = login.toLowerCase();
-                _context6.next = 4;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "user WHERE login=$1"), [login]);
+                collection = _db.DB.Client.collection('user'); //let result = await collection.findOne({login})
 
-              case 4:
-                result = _context6.sent;
+                _context5.next = 5;
+                return collection.aggregate([{
+                  $match: {
+                    login: login
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'photo',
+                    foreignField: '_id',
+                    as: '_photo',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
+                      }
+                    }]
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'photo_big',
+                    foreignField: '_id',
+                    as: '_photo_big',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
+                      }
+                    }]
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_photo',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_photo_big',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }]).toArray();
+
+              case 5:
+                result = _context5.sent;
 
                 if (result.length) {
-                  _context6.next = 7;
+                  _context5.next = 8;
                   break;
                 }
 
-                return _context6.abrupt("return", false);
+                return _context5.abrupt("return", false);
 
-              case 7:
-                result = result[0]; //удаление пароля
-                //delete result.password
-
-                /* загрузка инфы о файле */
-
-                if (!result.photo) {
-                  _context6.next = 13;
-                  break;
-                }
-
-                _context6.next = 11;
-                return _file["default"].GetById([result.photo]);
+              case 8:
+                return _context5.abrupt("return", result[0]);
 
               case 11:
-                result.photo = _context6.sent;
-                result.photo = result.photo[0];
-
-              case 13:
-                return _context6.abrupt("return", result);
-
-              case 16:
-                _context6.prev = 16;
-                _context6.t0 = _context6["catch"](0);
-                console.log(_context6.t0);
+                _context5.prev = 11;
+                _context5.t0 = _context5["catch"](0);
+                console.log(_context5.t0);
                 throw {
                   err: 7001000,
                   msg: 'CUser GetByLogin'
                 };
 
-              case 20:
+              case 15:
               case "end":
-                return _context6.stop();
+                return _context5.stop();
             }
           }
-        }, _callee6, null, [[0, 16]]);
+        }, _callee5, null, [[0, 11]]);
       }));
 
-      function GetByLogin(_x7) {
+      function GetByLogin(_x5) {
         return _GetByLogin.apply(this, arguments);
       }
 
@@ -359,45 +413,45 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Update",
     value: function () {
-      var _Update = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(id, fields) {
+      var _Update = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(id, fields) {
         var salt, result;
-        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context7.prev = _context7.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
-                _context7.prev = 0;
+                _context6.prev = 0;
 
                 if (!fields.password) {
-                  _context7.next = 8;
+                  _context6.next = 8;
                   break;
                 }
 
-                _context7.next = 4;
+                _context6.next = 4;
                 return _bcrypt["default"].genSalt();
 
               case 4:
-                salt = _context7.sent;
-                _context7.next = 7;
+                salt = _context6.sent;
+                _context6.next = 7;
                 return _bcrypt["default"].hash(fields.password, salt);
 
               case 7:
-                fields.password = _context7.sent;
+                fields.password = _context6.sent;
 
               case 8:
                 console.log(fields);
-                _context7.next = 11;
+                _context6.next = 11;
                 return _db.DB.Init.Update("".concat(_db.DB.Init.TablePrefix, "user"), fields, {
                   id: id
                 }, "id");
 
               case 11:
-                result = _context7.sent;
-                return _context7.abrupt("return", result[0]);
+                result = _context6.sent;
+                return _context6.abrupt("return", result[0]);
 
               case 15:
-                _context7.prev = 15;
-                _context7.t0 = _context7["catch"](0);
-                console.log(_context7.t0);
+                _context6.prev = 15;
+                _context6.t0 = _context6["catch"](0);
+                console.log(_context6.t0);
                 throw {
                   err: 7002000,
                   msg: 'CUser Update'
@@ -405,13 +459,13 @@ var _default = /*#__PURE__*/function () {
 
               case 19:
               case "end":
-                return _context7.stop();
+                return _context6.stop();
             }
           }
-        }, _callee7, null, [[0, 15]]);
+        }, _callee6, null, [[0, 15]]);
       }));
 
-      function Update(_x8, _x9) {
+      function Update(_x6, _x7) {
         return _Update.apply(this, arguments);
       }
 
@@ -420,38 +474,38 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Reg",
     value: function () {
-      var _Reg = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(fields) {
+      var _Reg = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(fields) {
         var hash, saltRounds, passwordSalt, arUsers, arFields;
-        return regeneratorRuntime.wrap(function _callee8$(_context8) {
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
-            switch (_context8.prev = _context8.next) {
+            switch (_context7.prev = _context7.next) {
               case 0:
-                _context8.prev = 0;
+                _context7.prev = 0;
                 //создаем hash код
                 hash = new Date().toString();
                 hash = _crypto["default"].createHash('md5').update(hash).digest("hex"); //создаем hash пароль
 
                 saltRounds = 10;
-                _context8.next = 6;
+                _context7.next = 6;
                 return _bcrypt["default"].genSalt(saltRounds);
 
               case 6:
-                passwordSalt = _context8.sent;
-                _context8.next = 9;
+                passwordSalt = _context7.sent;
+                _context7.next = 9;
                 return _bcrypt["default"].hash(fields.password, passwordSalt);
 
               case 9:
-                fields.password = _context8.sent;
+                fields.password = _context7.sent;
                 //почту в нижний регистр
                 fields.email = fields.email.toLowerCase();
-                _context8.next = 13;
+                _context7.next = 13;
                 return this.GetByEmail(fields.email);
 
               case 13:
-                arUsers = _context8.sent;
+                arUsers = _context7.sent;
 
                 if (!arUsers) {
-                  _context8.next = 16;
+                  _context7.next = 16;
                   break;
                 }
 
@@ -461,14 +515,14 @@ var _default = /*#__PURE__*/function () {
                 };
 
               case 16:
-                _context8.next = 18;
+                _context7.next = 18;
                 return this.GetByLogin(fields.login);
 
               case 18:
-                arUsers = _context8.sent;
+                arUsers = _context7.sent;
 
                 if (!arUsers) {
-                  _context8.next = 21;
+                  _context7.next = 21;
                   break;
                 }
 
@@ -486,16 +540,16 @@ var _default = /*#__PURE__*/function () {
                   first_name: fields.first_name,
                   code: hash
                 };
-                _context8.next = 24;
+                _context7.next = 24;
                 return this.AddNoReg(arFields);
 
               case 24:
-                return _context8.abrupt("return", hash);
+                return _context7.abrupt("return", hash);
 
               case 27:
-                _context8.prev = 27;
-                _context8.t0 = _context8["catch"](0);
-                console.log(_context8.t0);
+                _context7.prev = 27;
+                _context7.t0 = _context7["catch"](0);
+                console.log(_context7.t0);
                 throw {
                   err: 7002000,
                   msg: 'CUser Reg'
@@ -503,13 +557,13 @@ var _default = /*#__PURE__*/function () {
 
               case 31:
               case "end":
-                return _context8.stop();
+                return _context7.stop();
             }
           }
-        }, _callee8, this, [[0, 27]]);
+        }, _callee7, this, [[0, 27]]);
       }));
 
-      function Reg(_x10) {
+      function Reg(_x8) {
         return _Reg.apply(this, arguments);
       }
 
@@ -518,21 +572,24 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "RegActivate",
     value: function () {
-      var _RegActivate = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(code) {
-        var noRegUser, arUsers, arFields, items;
-        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      var _RegActivate = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(code) {
+        var collection, noRegUser, arUsers, arFields, items;
+        return regeneratorRuntime.wrap(function _callee8$(_context8) {
           while (1) {
-            switch (_context9.prev = _context9.next) {
+            switch (_context8.prev = _context8.next) {
               case 0:
-                _context9.prev = 0;
-                _context9.next = 3;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "user_no_reg WHERE code=$1"), [code]);
+                _context8.prev = 0;
+                collection = _db.DB.Client.collection('user_no_reg');
+                _context8.next = 4;
+                return collection.findOne({
+                  code: code
+                });
 
-              case 3:
-                noRegUser = _context9.sent;
+              case 4:
+                noRegUser = _context8.sent;
 
-                if (noRegUser.length) {
-                  _context9.next = 6;
+                if (noRegUser) {
+                  _context8.next = 7;
                   break;
                 }
 
@@ -541,17 +598,15 @@ var _default = /*#__PURE__*/function () {
                   msg: 'Заявки не существует'
                 };
 
-              case 6:
-                //упрощаем
-                noRegUser = noRegUser[0];
-                _context9.next = 9;
+              case 7:
+                _context8.next = 9;
                 return this.GetByEmail(noRegUser.email);
 
               case 9:
-                arUsers = _context9.sent;
+                arUsers = _context8.sent;
 
                 if (!arUsers) {
-                  _context9.next = 12;
+                  _context8.next = 12;
                   break;
                 }
 
@@ -561,14 +616,14 @@ var _default = /*#__PURE__*/function () {
                 };
 
               case 12:
-                _context9.next = 14;
+                _context8.next = 14;
                 return this.GetByLogin(noRegUser.login);
 
               case 14:
-                arUsers = _context9.sent;
+                arUsers = _context8.sent;
 
                 if (!arUsers) {
-                  _context9.next = 17;
+                  _context8.next = 17;
                   break;
                 }
 
@@ -586,30 +641,30 @@ var _default = /*#__PURE__*/function () {
                   first_name: noRegUser.first_name,
                   gender: noRegUser.gender
                 };
-                _context9.next = 20;
+                _context8.next = 20;
                 return this.Add(arFields);
 
               case 20:
-                items = _context9.sent;
-                return _context9.abrupt("return", true);
+                items = _context8.sent;
+                return _context8.abrupt("return", true);
 
               case 24:
-                _context9.prev = 24;
-                _context9.t0 = _context9["catch"](0);
+                _context8.prev = 24;
+                _context8.t0 = _context8["catch"](0);
                 throw _objectSpread(_objectSpread({}, {
                   err: 30030000,
                   msg: 'Создание запроса на регистрацию нового пользователя'
-                }), _context9.t0);
+                }), _context8.t0);
 
               case 27:
               case "end":
-                return _context9.stop();
+                return _context8.stop();
             }
           }
-        }, _callee9, this, [[0, 24]]);
+        }, _callee8, this, [[0, 24]]);
       }));
 
-      function RegActivate(_x11) {
+      function RegActivate(_x9) {
         return _RegActivate.apply(this, arguments);
       }
 
@@ -619,84 +674,68 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "Search",
     value: function () {
-      var _Search = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(fields) {
-        var there, sql, result;
-        return regeneratorRuntime.wrap(function _callee11$(_context11) {
+      var _Search = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(fields) {
+        var collection, arAggregate, result;
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
           while (1) {
-            switch (_context11.prev = _context11.next) {
+            switch (_context9.prev = _context9.next) {
               case 0:
-                _context11.prev = 0;
-                there = [];
-                if (fields.q) there.push(" to_tsvector(first_name) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
-                //запрос
-
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "user "); //объединеие параметров запроса
-
-                if (there.length) sql += "WHERE " + there.join(' AND ');
-                sql += " LIMIT $1 OFFSET $2";
-                _context11.next = 8;
-                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
-
-              case 8:
-                result = _context11.sent;
-                console.log(sql);
-                _context11.next = 12;
-                return Promise.all(result.map( /*#__PURE__*/function () {
-                  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(item, i) {
-                    return regeneratorRuntime.wrap(function _callee10$(_context10) {
-                      while (1) {
-                        switch (_context10.prev = _context10.next) {
-                          case 0:
-                            if (!item.photo) {
-                              _context10.next = 5;
-                              break;
-                            }
-
-                            _context10.next = 3;
-                            return _file["default"].GetById([item.photo]);
-
-                          case 3:
-                            item.photo = _context10.sent;
-                            item.photo = item.photo[0];
-
-                          case 5:
-                            return _context10.abrupt("return", item);
-
-                          case 6:
-                          case "end":
-                            return _context10.stop();
-                        }
+                _context9.prev = 0;
+                collection = _db.DB.Client.collection('user');
+                arAggregate = [];
+                if (fields.q) arAggregate.push({
+                  $match: {
+                    $text: {
+                      $search: fields.q
+                    }
+                  }
+                });
+                arAggregate.push({
+                  $lookup: {
+                    from: 'file',
+                    localField: 'photo',
+                    foreignField: '_id',
+                    as: '_photo',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
                       }
-                    }, _callee10);
-                  }));
+                    }]
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_photo',
+                    preserveNullAndEmptyArrays: true
+                  }
+                });
+                _context9.next = 7;
+                return collection.aggregate(arAggregate).limit(fields.count).skip(fields.offset).toArray();
 
-                  return function (_x13, _x14) {
-                    return _ref2.apply(this, arguments);
-                  };
-                }()));
+              case 7:
+                result = _context9.sent;
+                return _context9.abrupt("return", result);
 
-              case 12:
-                result = _context11.sent;
-                return _context11.abrupt("return", result);
-
-              case 16:
-                _context11.prev = 16;
-                _context11.t0 = _context11["catch"](0);
-                console.log(_context11.t0);
+              case 11:
+                _context9.prev = 11;
+                _context9.t0 = _context9["catch"](0);
+                console.log(_context9.t0);
                 throw {
                   err: 7001000,
                   msg: 'CUser Search'
                 };
 
-              case 20:
+              case 15:
               case "end":
-                return _context11.stop();
+                return _context9.stop();
             }
           }
-        }, _callee11, null, [[0, 16]]);
+        }, _callee9, null, [[0, 11]]);
       }));
 
-      function Search(_x12) {
+      function Search(_x10) {
         return _Search.apply(this, arguments);
       }
 
@@ -706,111 +745,81 @@ var _default = /*#__PURE__*/function () {
   }, {
     key: "SearchCount",
     value: function () {
-      var _SearchCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(fields) {
-        var there, sql, result;
-        return regeneratorRuntime.wrap(function _callee12$(_context12) {
+      var _SearchCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(fields) {
+        var collection, arSearch, result;
+        return regeneratorRuntime.wrap(function _callee10$(_context10) {
           while (1) {
-            switch (_context12.prev = _context12.next) {
+            switch (_context10.prev = _context10.next) {
               case 0:
-                _context12.prev = 0;
-                there = [];
-                if (fields.q) there.push(" to_tsvector(first_name) @@ websearch_to_tsquery('".concat(fields.q.toLowerCase(), "') ")); //в нижний регистр
-                //запрос
+                _context10.prev = 0;
+                collection = _db.DB.Client.collection('user');
+                arSearch = {};
+                if (fields.q) arSearch = {
+                  $text: {
+                    $search: fields.q
+                  }
+                };
+                _context10.next = 6;
+                return collection.count(arSearch);
 
-                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "user "); //объединеие параметров запроса
+              case 6:
+                result = _context10.sent;
+                return _context10.abrupt("return", result);
 
-                if (there.length) sql += "WHERE " + there.join(' AND ');
-                console.log(sql);
-                _context12.next = 8;
-                return _db.DB.Init.Query(sql);
-
-              case 8:
-                result = _context12.sent;
-                return _context12.abrupt("return", Number(result[0].count));
-
-              case 12:
-                _context12.prev = 12;
-                _context12.t0 = _context12["catch"](0);
-                console.log(_context12.t0);
+              case 10:
+                _context10.prev = 10;
+                _context10.t0 = _context10["catch"](0);
+                console.log(_context10.t0);
                 throw {
                   err: 7001000,
                   msg: 'CUser SearchCount'
                 };
 
-              case 16:
+              case 14:
               case "end":
-                return _context12.stop();
+                return _context10.stop();
             }
           }
-        }, _callee12, null, [[0, 12]]);
+        }, _callee10, null, [[0, 10]]);
       }));
 
-      function SearchCount(_x15) {
+      function SearchCount(_x11) {
         return _SearchCount.apply(this, arguments);
       }
 
       return SearchCount;
-    }() //количество всех видео
-
-  }, {
-    key: "Count",
-    value: function () {
-      var _Count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(fields) {
-        var sql, result;
-        return regeneratorRuntime.wrap(function _callee13$(_context13) {
-          while (1) {
-            switch (_context13.prev = _context13.next) {
-              case 0:
-                _context13.prev = 0;
-                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "user");
-                _context13.next = 4;
-                return _db.DB.Init.Query(sql);
-
-              case 4:
-                result = _context13.sent;
-                return _context13.abrupt("return", Number(result[0].count));
-
-              case 8:
-                _context13.prev = 8;
-                _context13.t0 = _context13["catch"](0);
-                console.log(_context13.t0);
-                throw {
-                  err: 8001000,
-                  msg: 'CVideo Count'
-                };
-
-              case 12:
-              case "end":
-                return _context13.stop();
-            }
-          }
-        }, _callee13, null, [[0, 8]]);
-      }));
-
-      function Count(_x16) {
-        return _Count.apply(this, arguments);
-      }
-
-      return Count;
-    }() //пользователи
+    }()
+    /*
+    //количество всех видео
+    static async Count ( fields ) {
+        try {
+            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}user`
+              let result = await DB.Init.Query(sql)
+            return Number (result[0].count)
+          } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CVideo Count'})
+        }
+    }*/
+    //пользователи
 
   }, {
     key: "GetByField",
     value: function () {
-      var _GetByField = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(items, fieldName) {
-        var arUsersId, sql, users;
-        return regeneratorRuntime.wrap(function _callee15$(_context15) {
+      var _GetByField = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(items, fieldName) {
+        var arUsersId, collection, result;
+        return regeneratorRuntime.wrap(function _callee11$(_context11) {
           while (1) {
-            switch (_context15.prev = _context15.next) {
+            switch (_context11.prev = _context11.next) {
               case 0:
-                _context15.prev = 0;
+                _context11.prev = 0;
 
                 if (!(!items || !items.length)) {
-                  _context15.next = 3;
+                  _context11.next = 3;
                   break;
                 }
 
-                return _context15.abrupt("return", []);
+                return _context11.abrupt("return", []);
 
               case 3:
                 arUsersId = [];
@@ -821,78 +830,72 @@ var _default = /*#__PURE__*/function () {
                 });
 
                 if (arUsersId.length) {
-                  _context15.next = 7;
+                  _context11.next = 7;
                   break;
                 }
 
-                return _context15.abrupt("return", []);
+                return _context11.abrupt("return", []);
 
               case 7:
                 //удаление одинаковых id из массива
                 arUsersId = Array.from(new Set(arUsersId));
-                sql = "SELECT id,login,first_name,create_date,birthday,photo FROM ".concat(_db.DB.Init.TablePrefix, "user WHERE id in (").concat(arUsersId, ")");
-                _context15.next = 11;
-                return _db.DB.Init.Query(sql);
+                collection = _db.DB.Client.collection('user');
+                _context11.next = 11;
+                return collection.aggregate([{
+                  $match: {
+                    _id: {
+                      $in: arUsersId
+                    }
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'photo',
+                    foreignField: '_id',
+                    as: '_photo',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
+                      }
+                    }, {
+                      $unwind: {
+                        path: '$_file_id',
+                        preserveNullAndEmptyArrays: true
+                      }
+                    }]
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_photo',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }]).toArray();
 
               case 11:
-                users = _context15.sent;
-                _context15.next = 14;
-                return Promise.all(users.map( /*#__PURE__*/function () {
-                  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14(user, i) {
-                    return regeneratorRuntime.wrap(function _callee14$(_context14) {
-                      while (1) {
-                        switch (_context14.prev = _context14.next) {
-                          case 0:
-                            if (!user.photo) {
-                              _context14.next = 5;
-                              break;
-                            }
+                result = _context11.sent;
+                return _context11.abrupt("return", result);
 
-                            _context14.next = 3;
-                            return _file["default"].GetById([user.photo]);
-
-                          case 3:
-                            user.photo = _context14.sent;
-                            user.photo = user.photo[0];
-
-                          case 5:
-                            return _context14.abrupt("return", user);
-
-                          case 6:
-                          case "end":
-                            return _context14.stop();
-                        }
-                      }
-                    }, _callee14);
-                  }));
-
-                  return function (_x19, _x20) {
-                    return _ref3.apply(this, arguments);
-                  };
-                }()));
-
-              case 14:
-                users = _context15.sent;
-                return _context15.abrupt("return", users);
-
-              case 18:
-                _context15.prev = 18;
-                _context15.t0 = _context15["catch"](0);
-                console.log(_context15.t0);
+              case 15:
+                _context11.prev = 15;
+                _context11.t0 = _context11["catch"](0);
+                console.log(_context11.t0);
                 throw {
                   err: 6005000,
                   msg: 'CUser GetByField'
                 };
 
-              case 22:
+              case 19:
               case "end":
-                return _context15.stop();
+                return _context11.stop();
             }
           }
-        }, _callee15, null, [[0, 18]]);
+        }, _callee11, null, [[0, 15]]);
       }));
 
-      function GetByField(_x17, _x18) {
+      function GetByField(_x12, _x13) {
         return _GetByField.apply(this, arguments);
       }
 

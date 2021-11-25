@@ -75,22 +75,54 @@ var _default = /*#__PURE__*/function () {
     key: "GetById",
     value: function () {
       var _GetById = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(ids) {
-        var result;
+        var collection, result;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.prev = 0;
-                ids = ids.join(',');
-                _context2.next = 4;
-                return _db.DB.Init.Query("SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "article WHERE id in (").concat(ids, ")"));
+                ids = new _db.DB().arObjectID(ids);
+                collection = _db.DB.Client.collection('article');
+                _context2.next = 5;
+                return collection.aggregate([{
+                  $match: {
+                    _id: {
+                      $in: ids
+                    }
+                  }
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'image_id',
+                    foreignField: '_id',
+                    as: '_image_id',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
+                      }
+                    }, {
+                      $unwind: {
+                        path: '$_file_id',
+                        preserveNullAndEmptyArrays: true
+                      }
+                    }]
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_image_id',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }]).toArray();
 
-              case 4:
+              case 5:
                 result = _context2.sent;
                 return _context2.abrupt("return", result);
 
-              case 8:
-                _context2.prev = 8;
+              case 9:
+                _context2.prev = 9;
                 _context2.t0 = _context2["catch"](0);
                 console.log(_context2.t0);
                 throw {
@@ -98,12 +130,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CArticle GetById'
                 };
 
-              case 12:
+              case 13:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, null, [[0, 8]]);
+        }, _callee2, null, [[0, 9]]);
       }));
 
       function GetById(_x2) {
@@ -111,69 +143,127 @@ var _default = /*#__PURE__*/function () {
       }
 
       return GetById;
+    }()
+  }, {
+    key: "Edit",
+    value: function () {
+      var _Edit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(id, fields) {
+        var collection, arFields, result;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.prev = 0;
+                id = new _db.DB().ObjectID(id);
+                collection = _db.DB.Client.collection('article');
+                arFields = {
+                  _id: id
+                };
+                result = collection.updateOne(arFields, {
+                  $set: fields
+                });
+                return _context3.abrupt("return", result);
+
+              case 8:
+                _context3.prev = 8;
+                _context3.t0 = _context3["catch"](0);
+                console.log(_context3.t0);
+                throw {
+                  err: 8001000,
+                  msg: 'CArticle Edit'
+                };
+
+              case 12:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, null, [[0, 8]]);
+      }));
+
+      function Edit(_x3, _x4) {
+        return _Edit.apply(this, arguments);
+      }
+
+      return Edit;
     }() //загрузка
 
   }, {
     key: "Get",
     value: function () {
       var _Get = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(fields) {
-        var sql, result;
+        var collection, arAggregate, result;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.prev = 0;
-                sql = "SELECT * FROM ".concat(_db.DB.Init.TablePrefix, "article WHERE owner_id=").concat(fields.owner_id, " ORDER BY id DESC");
-                /* видео из альбома */
-
-                if (fields.album_id) sql = "SELECT ".concat(_db.DB.Init.TablePrefix, "article.*\n                    FROM ").concat(_db.DB.Init.TablePrefix, "album_article_link\n                    INNER JOIN ").concat(_db.DB.Init.TablePrefix, "article ON ").concat(_db.DB.Init.TablePrefix, "article.id = ").concat(_db.DB.Init.TablePrefix, "album_article_link.object_id WHERE ").concat(_db.DB.Init.TablePrefix, "album_article_link.album_id = ").concat(fields.album_id, " AND owner_id=").concat(fields.owner_id, " ORDER BY id DESC");
-                sql += " LIMIT $1 OFFSET $2 ";
-                _context4.next = 6;
-                return _db.DB.Init.Query(sql, [fields.count, fields.offset]);
-
-              case 6:
-                result = _context4.sent;
-                _context4.next = 9;
-                return Promise.all(result.map( /*#__PURE__*/function () {
-                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(item, i) {
-                    return regeneratorRuntime.wrap(function _callee3$(_context3) {
-                      while (1) {
-                        switch (_context3.prev = _context3.next) {
-                          case 0:
-                            if (!item.image_id) {
-                              _context3.next = 5;
-                              break;
-                            }
-
-                            _context3.next = 3;
-                            return _file["default"].GetById([item.image_id]);
-
-                          case 3:
-                            item.image_id = _context3.sent;
-                            item.image_id = item.image_id[0];
-
-                          case 5:
-                            return _context3.abrupt("return", item);
-
-                          case 6:
-                          case "end":
-                            return _context3.stop();
-                        }
+                collection = _db.DB.Client.collection('article');
+                fields.to_user_id = new _db.DB().ObjectID(fields.to_user_id);
+                fields.to_group_id = new _db.DB().ObjectID(fields.to_group_id);
+                fields.album_id = new _db.DB().ObjectID(fields.album_id);
+                arAggregate = [{
+                  $match: {}
+                }, {
+                  $lookup: {
+                    from: 'file',
+                    localField: 'image_id',
+                    foreignField: '_id',
+                    as: '_image_id',
+                    pipeline: [{
+                      $lookup: {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
                       }
-                    }, _callee3);
-                  }));
+                    }, {
+                      $unwind: {
+                        path: '$_file_id',
+                        preserveNullAndEmptyArrays: true
+                      }
+                    }]
+                  }
+                }, {
+                  $unwind: {
+                    path: '$_image_id',
+                    preserveNullAndEmptyArrays: true
+                  }
+                }];
+                if (fields.q) arAggregate[0].$match.$text.$search = fields.q;
+                if (fields.to_user_id && !fields.to_group_id) arAggregate[0].$match.to_user_id = fields.to_user_id;
+                if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id;
 
-                  return function (_x4, _x5) {
-                    return _ref.apply(this, arguments);
-                  };
-                }()));
+                if (fields.album_id) {
+                  arAggregate.push({
+                    $lookup: {
+                      from: 'album_article_link',
+                      localField: '_id',
+                      foreignField: 'object_id',
+                      as: '_album_article_link',
+                      pipeline: [{
+                        $match: {}
+                      }]
+                    }
+                  });
+                  arAggregate.push({
+                    $unwind: {
+                      path: '$_album_article_link',
+                      preserveNullAndEmptyArrays: false
+                    }
+                  });
+                  arAggregate[2].$lookup.pipeline[0].$match.album_id = fields.album_id;
+                }
 
-              case 9:
+                _context4.next = 12;
+                return collection.aggregate(arAggregate).limit(fields.count + fields.offset).skip(fields.offset).toArray();
+
+              case 12:
                 result = _context4.sent;
                 return _context4.abrupt("return", result);
 
-              case 13:
-                _context4.prev = 13;
+              case 16:
+                _context4.prev = 16;
                 _context4.t0 = _context4["catch"](0);
                 console.log(_context4.t0);
                 throw {
@@ -181,15 +271,15 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CArticle Get'
                 };
 
-              case 17:
+              case 20:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, null, [[0, 13]]);
+        }, _callee4, null, [[0, 16]]);
       }));
 
-      function Get(_x3) {
+      function Get(_x5) {
         return _Get.apply(this, arguments);
       }
 
@@ -200,22 +290,56 @@ var _default = /*#__PURE__*/function () {
     key: "GetCount",
     value: function () {
       var _GetCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(fields) {
-        var sql, result;
+        var collection, arAggregate, result;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                sql = "SELECT COUNT(*) FROM ".concat(_db.DB.Init.TablePrefix, "article WHERE owner_id=").concat(fields.owner_id);
-                _context5.next = 4;
-                return _db.DB.Init.Query(sql);
+                collection = _db.DB.Client.collection('article');
+                fields.to_user_id = new _db.DB().ObjectID(fields.to_user_id);
+                fields.to_group_id = new _db.DB().ObjectID(fields.to_group_id);
+                fields.album_id = new _db.DB().ObjectID(fields.album_id);
+                arAggregate = [{
+                  $match: {}
+                }];
+                if (fields.q) arAggregate[0].$match.$text.$search = fields.q;
+                if (fields.to_user_id && !fields.to_group_id) arAggregate[0].$match.to_user_id = fields.to_user_id;
+                if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id;
 
-              case 4:
+                if (fields.album_id) {
+                  arAggregate.push({
+                    $lookup: {
+                      from: 'album_article_link',
+                      localField: '_id',
+                      foreignField: 'object_id',
+                      as: '_album_article_link',
+                      pipeline: [{
+                        $match: {}
+                      }]
+                    }
+                  });
+                  arAggregate.push({
+                    $unwind: {
+                      path: '$_album_article_link',
+                      preserveNullAndEmptyArrays: false
+                    }
+                  });
+                  arAggregate[1].$lookup.pipeline[0].$match.album_id = fields.album_id;
+                }
+
+                arAggregate.push({
+                  $count: 'count'
+                });
+                _context5.next = 13;
+                return collection.aggregate(arAggregate).toArray();
+
+              case 13:
                 result = _context5.sent;
-                return _context5.abrupt("return", Number(result[0].count));
+                return _context5.abrupt("return", result[0].count);
 
-              case 8:
-                _context5.prev = 8;
+              case 17:
+                _context5.prev = 17;
                 _context5.t0 = _context5["catch"](0);
                 console.log(_context5.t0);
                 throw {
@@ -223,12 +347,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CArticle GetCount'
                 };
 
-              case 12:
+              case 21:
               case "end":
                 return _context5.stop();
             }
           }
-        }, _callee5, null, [[0, 8]]);
+        }, _callee5, null, [[0, 17]]);
       }));
 
       function GetCount(_x6) {
@@ -313,7 +437,7 @@ var _default = /*#__PURE__*/function () {
                 users = _context8.sent;
                 _context8.next = 11;
                 return Promise.all(users.map( /*#__PURE__*/function () {
-                  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(user, i) {
+                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(user, i) {
                     return regeneratorRuntime.wrap(function _callee7$(_context7) {
                       while (1) {
                         switch (_context7.prev = _context7.next) {
@@ -342,7 +466,7 @@ var _default = /*#__PURE__*/function () {
                   }));
 
                   return function (_x9, _x10) {
-                    return _ref2.apply(this, arguments);
+                    return _ref.apply(this, arguments);
                   };
                 }()));
 
@@ -400,7 +524,7 @@ var _default = /*#__PURE__*/function () {
                 console.log(sql);
                 _context10.next = 12;
                 return Promise.all(result.map( /*#__PURE__*/function () {
-                  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(item, i) {
+                  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(item, i) {
                     return regeneratorRuntime.wrap(function _callee9$(_context9) {
                       while (1) {
                         switch (_context9.prev = _context9.next) {
@@ -416,7 +540,7 @@ var _default = /*#__PURE__*/function () {
                   }));
 
                   return function (_x12, _x13) {
-                    return _ref3.apply(this, arguments);
+                    return _ref2.apply(this, arguments);
                   };
                 }()));
 
@@ -495,48 +619,6 @@ var _default = /*#__PURE__*/function () {
       }
 
       return SearchCount;
-    }()
-  }, {
-    key: "Edit",
-    value: function () {
-      var _Edit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(id, fields) {
-        var result;
-        return regeneratorRuntime.wrap(function _callee12$(_context12) {
-          while (1) {
-            switch (_context12.prev = _context12.next) {
-              case 0:
-                _context12.prev = 0;
-                _context12.next = 3;
-                return _db.DB.Init.Update("".concat(_db.DB.Init.TablePrefix, "article"), fields, {
-                  id: id
-                }, "ID");
-
-              case 3:
-                result = _context12.sent;
-                return _context12.abrupt("return", result[0]);
-
-              case 7:
-                _context12.prev = 7;
-                _context12.t0 = _context12["catch"](0);
-                console.log(_context12.t0);
-                throw {
-                  err: 8001000,
-                  msg: 'CArticle Edit'
-                };
-
-              case 11:
-              case "end":
-                return _context12.stop();
-            }
-          }
-        }, _callee12, null, [[0, 7]]);
-      }));
-
-      function Edit(_x15, _x16) {
-        return _Edit.apply(this, arguments);
-      }
-
-      return Edit;
     }()
   }]);
 
