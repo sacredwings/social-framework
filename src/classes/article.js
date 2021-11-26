@@ -201,7 +201,6 @@ export default class {
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
 
-
             if (fields.album_id) {
                 arAggregate.push({
                     $lookup:
@@ -229,7 +228,10 @@ export default class {
                 $count: 'count'
             })
 
+            //return arAggregate
             let result = await collection.aggregate(arAggregate).toArray();
+
+            if (!result.length) return 0
             return result[0].count
 
         } catch (err) {

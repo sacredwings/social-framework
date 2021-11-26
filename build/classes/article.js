@@ -330,16 +330,26 @@ var _default = /*#__PURE__*/function () {
 
                 arAggregate.push({
                   $count: 'count'
-                });
+                }); //return arAggregate
+
                 _context5.next = 13;
                 return collection.aggregate(arAggregate).toArray();
 
               case 13:
                 result = _context5.sent;
+
+                if (result.length) {
+                  _context5.next = 16;
+                  break;
+                }
+
+                return _context5.abrupt("return", 0);
+
+              case 16:
                 return _context5.abrupt("return", result[0].count);
 
-              case 17:
-                _context5.prev = 17;
+              case 19:
+                _context5.prev = 19;
                 _context5.t0 = _context5["catch"](0);
                 console.log(_context5.t0);
                 throw {
@@ -347,12 +357,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CArticle GetCount'
                 };
 
-              case 21:
+              case 23:
               case "end":
                 return _context5.stop();
             }
           }
-        }, _callee5, null, [[0, 17]]);
+        }, _callee5, null, [[0, 19]]);
       }));
 
       function GetCount(_x6) {

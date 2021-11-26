@@ -318,6 +318,8 @@ export default class {
             )
 
             let result = await collection.aggregate(arAggregate).toArray()
+
+            if (!result.length) return 0
             return result[0].count
 
             /*

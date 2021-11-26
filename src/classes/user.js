@@ -297,19 +297,21 @@ export default class {
         }
     }
 
-    static async Update ( id, fields ) {
+    static async Edit ( id, fields ) {
         try {
             if (fields.password) {
                 const salt = await bcrypt.genSalt();
                 fields.password = await bcrypt.hash(fields.password, salt);
             }
-            console.log(fields)
 
-            let result = await DB.Init.Update (`${DB.Init.TablePrefix}user`, fields, {id: id},`id`)
-            return result[0]
+            let collection = DB.Client.collection('user');
+            let result = collection.updateOne({_id: id}, {$set: fields}, {upsert: true})
+
+            //let result = await DB.Init.Update (`${DB.Init.TablePrefix}user`, fields, {id: id},`id`)
+            return fields
         } catch (err) {
             console.log(err)
-            throw ({err: 7002000, msg: 'CUser Update'})
+            throw ({err: 7002000, msg: 'CUser Edit'})
         }
     }
 

@@ -411,10 +411,10 @@ var _default = /*#__PURE__*/function () {
       return GetByLogin;
     }()
   }, {
-    key: "Update",
+    key: "Edit",
     value: function () {
-      var _Update = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(id, fields) {
-        var salt, result;
+      var _Edit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(id, fields) {
+        var salt, collection, result;
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
@@ -438,38 +438,39 @@ var _default = /*#__PURE__*/function () {
                 fields.password = _context6.sent;
 
               case 8:
-                console.log(fields);
-                _context6.next = 11;
-                return _db.DB.Init.Update("".concat(_db.DB.Init.TablePrefix, "user"), fields, {
-                  id: id
-                }, "id");
+                collection = _db.DB.Client.collection('user');
+                result = collection.updateOne({
+                  _id: id
+                }, {
+                  $set: fields
+                }, {
+                  upsert: true
+                }); //let result = await DB.Init.Update (`${DB.Init.TablePrefix}user`, fields, {id: id},`id`)
 
-              case 11:
-                result = _context6.sent;
-                return _context6.abrupt("return", result[0]);
+                return _context6.abrupt("return", fields);
 
-              case 15:
-                _context6.prev = 15;
+              case 13:
+                _context6.prev = 13;
                 _context6.t0 = _context6["catch"](0);
                 console.log(_context6.t0);
                 throw {
                   err: 7002000,
-                  msg: 'CUser Update'
+                  msg: 'CUser Edit'
                 };
 
-              case 19:
+              case 17:
               case "end":
                 return _context6.stop();
             }
           }
-        }, _callee6, null, [[0, 15]]);
+        }, _callee6, null, [[0, 13]]);
       }));
 
-      function Update(_x6, _x7) {
-        return _Update.apply(this, arguments);
+      function Edit(_x6, _x7) {
+        return _Edit.apply(this, arguments);
       }
 
-      return Update;
+      return Edit;
     }()
   }, {
     key: "Reg",
