@@ -19,6 +19,19 @@ export default class {
                 "text":"text",
             })
             console.log(indexUser)
+
+            collection = DB.Client.collection('article');
+            indexUser = await collection.createIndex({
+                "title":"text",
+                "text":"text",
+            })
+            console.log(indexUser)
+
+            collection = DB.Client.collection('topic');
+            indexUser = await collection.createIndex({
+                "post":"text",
+            })
+            console.log(indexUser)
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CAdmin DdIndex'})

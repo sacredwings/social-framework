@@ -4,8 +4,12 @@ export class DB {
     constructor( ) {
     }
 
-    async Init(url, dbName, parameters) {
-        const client = new MongoClient(url, parameters);
+    async Init(parameters, dbName) {
+        let url = `mongodb://${parameters.host}:${parameters.port}`
+        if (parameters.login)
+            `mongodb://${parameters.login}:${parameters.password}@${parameters.host}:${parameters.port}`
+
+        const client = new MongoClient(url);
         await client.connect();
         console.log('Connected successfully to server');
         return client.db(dbName);

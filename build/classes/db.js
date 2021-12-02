@@ -27,21 +27,23 @@ var DB = /*#__PURE__*/function () {
   _createClass(DB, [{
     key: "Init",
     value: function () {
-      var _Init = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(url, dbName, parameters) {
-        var client;
+      var _Init = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(parameters, dbName) {
+        var url, client;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                client = new _mongodb.MongoClient(url, parameters);
-                _context.next = 3;
+                url = "mongodb://".concat(parameters.host, ":").concat(parameters.port);
+                if (parameters.login) "mongodb://".concat(parameters.login, ":").concat(parameters.password, "@").concat(parameters.host, ":").concat(parameters.port);
+                client = new _mongodb.MongoClient(url);
+                _context.next = 5;
                 return client.connect();
 
-              case 3:
+              case 5:
                 console.log('Connected successfully to server');
                 return _context.abrupt("return", client.db(dbName));
 
-              case 5:
+              case 7:
               case "end":
                 return _context.stop();
             }
@@ -49,7 +51,7 @@ var DB = /*#__PURE__*/function () {
         }, _callee);
       }));
 
-      function Init(_x, _x2, _x3) {
+      function Init(_x, _x2) {
         return _Init.apply(this, arguments);
       }
 
