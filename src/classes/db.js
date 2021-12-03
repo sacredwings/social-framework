@@ -5,9 +5,11 @@ export class DB {
     }
 
     async Init(parameters, dbName) {
-        let url = `mongodb://${parameters.host}:${parameters.port}`
-        if (parameters.login)
-            `mongodb://${parameters.login}:${parameters.password}@${parameters.host}:${parameters.port}/?authSource=${parameters.source}`
+        //let url = `mongodb://${parameters.host}:${parameters.port}`
+        //if (parameters.login)
+            //`mongodb://${parameters.login}:${parameters.password}@${parameters.host}:${parameters.port}/?authSource=${parameters.source}`
+
+        const url = 'mongodb://root:A28392839@localhost:27017/?authSource=admin';
 
         const client = new MongoClient(url);
         await client.connect();
