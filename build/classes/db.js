@@ -34,7 +34,7 @@ var DB = /*#__PURE__*/function () {
             switch (_context.prev = _context.next) {
               case 0:
                 url = "mongodb://".concat(parameters.host, ":").concat(parameters.port);
-                if (parameters.login) "mongodb://".concat(parameters.login, ":").concat(parameters.password, "@").concat(parameters.host, ":").concat(parameters.port);
+                if (parameters.login) "mongodb://".concat(parameters.login, ":").concat(parameters.password, "@").concat(parameters.host, ":").concat(parameters.port, "/?authSource=").concat(parameters.source);
                 client = new _mongodb.MongoClient(url);
                 _context.next = 5;
                 return client.connect();
