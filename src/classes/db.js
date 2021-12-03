@@ -7,7 +7,7 @@ export class DB {
     async Init(parameters, dbName) {
         let url = `mongodb://${parameters.host}:${parameters.port}`
         if (parameters.login)
-            `mongodb://${parameters.login}:${parameters.password}@${parameters.host}:${parameters.port}`
+            `mongodb://${parameters.login}:${parameters.password}@${parameters.host}:${parameters.port}/?authSource=${parameters.source}`
 
         const client = new MongoClient(url);
         await client.connect();
