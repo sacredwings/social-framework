@@ -148,11 +148,10 @@ export default class {
                             preserveNullAndEmptyArrays: false
                         }
                 })
-                arAggregate[2].$lookup.pipeline[0].$match.album_id = fields.album_id
+                arAggregate[arAggregate.length-2].$lookup.pipeline[0].$match.album_id = fields.album_id
             }
 
-            console.log(arAggregate)
-            console.log(arAggregate[0].$match)
+
 /*
 
             //группа с высоким приоитетом
@@ -230,7 +229,7 @@ export default class {
                 }
             )
 */
-            let result = await collection.aggregate(arAggregate).limit(fields.count).skip(fields.offset).toArray();
+            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
             /*
             let sql = `SELECT * FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND ((type='video/mp4') OR (type='video/avi')) ORDER BY id DESC`
@@ -264,12 +263,54 @@ export default class {
     //количество
     static async GetCount ( fields ) {
         try {
-            let collection = DB.Client.collection('album_video_link');
+            let collection = DB.Client.collection('file');
 
             fields.user_id = new DB().ObjectID(fields.user_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
+            let arAggregate = [{
+                $match: {
+                    $or: [
+                        {type: 'video/mp4'},
+                        {type: 'video/avi'},
+                    ]
+                },
+            }]
+
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
+
+            if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+
+            if (fields.album_id) {
+                arAggregate.push({
+                    $lookup:
+                        {
+                            from: 'album_video_link',
+                            localField: '_id',
+                            foreignField: 'object_id',
+                            as: '_album_video_link',
+                            pipeline: [
+                                { $match: {} },
+                            ]
+                        }
+                })
+                arAggregate.push({
+                    $unwind:
+                        {
+                            path: '$_album_video_link',
+                            preserveNullAndEmptyArrays: false
+                        }
+                })
+                arAggregate[1].$lookup.pipeline[0].$match.album_id = fields.album_id
+            }
+
+            arAggregate.push({
+                $count: 'count'
+            })
+
+            /*
             //по умолчанию
             let lookupMatch = {
                 $or: [
@@ -277,6 +318,8 @@ export default class {
                     {type: 'video/avi'},
                 ]
             }
+
+
 
             //группа с высоким приоитетом
             if (fields.group_id)
@@ -316,7 +359,7 @@ export default class {
                     $count: "count"
                 }
             )
-
+*/
             let result = await collection.aggregate(arAggregate).toArray()
 
             if (!result.length) return 0

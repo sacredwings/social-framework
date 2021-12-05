@@ -237,11 +237,8 @@ var _default = /*#__PURE__*/function () {
                       preserveNullAndEmptyArrays: false
                     }
                   });
-                  arAggregate[2].$lookup.pipeline[0].$match.album_id = fields.album_id;
+                  arAggregate[arAggregate.length - 2].$lookup.pipeline[0].$match.album_id = fields.album_id;
                 }
-
-                console.log(arAggregate);
-                console.log(arAggregate[0].$match);
                 /*
                 
                             //группа с высоким приоитетом
@@ -320,15 +317,16 @@ var _default = /*#__PURE__*/function () {
                             )
                 */
 
-                _context4.next = 14;
-                return collection.aggregate(arAggregate).limit(fields.count).skip(fields.offset).toArray();
 
-              case 14:
+                _context4.next = 12;
+                return collection.aggregate(arAggregate).limit(fields.count + fields.offset).skip(fields.offset).toArray();
+
+              case 12:
                 result = _context4.sent;
                 return _context4.abrupt("return", result);
 
-              case 18:
-                _context4.prev = 18;
+              case 16:
+                _context4.prev = 16;
                 _context4.t0 = _context4["catch"](0);
                 console.log(_context4.t0);
                 throw {
@@ -336,12 +334,12 @@ var _default = /*#__PURE__*/function () {
                   msg: 'CVideo Get'
                 };
 
-              case 22:
+              case 20:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, null, [[0, 18]]);
+        }, _callee4, null, [[0, 16]]);
       }));
 
       function Get(_x6) {
@@ -355,48 +353,97 @@ var _default = /*#__PURE__*/function () {
     key: "GetCount",
     value: function () {
       var _GetCount = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(fields) {
-        var collection, lookupMatch, arAggregate, result;
+        var collection, arAggregate, result;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                collection = _db.DB.Client.collection('album_video_link');
+                collection = _db.DB.Client.collection('file');
                 fields.user_id = new _db.DB().ObjectID(fields.user_id);
                 fields.group_id = new _db.DB().ObjectID(fields.group_id);
-                fields.album_id = new _db.DB().ObjectID(fields.album_id); //по умолчанию
-
-                lookupMatch = {
-                  $or: [{
-                    type: 'video/mp4'
-                  }, {
-                    type: 'video/avi'
-                  }]
-                }; //группа с высоким приоитетом
-
-                if (fields.group_id) lookupMatch.to_group_id = fields.group_id;else lookupMatch.to_user_id = fields.user_id;
-                if (fields.q) lookupMatch.$text = {
-                  $search: fields.q
-                };
-                arAggregate = [];
-                if (fields.album_id) arAggregate.push({
+                fields.album_id = new _db.DB().ObjectID(fields.album_id);
+                arAggregate = [{
                   $match: {
-                    album_id: fields.album_id
-                  }
-                });
-                arAggregate.push({
-                  $lookup: {
-                    from: 'file',
-                    localField: 'object_id',
-                    foreignField: '_id',
-                    as: '_object_id',
-                    pipeline: [{
-                      $match: lookupMatch
+                    $or: [{
+                      type: 'video/mp4'
+                    }, {
+                      type: 'video/avi'
                     }]
                   }
-                }, {
-                  $count: "count"
+                }];
+                if (fields.q) arAggregate[0].$match.$text.$search = fields.q;
+                if (fields.to_user_id && !fields.to_group_id) arAggregate[0].$match.to_user_id = fields.to_user_id;
+                if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id;
+
+                if (fields.album_id) {
+                  arAggregate.push({
+                    $lookup: {
+                      from: 'album_video_link',
+                      localField: '_id',
+                      foreignField: 'object_id',
+                      as: '_album_video_link',
+                      pipeline: [{
+                        $match: {}
+                      }]
+                    }
+                  });
+                  arAggregate.push({
+                    $unwind: {
+                      path: '$_album_video_link',
+                      preserveNullAndEmptyArrays: false
+                    }
+                  });
+                  arAggregate[1].$lookup.pipeline[0].$match.album_id = fields.album_id;
+                }
+
+                arAggregate.push({
+                  $count: 'count'
                 });
+                /*
+                //по умолчанию
+                let lookupMatch = {
+                    $or: [
+                        {type: 'video/mp4'},
+                        {type: 'video/avi'},
+                    ]
+                }
+                      //группа с высоким приоитетом
+                if (fields.group_id)
+                    lookupMatch.to_group_id = fields.group_id
+                else
+                    lookupMatch.to_user_id = fields.user_id
+                  if (fields.q)
+                    lookupMatch.$text = {
+                        $search: fields.q
+                    }
+                  let arAggregate = []
+                  if (fields.album_id) arAggregate.push(
+                    {
+                        $match:
+                            {
+                                album_id: fields.album_id
+                            },
+                    }
+                )
+                  arAggregate.push(
+                    { $lookup:
+                            {
+                                from: 'file',
+                                localField: 'object_id',
+                                foreignField: '_id',
+                                as: '_object_id',
+                                pipeline: [
+                                    { $match: lookupMatch },
+                                ]
+                            },
+                    },
+                    {
+                        $count: "count"
+                    }
+                )
+                */
+
                 _context5.next = 13;
                 return collection.aggregate(arAggregate).toArray();
 
