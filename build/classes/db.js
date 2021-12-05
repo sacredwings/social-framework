@@ -33,17 +33,19 @@ var DB = /*#__PURE__*/function () {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                url = "mongodb://".concat(parameters.host, ":").concat(parameters.port);
-                if (parameters.login) "mongodb://".concat(parameters.login, ":").concat(parameters.password, "@").concat(parameters.host, ":").concat(parameters.port, "/?authSource=").concat(parameters.source);
+                //let url = `mongodb://${parameters.host}:${parameters.port}`
+                //if (parameters.login)
+                //`mongodb://${parameters.login}:${parameters.password}@${parameters.host}:${parameters.port}/?authSource=${parameters.source}`
+                url = 'mongodb://root:A28392839@localhost:27017/?authSource=admin';
                 client = new _mongodb.MongoClient(url);
-                _context.next = 5;
+                _context.next = 4;
                 return client.connect();
 
-              case 5:
+              case 4:
                 console.log('Connected successfully to server');
                 return _context.abrupt("return", client.db(dbName));
 
-              case 7:
+              case 6:
               case "end":
                 return _context.stop();
             }

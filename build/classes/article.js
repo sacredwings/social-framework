@@ -251,8 +251,9 @@ var _default = /*#__PURE__*/function () {
                       path: '$_album_article_link',
                       preserveNullAndEmptyArrays: false
                     }
-                  });
-                  arAggregate[2].$lookup.pipeline[0].$match.album_id = fields.album_id;
+                  }); //сдвиг /может не быть $match
+
+                  arAggregate[arAggregate.length - 2].$lookup.pipeline[0].$match.album_id = fields.album_id;
                 }
 
                 _context4.next = 12;

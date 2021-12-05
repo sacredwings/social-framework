@@ -150,7 +150,6 @@ export default class {
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
 
-
             if (fields.album_id) {
                 arAggregate.push({
                     $lookup:
@@ -171,7 +170,9 @@ export default class {
                             preserveNullAndEmptyArrays: false
                         }
                 })
-                arAggregate[2].$lookup.pipeline[0].$match.album_id = fields.album_id
+
+                //сдвиг /может не быть $match
+                arAggregate[arAggregate.length-2].$lookup.pipeline[0].$match.album_id = fields.album_id
             }
 
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
