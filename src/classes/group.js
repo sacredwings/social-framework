@@ -22,7 +22,7 @@ export default class {
 
             let collection = DB.Client.collection('group');
             //let result = await collection.find({_id: { $in: ids}}).toArray()
-            let result = await collection.aggregate([
+            let aggregate = [
                 { $match:
                         {
                             _id: {$in: ids}
@@ -78,7 +78,8 @@ export default class {
                             preserveNullAndEmptyArrays: true
                         }
                 }
-            ]).toArray();
+            ]
+            let result = await collection.aggregate(aggregate).toArray();
 
             return result
 
@@ -413,6 +414,76 @@ export default class {
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CGroup SearchCount'})
+        }
+    }
+
+    //добавить новую группу
+    static async PayAdd ( fields ) {
+        try {
+            let collection = DB.Client.collection('pay_group');
+
+            let result = await collection.count(arSearch)
+
+            //запись
+            //let result = await DB.Init.Insert(`${DB.Init.TablePrefix}group`, fields, `ID`)
+            //return result[0]
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4001000, msg: 'CGroup Add'})
+        }
+    }
+
+    //добавить новую группу
+    static async PayGet ( fields ) {
+        try {
+            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.group_id = new DB().ObjectID(fields.group_id)
+
+            let collection = DB.Client.collection('pay_group');
+            let arFields = {
+                user_id: fields.user_id,
+                group_id: fields.group_id,
+            }
+
+            let result = await collection.findOne(arFields)
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4001000, msg: 'CGroup PayGet'})
+        }
+    }
+
+    //добавить новую группу
+    static async PayStatus ( fields ) {
+        try {
+            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.group_id = new DB().ObjectID(fields.group_id)
+
+            let group = await this.GetById ( [fields.group_id] );
+            if (group.length)
+                group = group[0]
+
+            //группа бесплатная
+            if (!group.price) return true
+
+            //группа платная, а пользователя нет
+            if ((group.price) && (!fields.user_id)) return false
+
+            //получаем запись об оплате
+            let result = await this.PayGet(fields)
+
+            //платы нет
+            if (!result) return false
+
+            //оплата закончилась
+            let dateSystem = new Date();
+            let datePay = new Date(result.pay_date);
+            if (dateSystem > datePay) return false
+
+            return true
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4001000, msg: 'CGroup PayStatus'})
         }
     }
 /*

@@ -229,6 +229,7 @@ export default class {
                 }
             )
 */
+            //return arAggregate
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
             /*
@@ -265,10 +266,11 @@ export default class {
         try {
             let collection = DB.Client.collection('file');
 
-            fields.user_id = new DB().ObjectID(fields.user_id)
-            fields.group_id = new DB().ObjectID(fields.group_id)
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
+            console.log(fields)
             let arAggregate = [{
                 $match: {
                     $or: [
@@ -360,6 +362,7 @@ export default class {
                 }
             )
 */
+            //return arAggregate
             let result = await collection.aggregate(arAggregate).toArray()
 
             if (!result.length) return 0
