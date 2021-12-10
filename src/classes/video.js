@@ -50,30 +50,13 @@ export default class {
                             localField: 'file_id',
                             foreignField: '_id',
                             as: '_file_id',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },
-                                {
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
                         },
 
                 },
                 {
                     $unwind:
                         {
-                            path: '_file_id',
+                            path: '$_file_id',
                             preserveNullAndEmptyArrays: true
                         }
                 }
