@@ -5,13 +5,15 @@ import CFile from "./file";
 export default class {
 
 //добавить новый видео альбом
-    static async Add(fields) {
+    static async Add (fields) {
         try {
-            //если владелец не указан
-            if (!fields.owner_id) fields.owner_id = fields.from_id
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
 
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}album`, fields, `ID`)
-            return result[0]
+            let collection = DB.Client.collection('album');
+
+            let result = await collection.insertOne(fields)
+            return fields
 
         } catch (err) {
             console.log(err)
@@ -181,8 +183,13 @@ export default class {
         try {
             // сделать проверку, что файл и альбом твои
 
+            fields.object_id = new DB().ObjectID(fields.object_id)
+            fields.create_id = new DB().ObjectID(fields.create_id)
+
             //раскидываем файл по альбомам
             fields.album_ids.map(async (item, i)=>{
+
+                item = new DB().ObjectID(item)
 
                 let arFields = {
                     album_id: item,
@@ -190,8 +197,9 @@ export default class {
 
                     create_id: fields.create_id
                 }
-                console.log(arFields)
-                await DB.Init.Insert(`${DB.Init.TablePrefix}album_${fields.module}_link`, arFields, `ID`)
+
+                let collection = DB.Client.collection('album_video_link');
+                let result = await collection.insertOne(arFields)
             })
 
             return true

@@ -6,9 +6,12 @@ export default class {
     //добавить новую группу
     static async Add ( fields ) {
         try {
-            //запись
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}group`, fields, `ID`)
-            return result[0]
+            fields.create_id = new DB().ObjectID(fields.create_id)
+
+            let collection = DB.Client.collection('group');
+
+            let result = await collection.insertOne(fields)
+            return fields
         } catch (err) {
             console.log(err)
             throw ({err: 4001000, msg: 'CGroup Add'})

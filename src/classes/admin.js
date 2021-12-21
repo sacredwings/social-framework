@@ -32,6 +32,15 @@ export default class {
                 "post":"text",
             })
             console.log(indexUser)
+
+            collection = DB.Client.collection('album_video_link');
+            indexUser = await collection.createIndex( { album_id: 1, object_id: 1 }, { unique: true } )
+            console.log(indexUser)
+
+            collection = DB.Client.collection('album_article_link');
+            indexUser = await collection.createIndex( { album_id: 1, object_id: 1 }, { unique: true } )
+            console.log(indexUser)
+
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CAdmin DdIndex'})
