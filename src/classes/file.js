@@ -52,8 +52,13 @@ export default class {
                 //полный путь к файлу
                 let newPathImg = `${savePath}${urlImg}`
 
-                //вытаскиваем видео
-                await ImageSave(newPathVideo, newPathImg)
+                try {
+                    //вытаскиваем видео
+                    await ImageSave(newPathVideo, newPathImg)
+                } catch (e) {
+                    console.log(e)
+                }
+
 
                 urlImg = `files/${urlImg}`
 
