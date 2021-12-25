@@ -35,7 +35,7 @@ export default class {
             let url = `${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.${type}`
 
             //полный путь к файлу
-            let newPathVideo = `${global.__basedir}/${url}`
+            let newPathVideo = `${savePath}/${url}`
 
             //копирование файла в постоянную папку
             await fs.copy(fields.file.path, newPathVideo)
