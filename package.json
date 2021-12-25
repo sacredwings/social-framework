@@ -16,11 +16,11 @@
     "@babel/cli": "^7.12.16",
     "@babel/core": "^7.12.13",
     "@babel/node": "^7.12.13",
-    "@babel/preset-env": "^7.12.13",
-    "ffmpeg-extract-frame": "^1.0.2"
+    "@babel/preset-env": "^7.12.13"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
+    "ffmpeg-extract-frame": "^1.0.2",
     "fs-extra": "^9.1.0",
     "mongodb": "^4.1.4",
     "pg": "^8.5.1"

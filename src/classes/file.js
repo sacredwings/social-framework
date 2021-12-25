@@ -1,36 +1,33 @@
-import fs from "fs-extra";
-import crypto from "crypto";
-import extractFrame from "ffmpeg-extract-frame";
+import fs from "fs-extra"
+import crypto from "crypto"
+import extractFrames from "ffmpeg-extract-frame"
 
-import {DB} from "./db";
+import {DB} from "./db"
 
 export default class {
 
     //Сохраняем новый вайл в таблицу файлов и сам файл
-    static async SaveFile ( fields, savePath, preview ) {
+    static async SaveFile ( fields, savePath, preview = true ) {
         try {
+            //id вложенного файла
             fields.file_id = new DB().ObjectID(fields.file_id)
 
-            let collection = DB.Client.collection('file');
+            let collection = DB.Client.collection('file')
 
             //удаление файла с диска и базы
-            if (fields.old_file)
-                await this.Delete(fields.old_file, true)
+            //if (fields.old_file)
+                //await this.Delete(fields.old_file, true)
 
             //содержимое файла
-            //let file_buffer = await fs.readFile(fields.file.path);
             let file_buffer = fs.createReadStream(fields.file.path)
-
             file_buffer = await new Promise(function(resolve,reject){
-                file_buffer.on('data', (data) => resolve(data));
-                //file_buffer.on('error', reject);
+                file_buffer.on('data', (data) => resolve(data))
             })
 
             //хеш содержимого
-            //let hash = crypto.createHash('md5').update(fields.file.name).digest("hex")
             let hash = crypto.createHash('md5').update(file_buffer).digest("hex")
 
-            //вытаскиваем расширение
+            //вытаскиваем расширение типа
             let type = fields.file.type.split('/');
             type = type[1]
 
@@ -38,7 +35,7 @@ export default class {
             let url = `${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.${type}`
 
             //полный путь к файлу
-            let newPathVideo = `${savePath}${url}`
+            let newPathVideo = `${global.__basedir}/${url}`
 
             //копирование файла в постоянную папку
             await fs.copy(fields.file.path, newPathVideo)
@@ -48,7 +45,7 @@ export default class {
             let newIdImg = null
 
             //картинки не существует
-            if ((!fields.file_id) && (preview)) {
+            if (!fields.file_id) {
 
                 let urlImg = `${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.jpeg`
 
@@ -71,10 +68,9 @@ export default class {
                     to_user_id: fields.to_user_id,
                     to_group_id: fields.to_group_id,
 
-                    file_id: fields.file_id,
+                    file_id: null,
 
-                    title: (fields.title) ? fields.title : fields.file.title,
-                    text: fields.text,
+                    title: fields.title,
 
                     create_id: fields.create_id
                 }
@@ -168,7 +164,7 @@ export default class {
 }
 
 const ImageSave = async (pathVideo, pathImg) => {
-    await extractFrame({
+    return await extractFrames({
         input: pathVideo,
         output: pathImg,
         offset: 3000 // seek offset in milliseconds
