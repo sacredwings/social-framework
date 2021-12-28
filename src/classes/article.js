@@ -6,12 +6,13 @@ export default class {
     //новая тема для обсуждений
     static async Add ( fields ) {
         try {
-            //если владелец не указан
-            if (!fields.owner_id) fields.owner_id = fields.from_id
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
 
-            //запись
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}article`, fields, `ID`)
-            return result[0]
+            let collection = DB.Client.collection('article');
+
+            let result = await collection.insertOne(fields)
+            return fields
 
         } catch (err) {
             console.log(err)

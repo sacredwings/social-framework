@@ -198,7 +198,11 @@ export default class {
                     create_id: fields.create_id
                 }
 
+
                 let collection = DB.Client.collection('album_video_link');
+                if (fields.module === 'article')
+                    collection = DB.Client.collection('album_article_link');
+
                 let result = await collection.insertOne(arFields)
             })
 
