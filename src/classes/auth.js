@@ -33,7 +33,6 @@ export default class {
         try {
             ids = new DB().arObjectID(ids)
 
-            console.log(ids)
             let collection = DB.Client.collection('auth');
             let result = await collection.find({_id: { $in: ids}}).toArray()
 
@@ -76,6 +75,29 @@ export default class {
         } catch (err) {
             console.log(err)
             throw ({err: 1004000, msg: 'CAuth AddToken'})
+        }
+    }
+
+    static async Auth ( fields ) {
+        try {
+            //существование id и токена авторизации
+            if ((!fields) || ((!fields.tid) || (!fields.token)))
+                return null
+
+            //поиск ключа
+            let user = await this.GetById([fields.tid])
+            if (!user.length)
+                return null
+
+            user = user[0] //из массива берем первый
+
+            if (fields.token !== user.token)
+                return null
+
+            return user.user_id
+        } catch (err) {
+            console.log(err)
+            throw ({err: 1004000, msg: 'CAuth Access'})
         }
     }
 }
