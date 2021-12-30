@@ -85,30 +85,6 @@ export default class {
             let result = await collection.aggregate(aggregate).toArray();
 
             return result
-
-            /*
-            ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}group WHERE id in (${ids})`)
-
-            result = await Promise.all(result.map(async (item, i) => {
-
-                if (item.photo) {
-                    item.photo = await CFile.GetById([item.photo]);
-                    item.photo = item.photo[0]
-                }
-
-                if (item.photo_big) {
-                    item.photo_big = await CFile.GetById([item.photo_big]);
-                    item.photo_big = item.photo_big[0]
-                }
-
-                item.create_id = Number (item.create_id)
-
-                return item;
-            }));
-
-            return result
-*/
         } catch (err) {
             console.log(err)
             throw ({err: 4002000, msg: 'CGroup GetById'})
@@ -487,6 +463,34 @@ export default class {
         } catch (err) {
             console.log(err)
             throw ({err: 4001000, msg: 'CGroup PayStatus'})
+        }
+    }
+
+    //доступ к содержимому группы
+    static async Access ( fields ) {
+        try {
+            //параметров нет, доступа
+            if ((!fields.user_id) || (!fields.group_id)) return false
+
+            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.group_id = new DB().ObjectID(fields.group_id)
+
+            let collection = DB.Client.collection('group');
+            let arFields = {
+                _id: fields.group_id,
+                create_id: fields.user_id,
+            }
+            console.log(arFields)
+
+            let result = await collection.findOne(arFields)
+            console.log(result)
+            if (result) return true
+
+            return false
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4001000, msg: 'CGroup Access'})
         }
     }
 /*
