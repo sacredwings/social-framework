@@ -78,11 +78,14 @@ export default class {
     //загрузка
     static async Get ( fields ) {
         try {
-            let collection = DB.Client.collection('file');
+            if (fields.to_group_id)
+                delete fields.to_user_id
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
+
+            let collection = DB.Client.collection('file');
 
             let arAggregate = [{
                 $match: {
@@ -134,110 +137,9 @@ export default class {
                 arAggregate[arAggregate.length-2].$lookup.pipeline[0].$match.album_id = fields.album_id
             }
 
-
-/*
-
-            //группа с высоким приоитетом
-            if (fields.group_id)
-                lookupMatch.to_group_id = fields.group_id
-            else
-                lookupMatch.to_user_id = fields.user_id
-
-            if (fields.q)
-                lookupMatch.$text = {
-                    $search: fields.q
-                }
-
-            let arAggregate = []
-
-            if (fields.album_id) arAggregate.push(
-                {
-                    $match:
-                        {
-                            album_id: fields.album_id
-                        },
-                }
-            )
-
-            arAggregate.push(
-                { $lookup:
-                        {
-                            from: 'file',
-                            localField: 'object_id',
-                            foreignField: '_id',
-                            as: '_object_id',
-                            pipeline: [
-                                { $match: lookupMatch },
-                            ]
-                        },
-                },
-                { $lookup:
-                        {
-                            from: 'file',
-                            localField: 'image_id',
-                            foreignField: '_id',
-                            as: '_image_id',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },
-                                {
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                },
-                            ]
-                        },
-                },
-                {
-                    $unwind:
-                        {
-                            path: '$_image_id',
-                            preserveNullAndEmptyArrays: true
-                        }
-                },
-                {
-                    $unwind:
-                        {
-                            path: '$_object_id',
-                            preserveNullAndEmptyArrays: false
-                        }
-                }
-            )
-*/
-            //return arAggregate
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
-            /*
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND ((type='video/mp4') OR (type='video/avi')) ORDER BY id DESC`
 
-
-            if (fields.album_id)
-                sql = `SELECT ${DB.Init.TablePrefix}file.*
-                    FROM ${DB.Init.TablePrefix}album_video_link
-                    INNER JOIN ${DB.Init.TablePrefix}file ON ${DB.Init.TablePrefix}file.id = ${DB.Init.TablePrefix}album_video_link.object_id WHERE ${DB.Init.TablePrefix}album_video_link.album_id = ${fields.album_id} AND (${DB.Init.TablePrefix}file.type='video/mp4') ORDER BY id DESC`
-
-            sql += ` LIMIT $1 OFFSET $2 `
-
-            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
-            result = await Promise.all(result.map(async (item, i) => {
-
-                if (item.file_id) {
-                    item.file_id = await CFile.GetById([item.file_id]);
-                    item.file_id = item.file_id[0]
-                }
-
-                return item;
-            }));
-            return result
-*/
         } catch (err) {
             console.log(err)
             throw ({err: 8001000, msg: 'CVideo Get'})
@@ -247,11 +149,14 @@ export default class {
     //количество
     static async GetCount ( fields ) {
         try {
-            let collection = DB.Client.collection('file');
+            if (fields.to_group_id)
+                delete fields.to_user_id
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
+
+            let collection = DB.Client.collection('file');
 
             console.log(fields)
             let arAggregate = [{
@@ -295,85 +200,10 @@ export default class {
                 $count: 'count'
             })
 
-            /*
-            //по умолчанию
-            let lookupMatch = {
-                $or: [
-                    {type: 'video/mp4'},
-                    {type: 'video/avi'},
-                ]
-            }
-
-
-
-            //группа с высоким приоитетом
-            if (fields.group_id)
-                lookupMatch.to_group_id = fields.group_id
-            else
-                lookupMatch.to_user_id = fields.user_id
-
-            if (fields.q)
-                lookupMatch.$text = {
-                    $search: fields.q
-                }
-
-            let arAggregate = []
-
-            if (fields.album_id) arAggregate.push(
-                {
-                    $match:
-                        {
-                            album_id: fields.album_id
-                        },
-                }
-            )
-
-            arAggregate.push(
-                { $lookup:
-                        {
-                            from: 'file',
-                            localField: 'object_id',
-                            foreignField: '_id',
-                            as: '_object_id',
-                            pipeline: [
-                                { $match: lookupMatch },
-                            ]
-                        },
-                },
-                {
-                    $count: "count"
-                }
-            )
-*/
-            //return arAggregate
             let result = await collection.aggregate(arAggregate).toArray()
 
             if (!result.length) return 0
             return result[0].count
-
-            /*
-            if (fields.album_id) {
-                console.log(arAggregate)
-                let result = await collection.aggregate(arAggregate).toArray()
-                console.log(result)
-                return result
-            } else {
-                collection = DB.Client.collection('file');
-                let result = await collection.count(lookupMatch)
-                return result
-            }*/
-
-            /*
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}file WHERE owner_id=${fields.owner_id} AND ((type='video/mp4') OR (type='video/avi'))`
-
-            if (fields.album_id)
-                sql = `SELECT COUNT(*)
-                    FROM ${DB.Init.TablePrefix}album_video_link
-                    LEFT JOIN ${DB.Init.TablePrefix}file ON ${DB.Init.TablePrefix}album_video_link.object_id = ${DB.Init.TablePrefix}file.id
-                    WHERE ${DB.Init.TablePrefix}album_video_link.album_id = ${fields.album_id} AND ((${DB.Init.TablePrefix}file.type='video/mp4') OR (${DB.Init.TablePrefix}file.type='video/avi'))`
-
-            let result = await DB.Init.Query(sql)
-            return Number (result[0].count)*/
 
         } catch (err) {
             console.log(err)

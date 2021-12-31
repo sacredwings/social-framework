@@ -106,11 +106,14 @@ export default class {
     //загрузка
     static async Get ( fields ) {
         try {
-            let collection = DB.Client.collection('article');
+            if (fields.to_group_id)
+                delete fields.to_user_id
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
+
+            let collection = DB.Client.collection('article');
 
             let arAggregate = [{
                 $match: {},
@@ -189,11 +192,14 @@ export default class {
     //количество
     static async GetCount ( fields ) {
         try {
-            let collection = DB.Client.collection('article');
+            if (fields.to_group_id)
+                delete fields.to_user_id
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
+
+            let collection = DB.Client.collection('article');
 
             let arAggregate = [{
                 $match: {},

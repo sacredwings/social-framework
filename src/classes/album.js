@@ -94,6 +94,9 @@ export default class {
 //загрузка
     static async Get(fields) {
         try {
+            if (fields.to_group_id)
+                delete fields.to_user_id
+
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
@@ -155,6 +158,9 @@ export default class {
 //количество
     static async Count(fields) {
         try {
+            if (fields.to_group_id)
+                delete fields.to_user_id
+
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
