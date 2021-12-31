@@ -103,6 +103,10 @@ export default class {
 
             let collection = DB.Client.collection('album');
 
+            let xxx = new DB().ObjectID('61a9fdb494f73f29366ecdde')
+
+            await collection.updateMany({}, { $set: { to_group_id: xxx }})
+
             let arAggregate = [
                 { $match: {
                         module: fields.module
