@@ -439,7 +439,7 @@ export default class {
     }
 
     //добавить новую группу
-    static async PayStatus ( fields ) {
+    static async StatusPay ( fields ) {
         try {
             fields.user_id = new DB().ObjectID(fields.user_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
@@ -473,7 +473,7 @@ export default class {
     }
 
     //Права доступа
-    static async Access ( fields ) {
+    static async StatusAccess ( fields ) {
         try {
             //параметров нет, доступа
             if ((!fields.user_id) || (!fields.group_id)) return false
