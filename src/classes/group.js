@@ -289,8 +289,11 @@ export default class {
 
     static async Update ( id, fields ) {
         try {
-            let result = await DB.Init.Update (`${DB.Init.TablePrefix}group`, fields, {id: id},`id`)
-            return result[0]
+            id = new DB().ObjectID(id)
+
+            let collection = DB.Client.collection('group');
+            let result = collection.updateOne({_id: id}, {$set: fields}, {upsert: true})
+            return result
         } catch (err) {
             console.log(err)
             throw ({err: 4006000, msg: 'CGroup Update'})
@@ -300,8 +303,11 @@ export default class {
     //удаление группы
     static async Delete ( id ) {
         try {
-            let result = await DB.Init.Update (`groups`, {delete: true}, {id: id},`id`)
-            return result[0]
+            id = new DB().ObjectID(id)
+
+            let collection = DB.Client.collection('group');
+            let result = collection.updateOne({_id: id}, {$set: {delete: true}}, {upsert: true})
+            return result
         } catch (err) {
             console.log(err)
             throw ({err: 4007000, msg: 'CGroup Delete'})
@@ -466,11 +472,13 @@ export default class {
         }
     }
 
-    //доступ к содержимому группы
+    //Права доступа
     static async Access ( fields ) {
         try {
             //параметров нет, доступа
             if ((!fields.user_id) || (!fields.group_id)) return false
+            //группы нет, проверять нечего
+            if (!fields.group_id) return true
 
             fields.user_id = new DB().ObjectID(fields.user_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
@@ -480,10 +488,8 @@ export default class {
                 _id: fields.group_id,
                 create_id: fields.user_id,
             }
-            console.log(arFields)
 
             let result = await collection.findOne(arFields)
-            console.log(result)
             if (result) return true
 
             return false
