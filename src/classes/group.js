@@ -1,5 +1,4 @@
 import {DB} from "./db";
-import CFile from './file'
 
 export default class {
 
@@ -8,7 +7,7 @@ export default class {
         try {
             fields.create_id = new DB().ObjectID(fields.create_id)
 
-            let collection = DB.Client.collection('group');
+            let collection = DB.Client.collection('group')
 
             let result = await collection.insertOne(fields)
             return fields
@@ -23,7 +22,7 @@ export default class {
         try {
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('group');
+            let collection = DB.Client.collection('group')
             //let result = await collection.find({_id: { $in: ids}}).toArray()
             let aggregate = [
                 { $match:
@@ -402,19 +401,94 @@ export default class {
         }
     }
 
+    //ТРАНЗАКЦИИ ПЛАТЕЖНОЙ СИСТЕМЫ YANDEX
+    //добавить новую группу
+    static async PayTransactionAdd ( fields ) {
+        try {
+            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.group_id = new DB().ObjectID(fields.group_id)
+
+            let arFields = {
+                user_id: fields.user_id,
+                group_id: fields.group_id,
+                pay_id: fields.pay_id,
+                status: fields.status,
+                price: fields.price,
+                url: fields.url,
+                date_create: new Date()
+            }
+
+            let collection = DB.Client.collection('pay_transaction_group');
+
+            let result = await collection.insertOne(arFields)
+            return fields
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4001000, msg: 'CGroup PayTransactionAdd'})
+        }
+    }
+    //добавить новую группу
+    static async PayTransactionGet ( fields ) {
+        try {
+            let collection = DB.Client.collection('pay_transaction_group');
+
+            let result = await collection.findOne(fields)
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4001000, msg: 'CGroup PayTransactionGet'})
+        }
+    }
+    static async PayTransactionUpdate ( fields ) {
+        try {
+            let collection = DB.Client.collection('pay_transaction_group');
+
+            let result = collection.updateOne({pay_id: fields.pay_id}, {$set: {status: fields.status}}, {upsert: true})
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4001000, msg: 'CGroup PayTransactionAdd'})
+        }
+    }
+
+    //ОПЛАТА ГРУППЫ ПОЛЬЗОВАТЕЛЕМ
     //добавить новую группу
     static async PayAdd ( fields ) {
         try {
+            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.group_id = new DB().ObjectID(fields.group_id)
+            fields.transaction_id = new DB().ObjectID(fields.transaction_id)
+
             let collection = DB.Client.collection('pay_group');
 
-            let result = await collection.count(arSearch)
+            let arFields = {
+                user_id: fields.user_id,
+                group_id: fields.group_id
+            }
+            let getResult = await this.PayGet (fields)
 
-            //запись
-            //let result = await DB.Init.Insert(`${DB.Init.TablePrefix}group`, fields, `ID`)
-            //return result[0]
+            arFields.actual = true
+            let getResultActual = await this.PayGet (fields)
+
+            //сколько дней оплаты
+            let dateDay = new Date();
+            let newDateDay = Day(30)
+
+            let arSearch = {
+                user_id: fields.user_id,
+                group_id: fields.group_id
+            }
+            arFields = {
+                date_pay: newDateDay,
+                transaction_id: fields.transaction_id,
+                price: fields.price,
+                date_create: new Date()
+            }
+            let result = collection.updateOne(arSearch, {$set: arFields}, {upsert: true})
+            return true
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CGroup Add'})
+            throw ({err: 4001000, msg: 'CGroup PayAdd'})
         }
     }
 
@@ -431,13 +505,24 @@ export default class {
             }
 
             let result = await collection.findOne(arFields)
+            if (!result)
+                return false
+
+            if (!fields.actual)
+                return result
+
+            if ((fields.actual) && (result.date_pay < new Date()))
+                return false
+
             return result
+
         } catch (err) {
             console.log(err)
             throw ({err: 4001000, msg: 'CGroup PayGet'})
         }
     }
 
+    //СТАТУС ГРУППЫ
     //добавить новую группу
     static async StatusPay ( fields ) {
         try {
@@ -536,4 +621,11 @@ export default class {
             throw ({err: 6005000, msg: 'CGroup GetByField'})
         }
     }*/
+}
+
+function Day(day) {
+    let date = new Date(); // Now
+    date.setDate(date.getDate() + day); // Set now + 30 days as the new date
+
+    return date
 }
