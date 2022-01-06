@@ -8,6 +8,8 @@ export default class {
         try {
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            if (fields.to_group_id)
+                delete fields.to_user_id
 
             let collection = DB.Client.collection('article');
 

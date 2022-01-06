@@ -9,6 +9,9 @@ export default class {
         try {
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            fields.album_id = new DB().ObjectID(fields.album_id)
+            if (fields.to_group_id)
+                delete fields.to_user_id
 
             let collection = DB.Client.collection('album');
 
@@ -70,7 +73,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CArticle GetById'})
+            throw ({err: 8001000, msg: 'CAlbum GetById'})
         }
     }
 
@@ -87,7 +90,7 @@ export default class {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CArticle Edit'})
+            throw ({err: 8001000, msg: 'CAlbum Edit'})
         }
     }
 
@@ -216,7 +219,7 @@ export default class {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CArticle InAlbum'})
+            throw ({err: 8001000, msg: 'CAlbum InAlbum'})
         }
     }
 }

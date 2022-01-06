@@ -9,6 +9,11 @@ export default class {
     //Сохраняем новый вайл в таблицу файлов и сам файл
     static async SaveFile ( fields, savePath, preview = true ) {
         try {
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            if (fields.to_group_id)
+                delete fields.to_user_id
+
             //id вложенного файла
             fields.file_id = new DB().ObjectID(fields.file_id)
 
@@ -52,8 +57,6 @@ export default class {
                 //полный путь к файлу
                 let newPathImg = `${savePath}${urlImg}`
 
-                console.log(newPathVideo)
-                console.log(newPathImg)
                 try {
                     //вытаскиваем видео
                     await ImageSave(newPathVideo, newPathImg)
