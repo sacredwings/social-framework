@@ -108,7 +108,8 @@ export default class {
 
             let arAggregate = [
                 { $match: {
-                        module: fields.module
+                        module: fields.module,
+                        album_id: fields.album_id
                     }
                 },
                 { $lookup:
@@ -147,7 +148,7 @@ export default class {
 
             if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
-            if (fields.album_id) arAggregate[0].$match.album_id = fields.album_id
+            //if (fields.album_id) arAggregate[0].$match.album_id = fields.album_id
 
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
@@ -171,12 +172,13 @@ export default class {
             let collection = DB.Client.collection('album');
 
             let count = {
-                module: fields.module
+                module: fields.module,
+                album_id: fields.album_id
             }
 
             if (fields.to_user_id) count.to_user_id = fields.to_user_id
             if (fields.to_group_id) count.to_group_id = fields.to_group_id
-            if (fields.album_id) count.album_id = fields.album_id
+            //if (fields.album_id) count.album_id = fields.album_id
 
             let result = await collection.count(count)
             return result
