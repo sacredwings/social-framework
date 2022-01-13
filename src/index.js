@@ -16,7 +16,18 @@ import { CVideo } from './classes/video'
 
 export {
     DB,
-    CUser,
+    CAdmin,
+    CAlbum,
+    CArticle,
+    CAuth,
+    CComment,
+    CFile,
+    CFriend,
     CGroup,
-    CAlbum
+    CLike,
+    CMessage,
+    CPost,
+    CTopic,
+    CUser,
+    CVideo
 }
