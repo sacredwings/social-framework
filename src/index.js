@@ -1,7 +1,18 @@
 import { DB } from './classes/db'
-import { CUser } from './classes/user'
-import { CGroup } from './classes/group'
+import { CAdmin } from './classes/admin'
 import { CAlbum } from './classes/album'
+import { CArticle } from './classes/article'
+import { CAuth } from './classes/auth'
+import { CComment } from './classes/comment'
+import { CFile } from './classes/file'
+import { CFriend } from './classes/friend'
+import { CGroup } from './classes/group'
+import { CLike } from './classes/like'
+import { CMessage } from './classes/message'
+import { CPost } from './classes/post'
+import { CTopic } from './classes/topic'
+import { CUser } from './classes/user'
+import { CVideo } from './classes/video'
 
 export {
     DB,
