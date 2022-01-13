@@ -4,17 +4,14 @@ export class DB {
     constructor( ) {
     }
 
-    async Init(parameters, dbName) {
-        //let url = `mongodb://${parameters.host}:${parameters.port}`
-        //if (parameters.login)
-            //`mongodb://${parameters.login}:${parameters.password}@${parameters.host}:${parameters.port}/?authSource=${parameters.source}`
-
-        const url = 'mongodb://root:A28392839@127.0.0.1:27017/?authSource=admin';
-
-        const client = new MongoClient(url);
-        await client.connect();
-        console.log('Connected successfully to server');
-        return client.db(dbName);
+    async Init(url, dbName) {
+        try {
+            const client = new MongoClient(url)
+            await client.connect()
+            return client.db(dbName)
+        } catch (e) {
+            return false
+        }
     }
 
     ObjectID (value) {
