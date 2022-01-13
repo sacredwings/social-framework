@@ -1,5 +1,6 @@
-import {DB} from "./db";
-export default class {
+import { DB } from "./db";
+
+export class CLike {
 
     static async Add ( fields ) {
         try {

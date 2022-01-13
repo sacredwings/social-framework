@@ -1,9 +1,8 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import {DB} from "./db";
-import CFile from './file'
+import { DB } from "./db";
 
-export default class {
+export class CUser {
 
     //добавить незарегистрированного пользователя
     static async AddNoReg ( fields ) {

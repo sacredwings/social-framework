@@ -1,7 +1,8 @@
-import {DB} from "./db";
-import CFile from "./file";
-import CUser from "./user";
-export default class {
+import { DB } from "./db";
+import { CFile } from "./file";
+import { CUser } from "./user";
+
+export class CFriend {
 
     static async Add ( fields ) {
         try {

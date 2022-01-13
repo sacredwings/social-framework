@@ -1,10 +1,9 @@
-
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { DB } from "./db";
-import CUser from './user'
+import { CUser } from './user'
 
-export default class {
+export class CAuth {
 
     static async Login ( fields ) {
         try {

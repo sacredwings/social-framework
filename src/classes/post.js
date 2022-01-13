@@ -1,7 +1,7 @@
-import {DB} from "./db";
-import CFile from "./file";
+import { DB } from "./db";
+import { CFile } from "./file";
 
-export default class {
+export class CPost {
 
     //новая тема для обсуждений
     static async Add ( fields ) {

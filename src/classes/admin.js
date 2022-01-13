@@ -1,6 +1,6 @@
-import {DB} from "./db";
+import { DB } from "./db";
 
-export default class {
+export class CAdmin {
 
     //Индексация базы
     static async DdIndex() {

@@ -1,8 +1,7 @@
-import {DB} from "./db";
-import CFile from "./file";
+import { DB } from "./db";
+import { CFile } from "./file";
 
-
-export default class {
+export class CMessage {
 
     //добавить новое видео
     static async Add( fields ) {

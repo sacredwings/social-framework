@@ -1,6 +1,6 @@
-import {DB} from "./db";
+import { DB } from "./db";
 
-export default class {
+export class CGroup {
 
     //добавить новую группу
     static async Add ( fields ) {

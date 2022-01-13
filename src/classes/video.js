@@ -1,7 +1,7 @@
-import {DB} from "./db";
-import CFile from "./file";
+import { DB } from "./db";
+import { CFile } from "./file";
 
-export default class {
+export class CVideo {
 
     //добавить новое видео
     static async Edit ( id, fields ) {

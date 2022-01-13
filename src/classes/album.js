@@ -1,8 +1,7 @@
-//добавить новый видео альбом
-import {DB} from "./db";
-import CFile from "./file";
+import { DB } from "./db";
+import { CFile } from "./file";
 
-export default class {
+export class CAlbum {
 
 //добавить новый видео альбом
     static async Add (fields) {

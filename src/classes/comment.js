@@ -1,7 +1,7 @@
 import {DB} from "./db";
-import CFile from "./file";
+import { CFile } from "./file";
 
-export default class {
+export class CComment {
 
     //новый комментарий
     static async Add ( fields ) {

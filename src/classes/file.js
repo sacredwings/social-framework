@@ -2,9 +2,9 @@ import fs from "fs-extra"
 import crypto from "crypto"
 import extractFrames from "ffmpeg-extract-frame"
 
-import {DB} from "./db"
+import { DB } from "./db"
 
-export default class {
+export class CFile {
 
     //Сохраняем новый вайл в таблицу файлов и сам файл
     static async SaveFile ( fields, savePath, preview = true ) {
