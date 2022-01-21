@@ -6,12 +6,16 @@ export class CPost {
     //новая тема для обсуждений
     static async Add ( fields ) {
         try {
-            //если владелец не указан
-            if (!fields.owner_id) fields.owner_id = fields.from_id
+            fields.file_ids = new DB().arObjectID(fields.file_ids)
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            if (fields.to_group_id)
+                delete fields.to_user_id
 
-            //запись
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}post`, fields, `ID`)
-            return result[0]
+            let collection = DB.Client.collection('post');
+
+            let result = await collection.insertOne(fields)
+            return fields
 
         } catch (err) {
             console.log(err)
@@ -66,25 +70,6 @@ export class CPost {
             ]).toArray();
 
             return result
-            /*
-            ids = ids.join(',');
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}post WHERE id in (${ids}) ORDER BY id DESC`)
-
-            result = await Promise.all(result.map(async (item, i) => {
-
-                if (item.files)
-                    item.files = await CFile.GetById(item.files);
-
-                if (item.from_id)
-                    item.from_id = Number (item.from_id);
-
-                if (item.owner_id)
-                    item.owner_id = Number (item.owner_id);
-
-                return item;
-            }));
-
-            return result[0]*/
 
         } catch (err) {
             console.log(err)
@@ -96,7 +81,7 @@ export class CPost {
     static async Get ( fields ) {
         try {
 
-            let collection = DB.Client.collection('post');
+            let collection = DB.Client.collection('post')
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -107,9 +92,9 @@ export class CPost {
                 $lookup:
                     {
                         from: 'file',
-                        localField: 'image_id',
+                        localField: 'file_ids',
                         foreignField: '_id',
-                        as: '_image_id',
+                        as: '_file_ids',
                         pipeline: [
                             { $lookup:
                                     {
@@ -128,38 +113,45 @@ export class CPost {
                         ]
                     },
             },{
+                $lookup:
+                    {
+                        from: 'user',
+                        localField: 'from_id',
+                        foreignField: '_id',
+                        as: '_from_id',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'photo',
+                                        foreignField: '_id',
+                                        as: '_photo'
+                                    }
+                            },{
+                                $unwind:
+                                    {
+                                        path: '$_photo',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
+                    },
+            },{
                 $unwind:
                     {
-                        path: '$_image_id',
+                        path: '$_from_id',
                         preserveNullAndEmptyArrays: true
                     }
             }]
 
-            /*
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id} ORDER BY id DESC`
-            sql += ` LIMIT $1 OFFSET $2 `
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
-            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
+            if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
 
-            result = await Promise.all(result.map(async (item, i) => {
-                if (item.from_id)
-                    item.from_id = Number (item.from_id);
+            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
+            return result
 
-                if (item.owner_id)
-                    item.owner_id = Number (item.owner_id);
-
-                if (item.create_id)
-                    item.create_id = Number (item.create_id);
-
-                console.log(item.file_ids)
-
-                if (item.file_ids)
-                    item.file_ids = await CFile.GetById(item.file_ids);
-
-                return item;
-            }));
-
-            return result*/
         } catch (err) {
             console.log(err)
             throw ({err: 6003000, msg: 'CPost Get'})
@@ -169,10 +161,26 @@ export class CPost {
     //количество
     static async GetCount ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id}`
-            let result = await DB.Init.Query(sql)
+            let collection = DB.Client.collection('post')
 
-            return Number (result[0].count)
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+
+            let arAggregate = [{
+                $match: {},
+            }]
+
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
+
+            if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+
+            arAggregate.push({
+                $count: 'count'
+            })
+
+            let result = await collection.aggregate(arAggregate).toArray();
+            return result
         } catch (err) {
             console.log(err)
             throw ({err: 6004000, msg: 'CPost GetCount'})
