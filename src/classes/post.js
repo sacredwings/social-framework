@@ -142,6 +142,11 @@ export class CPost {
                         path: '$_from_id',
                         preserveNullAndEmptyArrays: true
                     }
+            },{
+                $sort: {
+                    _id: -1
+                }
+
             }]
 
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
