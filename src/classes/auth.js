@@ -21,7 +21,7 @@ export class CAuth {
             if (!token)
                 throw ({err: 1001003, msg: 'Токен не создан'});
 
-            return {tid: token._id, token: token.token, id: user.id, login: user.login}
+            return {tid: token._id, token: token.token, _id: user._id, login: user.login}
 
         } catch (err) {
             throw ({...{err: 1001000, msg: 'CAuth Login'}, ...err});

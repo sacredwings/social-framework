@@ -4,30 +4,6 @@ import { DB } from "./db";
 
 export class CUser {
 
-    //добавить незарегистрированного пользователя
-    static async AddNoReg ( fields ) {
-        try {
-            if (fields.email)
-                fields.email = fields.email.toLowerCase()
-
-            if (fields.login)
-                fields.login = fields.login.toLowerCase()
-
-            let collection = DB.Client.collection('user_no_reg');
-
-            let result = await collection.insertOne(fields)
-
-            return fields
-
-            //запись
-            //let result = await DB.Init.Insert(`${DB.Init.TablePrefix}user_no_reg`, fields, `ID`)
-            //return result[0]
-        } catch (err) {
-            console.log(err)
-            throw ({err: 7001000, msg: 'CUser AddNoReg'})
-        }
-    }
-
     //добавить пользователя
     static async Add ( fields ) {
         try {
@@ -37,19 +13,40 @@ export class CUser {
             if (fields.login)
                 fields.login = fields.login.toLowerCase()
 
+            //создаем hash код
+            let hash = new Date().toString();
+            hash = crypto.createHash('md5').update(hash).digest("hex");
+
+            //создаем hash пароль
+            const saltRounds = 10;
+            let passwordSalt = await bcrypt.genSalt(saltRounds);
+            fields.password = await bcrypt.hash(fields.password, passwordSalt);
+
+            let arUsers = await this.GetByEmail(fields.email);
+            if (arUsers)
+                throw ({err: 30020001, msg: 'Такой email уже зарегистрирован'});
+
+            arUsers = await this.GetByLogin(fields.login);
+            if (arUsers)
+                throw ({err: 30020001, msg: 'Такой login уже зарегистрирован'});
 
             let collection = DB.Client.collection('user');
 
-            let result = await collection.insertOne(fields)
+            //список
+            let arFields = {
+                login: fields.login,
+                email: fields.email,
+                password: fields.password,
+                first_name: fields.first_name,
+                date_reg: new Date(),
+            }
 
-            return fields
+            let result = await collection.insertOne(arFields)
 
-            //запись
-            //let result = await DB.Init.Insert(`${DB.Init.TablePrefix}user`, fields, `ID`)
-            //return result[0]
+            return arFields
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CUser AddUser'})
+            throw ({...{err: 7001000, msg: 'CUser AddUser'}, ...err})
         }
     }
 
@@ -311,88 +308,6 @@ export class CUser {
         } catch (err) {
             console.log(err)
             throw ({err: 7002000, msg: 'CUser Edit'})
-        }
-    }
-
-    static async Reg ( fields ) {
-        try {
-            //создаем hash код
-            let hash = new Date().toString();
-            hash = crypto.createHash('md5').update(hash).digest("hex");
-
-            //создаем hash пароль
-            const saltRounds = 10;
-            let passwordSalt = await bcrypt.genSalt(saltRounds);
-            fields.password = await bcrypt.hash(fields.password, passwordSalt);
-
-            //почту в нижний регистр
-            fields.email = fields.email.toLowerCase();
-
-            let arUsers = await this.GetByEmail(fields.email);
-            if (arUsers)
-                throw ({err: 30020001, msg: 'Такой email уже зарегистрирован'});
-
-            arUsers = await this.GetByLogin(fields.login);
-            if (arUsers)
-                throw ({err: 30020001, msg: 'Такой login уже зарегистрирован'});
-
-            let arFields = {
-                login: fields.login,
-                email: fields.email,
-                password: fields.password,
-                gender: fields.gender,
-                first_name: fields.first_name,
-                code: hash
-            }
-            await this.AddNoReg(arFields);
-
-            //выводим код для почты
-            return hash
-
-        } catch (err) {
-            console.log(err)
-            throw ({err: 7002000, msg: 'CUser Reg'})
-        }
-    }
-
-    static async RegActivate ( code ) {
-        try {
-            let collection = DB.Client.collection('user_no_reg');
-            let noRegUser = await collection.findOne({code: code})
-            if (!noRegUser)
-                throw ({err: 30030001, msg: 'Заявки не существует'});
-
-            //let noRegUser = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}user_no_reg WHERE code=$1`, [code])
-            //if (!noRegUser.length)
-                //throw ({err: 30030001, msg: 'Заявки не существует'});
-
-            //упрощаем
-            //noRegUser = noRegUser[0]
-
-            let arUsers = await this.GetByEmail(noRegUser.email);
-
-            if (arUsers)
-                throw ({err: 30020001, msg: 'Такой email уже зарегистрирован'});
-
-            arUsers = await this.GetByLogin(noRegUser.login);
-            if (arUsers)
-                throw ({err: 30020001, msg: 'Такой login уже зарегистрирован'});
-
-            //список
-            let arFields = {
-                login: noRegUser.login,
-                email: noRegUser.email,
-                password: noRegUser.password,
-                first_name: noRegUser.first_name,
-                gender: noRegUser.gender
-            }
-            let items = await this.Add ( arFields );
-
-            //здесь создание пользователя
-            return true;
-
-        } catch (err) {
-            throw ({...{err: 30030000, msg: 'Создание запроса на регистрацию нового пользователя'}, ...err});
         }
     }
 
