@@ -149,6 +149,12 @@ export class CAlbum {
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
             //if (fields.album_id) arAggregate[0].$match.album_id = fields.album_id
 
+            arAggregate.push({
+                $sort: {
+                    _id: -1
+                }
+            })
+
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
 

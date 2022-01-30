@@ -181,6 +181,12 @@ export class CArticle {
                 arAggregate[arAggregate.length-2].$lookup.pipeline[0].$match.album_id = fields.album_id
             }
 
+            arAggregate.push({
+                $sort: {
+                    _id: -1
+                }
+            })
+
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
 
