@@ -1,4 +1,5 @@
 import { DB } from "./db";
+import { CUser } from "./user";
 
 export class CAdmin {
 
@@ -12,6 +13,14 @@ export class CAdmin {
                 "second_name":"text",
             })
             console.log(indexUser)
+
+            let arFields = {
+                email: '',
+                login: 'admin',
+                password: '11111111',
+                first_name: 'admin'
+            }
+            let arUser = await CUser.Add ( arFields )
 
             collection = DB.Client.collection('video');
             indexUser = await collection.createIndex({
