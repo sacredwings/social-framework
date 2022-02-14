@@ -185,7 +185,9 @@ export class CPost {
             })
 
             let result = await collection.aggregate(arAggregate).toArray();
-            return result
+            if (!result.length) return 0
+            return result[0].count
+
         } catch (err) {
             console.log(err)
             throw ({err: 6004000, msg: 'CPost GetCount'})
