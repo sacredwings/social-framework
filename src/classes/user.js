@@ -382,6 +382,18 @@ export class CUser {
         }
     }
 
+    static async Count ( fields ) {
+        try {
+            let collection = DB.Client.collection('user');
+
+            let result = await collection.count()
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CUser Count'})
+        }
+    }
     /*
     //количество всех видео
     static async Count ( fields ) {

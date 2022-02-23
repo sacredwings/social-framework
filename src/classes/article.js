@@ -256,13 +256,12 @@ export class CArticle {
         }
     }
 
-    //количество всех видео
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}article`
+            let collection = DB.Client.collection('article');
 
-            let result = await DB.Init.Query(sql)
-            return Number (result[0].count)
+            let result = await collection.count()
+            return result
 
         } catch (err) {
             console.log(err)
@@ -270,6 +269,7 @@ export class CArticle {
         }
     }
 
+    /*
     //пользователи
     static async GetUsers ( items ) {
         try {
@@ -278,7 +278,6 @@ export class CArticle {
             if ((!items) || (!items.length))
                 return []
 
-            /* выгрузка индентификаторов из объектов / пользователей */
             let arUsersId = items.map((item, i) => {
                 return item.from_id
             })
@@ -303,8 +302,8 @@ export class CArticle {
             console.log(err)
             throw ({err: 8001000, msg: 'CArticle GetUsers'})
         }
-    }
-
+    }*/
+/*
     //поиск
     static async Search ( fields ) {
         try {
@@ -342,7 +341,7 @@ export class CArticle {
                 if (item.photo) {
                     item.photo = await CFile.GetById([item.photo]);
                     item.photo = item.photo[0]
-                }*/
+                }
 
                 return item;
             }));
@@ -379,7 +378,7 @@ export class CArticle {
             console.log(err)
             throw ({err: 7001000, msg: 'CArticle SearchCount'})
         }
-    }
+    }*/
 
 
 }

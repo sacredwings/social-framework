@@ -218,13 +218,12 @@ export class CVideo {
         }
     }
 
-    //количество всех видео
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}file WHERE (type='video/mp4') OR (type='video/avi')`
+            let collection = DB.Client.collection('file');
 
-            let result = await DB.Init.Query(sql)
-            return Number (result[0].count)
+            let result = await collection.count()
+            return result
 
         } catch (err) {
             console.log(err)

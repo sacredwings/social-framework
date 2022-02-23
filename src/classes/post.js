@@ -194,13 +194,12 @@ export class CPost {
         }
     }
 
-    //количество всех видео
     static async Count ( fields ) {
         try {
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}post`
+            let collection = DB.Client.collection('post');
 
-            let result = await DB.Init.Query(sql)
-            return Number (result[0].count)
+            let result = await collection.count()
+            return result
 
         } catch (err) {
             console.log(err)
@@ -208,6 +207,7 @@ export class CPost {
         }
     }
 
+    /*
     //пользователи
     static async GetUsers ( items ) {
         try {
@@ -215,7 +215,6 @@ export class CPost {
             if ((!items) || (!items.length))
                 return []
 
-            /* выгрузка индентификаторов из объектов / пользователей */
             let arUsersId = items.map((item, i) => {
                 return item.from_id
             })
@@ -272,7 +271,7 @@ export class CPost {
                 if (item.create_id)
                     item.create_id = Number (item.create_id);
 
-                /* загрузка инфы о файле */
+                /* загрузка инфы о файле
                 if (item.file_ids)
                     item.file_ids = await CFile.GetById(item.file_ids);
 
@@ -312,7 +311,7 @@ export class CPost {
             throw ({err: 7001000, msg: 'CPost SearchCount'})
         }
     }
-
+*/
     //количество / поиск по обсуждениям
     static async Delete ( id ) {
         try {
