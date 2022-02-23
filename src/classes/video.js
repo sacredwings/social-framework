@@ -109,6 +109,7 @@ export class CVideo {
                     }
             }]
 
+            if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
@@ -164,7 +165,6 @@ export class CVideo {
 
             let collection = DB.Client.collection('file');
 
-            console.log(fields)
             let arAggregate = [{
                 $match: {
                     $or: [
@@ -174,6 +174,7 @@ export class CVideo {
                 },
             }]
 
+            if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
@@ -230,7 +231,7 @@ export class CVideo {
             throw ({err: 8001000, msg: 'CVideo Count'})
         }
     }
-
+/*
     //пользователи
     static async GetUsers ( items ) {
         try {
@@ -239,7 +240,6 @@ export class CVideo {
             if ((!items) || (!items.length))
                 return []
 
-            /* выгрузка индентификаторов из объектов / пользователей */
             let arUsersId = items.map((item, i) => {
                 return item.from_id
             })
@@ -265,9 +265,9 @@ export class CVideo {
             throw ({err: 8001000, msg: 'CVideo GetUsers'})
         }
     }
+*/
 
-
-
+/*
     //поиск по обсуждениям
     static async Search ( fields ) {
         try {
@@ -290,7 +290,7 @@ export class CVideo {
             console.log(sql)
 
             result = await Promise.all(result.map(async (item, i) => {
-                /*
+
                 if (item.from_id)
                     item.from_id = Number (item.from_id);
 
@@ -299,8 +299,7 @@ export class CVideo {
 
                 if (item.create_id)
                     item.create_id = Number (item.create_id);
-*/
-                /* загрузка инфы о файле */
+
                 if (item.file_id) {
                     item.file_id = await CFile.GetById([item.file_id]);
                     item.file_id = item.file_id[0]
@@ -316,7 +315,8 @@ export class CVideo {
             throw ({err: 7001000, msg: 'CVideo Search'})
         }
     }
-
+*/
+    /*
     //количество / поиск
     static async SearchCount ( fields ) {
         try {
@@ -342,5 +342,5 @@ export class CVideo {
             console.log(err)
             throw ({err: 7001000, msg: 'CVideo SearchCount'})
         }
-    }
+    }*/
 }

@@ -312,7 +312,7 @@ export class CUser {
     }
 
     //поиск по пользователям
-    static async Search ( fields ) {
+    static async Get ( fields ) {
         try {
             let collection = DB.Client.collection('user');
 
@@ -362,12 +362,12 @@ export class CUser {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CUser Search'})
+            throw ({err: 7001000, msg: 'CUser Get'})
         }
     }
 
     //количество / поиск по пользователям
-    static async SearchCount ( fields ) {
+    static async GetCount ( fields ) {
         try {
             let collection = DB.Client.collection('user');
 
@@ -378,7 +378,7 @@ export class CUser {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CUser SearchCount'})
+            throw ({err: 7001000, msg: 'CUser GetCount'})
         }
     }
 
@@ -396,7 +396,7 @@ export class CUser {
             throw ({err: 8001000, msg: 'CVideo Count'})
         }
     }*/
-
+/*
     //пользователи
     static async GetByField ( items, fieldName ) {
         try {
@@ -406,7 +406,6 @@ export class CUser {
 
             let arUsersId = []
 
-            /* выгрузка индентификаторов из объектов / пользователей */
             items.forEach((item, i) => {
                 if (item[fieldName] > 0)
                     arUsersId.push(item[fieldName])
@@ -464,7 +463,7 @@ export class CUser {
             console.log(err)
             throw ({err: 6005000, msg: 'CUser GetByField'})
         }
-    }
+    }*/
 /*
 static async reset (value) {
     try {

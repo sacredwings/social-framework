@@ -209,7 +209,7 @@ export class CGroup {
             throw ({err: 8001000, msg: 'CGroup Count'})
         }
     }
-
+/*
     //пользователи
     static async GetUsers ( items ) {
         try {
@@ -217,7 +217,7 @@ export class CGroup {
             if ((!items) || (!items.length))
                 return []
 
-            /* выгрузка индентификаторов из объектов / пользователей */
+
             let arUsersId = items.map((item, i) => {
                 return item.create_id
             })
@@ -276,7 +276,7 @@ export class CGroup {
                     user.photo = user.photo[0]
                 }
                 return user
-            }))*/
+            }))
 
             return result
 
@@ -285,7 +285,7 @@ export class CGroup {
             throw ({err: 4005000, msg: 'CGroup GetUsers'})
         }
     }
-
+*/
     static async Update ( id, fields ) {
         try {
             id = new DB().ObjectID(id)
@@ -312,7 +312,7 @@ export class CGroup {
             throw ({err: 4007000, msg: 'CGroup Delete'})
         }
     }
-
+/*
     //поиск по группам
     static async Search ( fields ) {
         try {
@@ -400,7 +400,7 @@ export class CGroup {
             throw ({err: 7001000, msg: 'CGroup SearchCount'})
         }
     }
-
+*/
     //ТРАНЗАКЦИИ ПЛАТЕЖНОЙ СИСТЕМЫ YANDEX
     //добавить новую группу
     static async PayTransactionAdd ( fields ) {
