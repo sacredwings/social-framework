@@ -168,7 +168,7 @@ export class CGroup {
                         }
                 }
 
-            ]).limit(fields.count).skip(fields.offset).toArray();
+            ]).limit(fields.count+fields.offset).skip(fields.offset).toArray();
 
             return result
         } catch (err) {

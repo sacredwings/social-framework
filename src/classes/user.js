@@ -358,7 +358,7 @@ export class CUser {
                 },
             )
 
-            let result = await collection.aggregate(arAggregate).limit(fields.count).skip(fields.offset).toArray()
+            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
             return result
         } catch (err) {
             console.log(err)
