@@ -152,7 +152,7 @@ export class CArticle {
             }]
 
             if (fields.q) arAggregate[0].$match.$text = {}
-            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
+            if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
@@ -215,7 +215,7 @@ export class CArticle {
             }]
 
             if (fields.q) arAggregate[0].$match.$text = {}
-            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
+            if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
