@@ -25,6 +25,7 @@ export class CAdmin {
             */
 
             collection = DB.Client.collection('file')
+            await collection.dropIndex('title_text_text_text')
             indexUser = await collection.createIndex({
                 "title":"text",
                 "text":"text",

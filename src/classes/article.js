@@ -108,6 +108,9 @@ export class CArticle {
     //загрузка
     static async Get ( fields ) {
         try {
+            if (fields.q)
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+
             if (fields.to_group_id)
                 delete fields.to_user_id
 
@@ -201,6 +204,9 @@ export class CArticle {
     //количество
     static async GetCount ( fields ) {
         try {
+            if (fields.q)
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+
             if (fields.to_group_id)
                 delete fields.to_user_id
 
