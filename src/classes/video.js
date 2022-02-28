@@ -78,8 +78,17 @@ export class CVideo {
     //загрузка
     static async Get ( fields ) {
         try {
-            if (fields.q)
-                fields.q = fields.q.replace(/ +/g, ' ').trim();
+            if (fields.q) {
+                fields.q = fields.q.replace(/[^a-zа-яё\s]/gi, '')
+                fields.q = fields.q.replace(/ +/g, ' ').trim()
+
+                let arSearchLike = fields.q.split(' ')
+                let strSearchLike = ''
+                for (let searchLike of arSearchLike) {
+                    strSearchLike += `\"${searchLike}\" `
+                }
+                fields.q = strSearchLike
+            }
 
             if (fields.to_group_id)
                 delete fields.to_user_id
@@ -159,8 +168,17 @@ export class CVideo {
     //количество
     static async GetCount ( fields ) {
         try {
-            if (fields.q)
-                fields.q = fields.q.replace(/ +/g, ' ').trim();
+            if (fields.q) {
+                fields.q = fields.q.replace(/[^a-zа-яё\s]/gi, '')
+                fields.q = fields.q.replace(/ +/g, ' ').trim()
+
+                let arSearchLike = fields.q.split(' ')
+                let strSearchLike = ''
+                for (let searchLike of arSearchLike) {
+                    strSearchLike += `\"${searchLike}\" `
+                }
+                fields.q = strSearchLike
+            }
 
             if (fields.to_group_id)
                 delete fields.to_user_id
