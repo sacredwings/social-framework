@@ -119,34 +119,48 @@ export class CFile {
 
     }
 
-    //загрузка файлов
+//загрузка по id
     static async GetById ( ids ) {
         try {
-            if (!ids)
-                return false
+            ids = new DB().arObjectID(ids)
 
-            ids = ids.join(',');
+            let collection = DB.Client.collection('file');
+            //let result = await collection.find({_id: { $in: ids}}).toArray()
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            _id: {$in: ids}
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'file_id',
+                            foreignField: '_id',
+                            as: '_file_id',
+                        },
 
-            let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id in (${ids})`)
-            result = await Promise.all(result.map(async (item, i) => {
-
-                /* загрузка инфы о файле */
-                if (item.file_id) {
-                    item.file_id = await this.GetById([item.file_id]);
-                    item.file_id = item.file_id[0]
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_file_id',
+                            preserveNullAndEmptyArrays: true
+                        }
                 }
+            ]).toArray();
 
+            result = await Promise.all(result.map(async (item, i) => {
+                if (item.text === null) item.text = ''
 
                 return item;
             }));
 
-            return result;
-
+            return result
         } catch (err) {
             console.log(err)
-            throw ({err: 3002000, msg: 'CFile GetById'})
+            throw ({err: 8001000, msg: 'CFile GetById'})
         }
-
     }
 
     //удаление информации о файле из базы и сам файл
