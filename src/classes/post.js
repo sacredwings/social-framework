@@ -12,6 +12,8 @@ export class CPost {
             if (fields.to_group_id)
                 delete fields.to_user_id
 
+            fields.create_date = new Date()
+
             let collection = DB.Client.collection('post');
 
             let result = await collection.insertOne(fields)
@@ -207,6 +209,24 @@ export class CPost {
         }
     }
 
+    static async Edit(id, fields) {
+        try {
+            id = new DB().ObjectID(id)
+
+            let collection = DB.Client.collection('post');
+            let arFields = {
+                _id: id
+            }
+
+            let result = collection.updateOne(arFields, {$set: fields})
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CPost Edit'})
+        }
+    }
+
     /*
     //пользователи
     static async GetUsers ( items ) {
@@ -315,10 +335,13 @@ export class CPost {
     //количество / поиск по обсуждениям
     static async Delete ( id ) {
         try {
-            //запись
-            let result = await DB.Init.Query(`DELETE FROM sf_post WHERE id = ${id}`)
-            return true
+            id = new DB().ObjectID(id)
 
+            let collection = DB.Client.collection('post');
+
+            let result = collection.deleteOne({_id: id})
+
+            return result
         } catch (err) {
             console.log(err)
             throw ({err: 7001000, msg: 'CPost Delete'})
