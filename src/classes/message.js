@@ -6,8 +6,67 @@ export class CMessage {
     //добавить новое видео
     static async Add( fields ) {
         try {
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}message`, fields, `ID`)
-            return result[0]
+            //обработка полей
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
+            fields.file_ids = new DB().arObjectID(fields.file_ids)
+            fields.date = new Date()
+
+            //сначало само сообщение
+            let collection = DB.Client.collection('message')
+            let arFieldsMessage = {
+                from_id: fields.from_id,
+                to_id: fields.to_id,
+                message: fields.message,
+                type: 'P',
+                file_ids: fields.file_ids,
+                read: null,
+                delete_from: null,
+                delete_to: null,
+                create_date: fields.date,
+                change_date: fields.date
+            }
+            await collection.insertOne(arFieldsMessage)
+
+            //чат
+            collection = DB.Client.collection('chat')
+
+            //поиск чата с этим пользователем
+            let arFields = {
+                user_ids: [
+                    fields.from_id,
+                    fields.to_id
+                ]
+            }
+            let rsSearch = await collection.findOne(arFields)
+
+            //чат существует / обновляем сообщение и дату
+            if (rsSearch) {
+                let arQuery = {
+                    _id: rsSearch._id
+                }
+                let arFields = {
+                    message_id: arFieldsMessage._id,
+                    change_date: fields.date
+                }
+                let result = collection.updateOne(arQuery, {$set: arFields})
+                return arFieldsMessage
+            }
+
+            //чат нужно создать
+            arFields = {
+                user_ids: [
+                    fields.from_id,
+                    fields.to_id
+                ],
+                message_id: arFieldsMessage._id, //id последнего сообщения
+                create_date: fields.date,
+                change_date: fields.date
+            }
+            await collection.insertOne(arFields)
+
+            //последнее сообщение
+            return arFieldsMessage
 
         } catch (err) {
             console.log(err)
@@ -15,6 +74,125 @@ export class CMessage {
         }
     }
 
+    static async GetChat ( fields ) {
+        try {
+            //fields.to_id = new DB().ObjectID(fields.to_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+
+            let collection = DB.Client.collection('chat')
+
+            let Aggregate = [
+                {
+                    $match: {
+                        user_ids: fields.from_id
+                    }
+                },{
+                    $lookup: {
+                        from: 'message',
+                        localField: 'message_id',
+                        foreignField: '_id',
+                        as: '_message_id'
+                    },
+                },{
+                    $lookup: {
+                        from: 'user',
+                        localField: 'user_ids',
+                        foreignField: '_id',
+                        as: '_user_ids'
+                    },
+                },{
+                    $unwind: {
+                        path: '$_message_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ]
+
+            let result = await collection.aggregate(Aggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 5003000, msg: 'CMessage Get'})
+        }
+    }
+
+    static async GetChatCount ( fields ) {
+        try {
+            //let count = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}message WHERE from_id=$1 OR to_id=$1 GROUP BY from_id`
+
+            let count = `SELECT COUNT(*)
+            FROM sf_message
+            WHERE (from_id=$1 OR to_id=$1) AND delete_from IS NOT true
+            GROUP BY to_id, from_id`
+
+            count = await DB.Init.Query(count, [fields.from_id])
+
+            return count.length;
+
+            //let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}message WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 5003000, msg: 'CMessage Count'})
+        }
+    }
+
+    static async GetByUser ( fields ) {
+        try {
+            fields.to_id = new DB().ObjectID(fields.to_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+
+            let collection = DB.Client.collection('message')
+
+            let Aggregate = [
+                {
+                    $match: {
+                        $or: [{
+                            to_id: fields.to_id,
+                            from_id: fields.from_id
+                        },{
+                            to_id: fields.from_id,
+                            from_id: fields.to_id
+                        }],
+                    }
+                },{
+                    $lookup: {
+                        from: 'user',
+                        localField: 'to_id',
+                        foreignField: '_id',
+                        as: '_to_id'
+                    },
+                },{
+                    $lookup: {
+                        from: 'user',
+                        localField: 'from_id',
+                        foreignField: '_id',
+                        as: '_from_id'
+                    },
+                },{
+                    $unwind: {
+                        path: '$_from_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },{
+                    $unwind: {
+                        path: '$_to_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ]
+
+            let result = await collection.aggregate(Aggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 5003000, msg: 'CMessage GetChatUser'})
+        }
+    }
+
+    /*
     //загрузка
     static async GetById ( fields ) {
         try {
@@ -56,7 +234,7 @@ WHERE id=$1 AND (from_id=$2 OR to_id=$2) AND delete_from IS NOT true`
 
             result = await Promise.all(arMessages.map(async (item, i) => {
 
-                /* загрузка инфы о файле */
+
                 if (item.file_ids) {
                     item.file_ids = await CFile.GetById(item.file_ids);
 
@@ -72,7 +250,7 @@ WHERE id=$1 AND (from_id=$2 OR to_id=$2) AND delete_from IS NOT true`
             console.log(err)
             throw ({err: 5002000, msg: 'CMessage GetById'})
         }
-    }
+    }*/
     //загрузка
     static async GetByUserId ( fields ) {
         try {
@@ -148,98 +326,9 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1) AND delete_from IS 
         }
     }
 
-    static async Get ( fields ) {
-        try {
 
-            let sql = `
-            SELECT *
-            FROM
-            sf_message
-            WHERE (from_id, to_id, create_date) in
 
-            (SELECT from_id, to_id, max(create_date)
-            FROM sf_message
-            WHERE (from_id=$1 OR to_id=$1) AND delete_from IS NOT true 
-            GROUP BY to_id, from_id) ORDER BY create_date DESC`
-
-            sql += ` LIMIT $2 OFFSET $3 `
-
-            //запрос
-            let result = await DB.Init.Query(sql, [fields.from_id, fields.count, fields.offset])
-
-            //ОБЪЕДИНЕНИЕ ВХОДЯЩИХ и ИСХОДЯЩИХ сообщений
-            let arMessages = [] //массив сообщений уникальных пользователей
-            let CheckContinue = false; //выйти из цикла до сохранения элемента массива
-
-            //уникальность массива
-            for (let i=0; i < result.length; i++) {
-                CheckContinue = false; //сброс чека / выход из цикла
-
-                //добавление новых полей к массиву
-                let messages = {}
-
-                //добавление новых полей
-                if (Number (result[i].from_id) === fields.from_id) {
-                    messages.user_id = Number (result[i].to_id)
-                    messages.in = false
-                } else {
-                    messages.user_id = Number (result[i].from_id)
-                    messages.in = true
-                }
-
-                //удаление не актуальных полей
-                delete result[i].id
-                delete result[i].from_id
-                delete result[i].to_id
-                delete result[i].delete_from
-                delete result[i].delete_to
-                delete result[i].important
-
-                //проходим по массиву еще раз и ищем такой же
-                for (let j=0; j < arMessages.length; j++) {
-                    if (messages.user_id === arMessages[j].user_id) {
-                        CheckContinue = true
-                        break
-                    }
-                }
-
-                //выходим на следующий круг цикла
-                if (CheckContinue)
-                    continue
-
-                arMessages.push({...result[i], ...messages})
-
-            }
-
-            return arMessages
-
-        } catch (err) {
-            console.log(err)
-            throw ({err: 5003000, msg: 'CMessage Get'})
-        }
-    }
-
-    static async Count ( fields ) {
-        try {
-            //let count = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}message WHERE from_id=$1 OR to_id=$1 GROUP BY from_id`
-
-            let count = `SELECT COUNT(*)
-            FROM sf_message
-            WHERE (from_id=$1 OR to_id=$1) AND delete_from IS NOT true
-            GROUP BY to_id, from_id`
-
-            count = await DB.Init.Query(count, [fields.from_id])
-
-            return count.length;
-
-            //let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}message WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
-
-        } catch (err) {
-            console.log(err)
-            throw ({err: 5003000, msg: 'CMessage Count'})
-        }
-    }
-
+    /*
     //пользователи
     static async GetUsers ( items, all ) {
         try {
@@ -250,7 +339,7 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1) AND delete_from IS 
 
             let arUsersIdAll = [];
 
-            /* выгрузка индентификаторов из объектов / пользователей */
+
             let arUsersId = items.map((item, i) => {
                 arUsersIdAll.push(item.from_id)
                 arUsersIdAll.push(item.to_id)
@@ -284,7 +373,7 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1) AND delete_from IS 
             throw ({err: 8001000, msg: 'CMessage GetUsers'})
         }
     }
-
+*/
     //прочитать все сообщения с пользователем
     static async MarkAsReadAll( fields ) {
         try {

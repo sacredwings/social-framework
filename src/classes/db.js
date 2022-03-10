@@ -23,6 +23,10 @@ export class DB {
 
     arObjectID (arValue) {
         let arResult = []
+
+        //если null
+        if (!arValue) return null
+
         arValue.forEach(function(value, i, arr) {
             if ((value) && (typeof value === 'string'))
                 arResult.push(ObjectId(value))
