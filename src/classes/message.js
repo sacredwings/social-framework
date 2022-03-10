@@ -99,12 +99,33 @@ export class CMessage {
                         from: 'user',
                         localField: 'user_ids',
                         foreignField: '_id',
-                        as: '_user_ids'
+                        as: '_user_ids',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'photo',
+                                        foreignField: '_id',
+                                        as: '_photo'
+                                    }
+                            },
+                            {
+                                $unwind:
+                                    {
+                                        path: '$_photo',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
                     },
                 },{
                     $unwind: {
                         path: '$_message_id',
                         preserveNullAndEmptyArrays: true
+                    }
+                },{
+                    $sort: {
+                        change_date: -1
                     }
                 }
             ]
@@ -162,14 +183,48 @@ export class CMessage {
                         from: 'user',
                         localField: 'to_id',
                         foreignField: '_id',
-                        as: '_to_id'
+                        as: '_to_id',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'photo',
+                                        foreignField: '_id',
+                                        as: '_photo'
+                                    }
+                            },
+                            {
+                                $unwind:
+                                    {
+                                        path: '$_photo',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
                     },
                 },{
                     $lookup: {
                         from: 'user',
                         localField: 'from_id',
                         foreignField: '_id',
-                        as: '_from_id'
+                        as: '_from_id',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'photo',
+                                        foreignField: '_id',
+                                        as: '_photo'
+                                    }
+                            },
+                            {
+                                $unwind:
+                                    {
+                                        path: '$_photo',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
                     },
                 },{
                     $unwind: {
@@ -180,6 +235,10 @@ export class CMessage {
                     $unwind: {
                         path: '$_to_id',
                         preserveNullAndEmptyArrays: true
+                    }
+                },{
+                    $sort: {
+                        _id: -1
                     }
                 }
             ]
