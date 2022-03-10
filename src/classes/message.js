@@ -21,6 +21,7 @@ export class CMessage {
                 type: 'P',
                 file_ids: fields.file_ids,
                 read: null,
+                in: null,
                 delete_from: null,
                 delete_to: null,
                 create_date: fields.date,
