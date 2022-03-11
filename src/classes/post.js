@@ -227,6 +227,21 @@ export class CPost {
         }
     }
 
+    static async Delete ( id ) {
+        try {
+            id = new DB().ObjectID(id)
+
+            let collection = DB.Client.collection('post');
+
+            let result = collection.deleteOne({_id: id})
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 7001000, msg: 'CPost Delete'})
+        }
+    }
+
     /*
     //пользователи
     static async GetUsers ( items ) {
@@ -333,18 +348,5 @@ export class CPost {
     }
 */
     //количество / поиск по обсуждениям
-    static async Delete ( id ) {
-        try {
-            id = new DB().ObjectID(id)
 
-            let collection = DB.Client.collection('post');
-
-            let result = collection.deleteOne({_id: id})
-
-            return result
-        } catch (err) {
-            console.log(err)
-            throw ({err: 7001000, msg: 'CPost Delete'})
-        }
-    }
 }

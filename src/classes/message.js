@@ -172,10 +172,12 @@ export class CMessage {
                     $match: {
                         $or: [{
                             to_id: fields.to_id,
-                            from_id: fields.from_id
+                            from_id: fields.from_id,
+                            delete_from: null
                         },{
                             to_id: fields.from_id,
-                            from_id: fields.to_id
+                            from_id: fields.to_id,
+                            delete_to: null
                         }],
                     }
                 },{
@@ -252,6 +254,131 @@ export class CMessage {
         }
     }
 
+    //загрузка по id
+    static async GetById ( ids ) {
+        try {
+            ids = new DB().arObjectID(ids)
+
+            let collection = DB.Client.collection('message')
+
+            let Aggregate = [
+                {
+                    $match: {
+                        _id: {$in: ids}
+                    }
+                },{
+                    $lookup: {
+                        from: 'user',
+                        localField: 'to_id',
+                        foreignField: '_id',
+                        as: '_to_id',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'photo',
+                                        foreignField: '_id',
+                                        as: '_photo'
+                                    }
+                            },
+                            {
+                                $unwind:
+                                    {
+                                        path: '$_photo',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
+                    },
+                },{
+                    $lookup: {
+                        from: 'user',
+                        localField: 'from_id',
+                        foreignField: '_id',
+                        as: '_from_id',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'photo',
+                                        foreignField: '_id',
+                                        as: '_photo'
+                                    }
+                            },
+                            {
+                                $unwind:
+                                    {
+                                        path: '$_photo',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
+                    },
+                },{
+                    $unwind: {
+                        path: '$_from_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },{
+                    $unwind: {
+                        path: '$_to_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },{
+                    $sort: {
+                        _id: -1
+                    }
+                }
+            ]
+
+            let result = await collection.aggregate(Aggregate).toArray()
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 6002000, msg: 'CMessage GetById'})
+        }
+    }
+
+    static async Delete ( id, myUserId ) {
+        try {
+            id = new DB().ObjectID(id)
+
+            let arResult = await this.GetById([id])
+            if (!arResult.length)
+                return false
+
+            arResult = arResult[0]
+
+            let collection = DB.Client.collection('message')
+
+            let arQuery = {
+                _id: id
+            }
+            let arFields = {}
+
+            if (arResult.from_id.toString() === myUserId.toString())
+                arFields.delete_from = true
+            else
+                arFields.delete_to = true
+
+            let result = collection.updateOne(arQuery, {$set: arFields})
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 7001000, msg: 'CMessage Delete'})
+        }
+    }
+
+/*
+    let collection = DB.Client.collection('post');
+    let arFields = {
+        _id: id
+    }
+
+    let result = collection.updateOne(arFields, {$set: fields})
+    */
     /*
     //загрузка
     static async GetById ( fields ) {
@@ -471,6 +598,7 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1) AND delete_from IS 
         }
     }
 
+    /*
     //удалить выбранные сообщения
     static async Delete( fields ) {
         try {
@@ -482,5 +610,5 @@ WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1) AND delete_from IS 
             console.log(err)
             throw ({err: 5005000, msg: 'CMessage Add'})
         }
-    }
+    }*/
 }
