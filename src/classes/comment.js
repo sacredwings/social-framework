@@ -6,46 +6,110 @@ export class CComment {
     //новый комментарий
     static async Add ( fields ) {
         try {
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}comment`, fields, `ID`)
-            return result[0]
+            //обработка полей
+            fields.object_id = new DB().ObjectID(fields.object_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.file_ids = new DB().arObjectID(fields.file_ids)
+            fields.create_date = new Date()
+            fields.change_date = new Date()
+
+            //сначало само сообщение
+            let collection = DB.Client.collection('comment')
+            let arFieldsMessage = {
+                module: fields.module,
+                object_id: fields.object_id,
+                from_id: fields.from_id,
+                text: fields.text,
+                file_ids: fields.file_ids,
+                comment_id: fields.comment_id,
+                create_date: fields.create_date,
+                change_date: fields.change_date
+            }
+            await collection.insertOne(arFieldsMessage)
+
         } catch (err) {
             console.log(err)
             throw ({err: 2001000, msg: 'CComment Add'})
         }
     }
 
-    //загрузка списка
     static async Get ( fields ) {
         try {
+            fields.object_id = new DB().ObjectID(fields.object_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.comment_id = new DB().ObjectID(fields.comment_id)
 
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}comment WHERE module=$1 AND object_id=$2 ORDER BY id DESC`
-            sql += ` LIMIT $3 OFFSET $4 `
+            let collection = DB.Client.collection('comment')
 
-            let result = await DB.Init.Query(sql, [fields.module, fields.object_id, fields.count, fields.offset])
+            let Aggregate = [
+                {
+                    $match: {
+                        module: fields.module,
+                        object_id: fields.object_id,
+                        from_id: fields.from_id
+                    }
+                },{
+                    $lookup: {
+                        from: 'user',
+                        localField: 'from_id',
+                        foreignField: '_id',
+                        as: '_from_id',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'photo',
+                                        foreignField: '_id',
+                                        as: '_photo'
+                                    }
+                            },
+                            {
+                                $unwind:
+                                    {
+                                        path: '$_photo',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
+                    },
+                },{
+                    $lookup: {
+                        from: 'file',
+                        localField: 'file_ids',
+                        foreignField: '_id',
+                        as: '_file_ids',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'photo',
+                                        foreignField: '_id',
+                                        as: '_photo'
+                                    }
+                            },
+                            {
+                                $unwind:
+                                    {
+                                        path: '$_photo',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
+                    },
+                },{
+                    $unwind: {
+                        path: '$_from_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ]
 
-            result = await Promise.all(result.map(async (item, i) => {
-
-                if (item.from_id)
-                    item.from_id = Number (item.from_id);
-
-                if (item.object_id)
-                    item.object_id = Number (item.object_id);
-
-                if (item.create_id)
-                    item.create_id = Number (item.create_id);
-
-                /* загрузка инфы о файле */
-                if (item.file_ids)
-                    item.file_ids = await CFile.GetById(item.file_ids);
-
-                return item;
-            }));
-
+            let result = await collection.aggregate(Aggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
             return result
 
         } catch (err) {
             console.log(err)
-            throw ({err: 2002000, msg: 'CComment Get'})
+            throw ({err: 5003000, msg: 'CMessage GetChatUser'})
         }
     }
 

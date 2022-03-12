@@ -21,7 +21,6 @@ export class CMessage {
                 type: 'P',
                 file_ids: fields.file_ids,
                 read: null,
-                in: null,
                 delete_from: null,
                 delete_to: null,
                 create_date: fields.date,
@@ -77,7 +76,6 @@ export class CMessage {
 
     static async GetChat ( fields ) {
         try {
-            //fields.to_id = new DB().ObjectID(fields.to_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
             let collection = DB.Client.collection('chat')
