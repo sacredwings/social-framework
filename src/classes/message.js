@@ -139,18 +139,23 @@ export class CMessage {
 
     static async GetChatCount ( fields ) {
         try {
-            //let count = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}message WHERE from_id=$1 OR to_id=$1 GROUP BY from_id`
+            fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let count = `SELECT COUNT(*)
-            FROM sf_message
-            WHERE (from_id=$1 OR to_id=$1) AND delete_from IS NOT true
-            GROUP BY to_id, from_id`
+            let collection = DB.Client.collection('chat')
 
-            count = await DB.Init.Query(count, [fields.from_id])
+            let Aggregate = [
+                {
+                    $match: {
+                        user_ids: fields.from_id
+                    }
+                },{
+                    $count: 'count'
+                }
+            ]
 
-            return count.length;
-
-            //let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}message WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)`
+            let result = await collection.aggregate(Aggregate).toArray();
+            if (!result.length) return 0
+            return result[0].count
 
         } catch (err) {
             console.log(err)
@@ -245,6 +250,41 @@ export class CMessage {
 
             let result = await collection.aggregate(Aggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
             return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 5003000, msg: 'CMessage GetChatUser'})
+        }
+    }
+
+    static async GetByUserCount ( fields ) {
+        try {
+            fields.to_id = new DB().ObjectID(fields.to_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+
+            let collection = DB.Client.collection('message')
+
+            let Aggregate = [
+                {
+                    $match: {
+                        $or: [{
+                            to_id: fields.to_id,
+                            from_id: fields.from_id,
+                            delete_from: null
+                        },{
+                            to_id: fields.from_id,
+                            from_id: fields.to_id,
+                            delete_to: null
+                        }],
+                    }
+                },{
+                    $count: 'count'
+                }
+            ]
+
+            let result = await collection.aggregate(Aggregate).toArray();
+            if (!result.length) return 0
+            return result[0].count
 
         } catch (err) {
             console.log(err)
