@@ -409,202 +409,29 @@ export class CMessage {
         }
     }
 
-/*
-    let collection = DB.Client.collection('post');
-    let arFields = {
-        _id: id
-    }
-
-    let result = collection.updateOne(arFields, {$set: fields})
-    */
-    /*
-    //загрузка
-    static async GetById ( fields ) {
-        try {
-
-            let sql = `SELECT *
-FROM ${DB.Init.TablePrefix}message
-WHERE id=$1 AND (from_id=$2 OR to_id=$2) AND delete_from IS NOT true`
-
-            let result = await DB.Init.Query(sql, [fields.id, fields.from_id])
-
-            let arMessages = [] //массив сообщений уникальных пользователей
-
-            //уникальность массива
-            for (let i=0; i < result.length; i++) {
-
-                //добавление новых полей к массиву
-                let messages = {}
-
-                //добавление новых полей
-                if (Number (result[i].from_id) === fields.from_id) {
-                    messages.user_id = Number (result[i].to_id)
-                    messages.in = false
-                } else {
-                    messages.user_id = Number (result[i].from_id)
-                    messages.in = true
-                }
-
-                messages.from_id = Number(result[i].from_id)
-                messages.to_id = Number(result[i].to_id)
-
-                //удаление не актуальных полей
-                //delete result[i].id
-                //delete result[i].from_id
-                //delete result[i].to_id
-
-                arMessages.push({...result[i], ...messages})
-
-            }
-
-            result = await Promise.all(arMessages.map(async (item, i) => {
-
-
-                if (item.file_ids) {
-                    item.file_ids = await CFile.GetById(item.file_ids);
-
-                    if (item.file_ids.file_id)
-                        item.file_ids.file_id = await CFile.GetById(item.file_ids.file_id);
-                }
-
-                return item;
-            }));
-
-            return result
-        } catch (err) {
-            console.log(err)
-            throw ({err: 5002000, msg: 'CMessage GetById'})
-        }
-    }*/
-    //загрузка
-    static async GetByUserId ( fields ) {
-        try {
-
-            let sql = `SELECT *
-FROM ${DB.Init.TablePrefix}message
-WHERE ((from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1)) AND delete_from IS NOT true ORDER BY id DESC`
-            sql += ` LIMIT $3 OFFSET $4 `
-
-            let result = await DB.Init.Query(sql, [fields.from_id, fields.to_id, fields.count, fields.offset])
-
-            let arMessages = [] //массив сообщений уникальных пользователей
-
-            //уникальность массива
-            for (let i=0; i < result.length; i++) {
-
-                //добавление новых полей к массиву
-                let messages = {}
-
-                //добавление новых полей
-                if (Number (result[i].from_id) === fields.from_id) {
-                    messages.user_id = Number (result[i].to_id)
-                    messages.in = false
-                } else {
-                    messages.user_id = Number (result[i].from_id)
-                    messages.in = true
-                }
-
-                messages.from_id = Number(result[i].from_id)
-                messages.to_id = Number(result[i].to_id)
-
-                //удаление не актуальных полей
-                //delete result[i].id
-                //delete result[i].from_id
-                //delete result[i].to_id
-
-                arMessages.push({...result[i], ...messages})
-
-            }
-
-            result = await Promise.all(arMessages.map(async (item, i) => {
-
-                /* загрузка инфы о файле */
-                if (item.file_ids) {
-                    item.file_ids = await CFile.GetById(item.file_ids);
-
-                    if (item.file_ids.file_id)
-                        item.file_ids.file_id = await CFile.GetById(item.file_ids.file_id);
-                }
-
-                return item;
-            }));
-
-            return result
-        } catch (err) {
-            console.log(err)
-            throw ({err: 5002000, msg: 'CMessage GetByUserId'})
-        }
-    }
-
-    static async CountGetByUserId ( fields ) {
-        try {
-            let count = `SELECT COUNT(*)
-FROM ${DB.Init.TablePrefix}message
-WHERE (from_id=$1 AND to_id=$2) OR (from_id=$2 AND to_id=$1) AND delete_from IS NOT true`
-
-            count = await DB.Init.Query(count, [fields.from_id, fields.to_id])
-
-            return Number (count[0].count)
-        } catch (err) {
-            console.log(err)
-            throw ({err: 5003000, msg: 'CMessage CountGetByUserId'})
-        }
-    }
-
-
-
-    /*
-    //пользователи
-    static async GetUsers ( items, all ) {
-        try {
-
-            //нет массива для обработки
-            if ((!items) || (!items.length))
-                return []
-
-            let arUsersIdAll = [];
-
-
-            let arUsersId = items.map((item, i) => {
-                arUsersIdAll.push(item.from_id)
-                arUsersIdAll.push(item.to_id)
-                return item.user_id
-            })
-
-            let arUsers = [];
-            //удаление одинаковых id из массива
-            if (all) {
-                arUsers = Array.from(new Set(arUsersIdAll))
-            } else {
-                arUsers = Array.from(new Set(arUsersId))
-            }
-
-
-            let sql = `SELECT id,login,first_name,create_date,birthday,photo FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsers})`
-            arUsers = await DB.Init.Query(sql)
-
-            arUsers = await Promise.all(arUsers.map(async (user, i)=>{
-                if (user.photo) {
-                    user.photo = await CFile.GetById([user.photo]);
-                    user.photo = user.photo[0]
-                }
-                return user
-            }))
-
-            return arUsers
-
-        } catch (err) {
-            console.log(err)
-            throw ({err: 8001000, msg: 'CMessage GetUsers'})
-        }
-    }
-*/
     //прочитать все сообщения с пользователем
-    static async MarkAsReadAll( fields ) {
+    static async ReadAll( fields ) {
         try {
-            let sql = `UPDATE ${DB.Init.TablePrefix}message SET read = true WHERE from_id=${fields.from_id} AND to_id=${fields.to_id} AND id < ${fields.start_id}`
-            console.log(sql)
-            let result = await DB.Init.Query(sql)
+            fields.to_id = new DB().ObjectID(fields.to_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+
+            let collection = DB.Client.collection('message')
+
+            let arQuery = {
+                to_id: fields.from_id,
+                from_id: fields.to_id
+            }
+            /*
+            let arQuery = {
+                to_id: fields.to_id,
+                from_id: fields.from_id
+            }*/
+            let arFields = {
+                read: true
+            }
+
+            let result = collection.update(arQuery, {$set: arFields})
+            return result
 
         } catch (err) {
             console.log(err)
