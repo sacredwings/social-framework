@@ -292,6 +292,33 @@ export class CMessage {
         }
     }
 
+    static async CountNoRead ( fields ) {
+        try {
+            fields.user_id = new DB().ObjectID(fields.user_id)
+
+            let collection = DB.Client.collection('message')
+
+            let Aggregate = [
+                {
+                    $match: {
+                        to_id: fields.user_id,
+                        read: null
+                    }
+                },{
+                    $count: 'count'
+                }
+            ]
+
+            let result = await collection.aggregate(Aggregate).toArray();
+            if (!result.length) return 0
+            return result[0].count
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 5003000, msg: 'CMessage CountNoRead'})
+        }
+    }
+
     //загрузка по id
     static async GetById ( ids ) {
         try {

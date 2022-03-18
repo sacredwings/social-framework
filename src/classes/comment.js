@@ -82,7 +82,7 @@ export class CComment {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6002000, msg: 'CMessage GetById'})
+            throw ({err: 6002000, msg: 'CComment GetById'})
         }
     }
     static async Get ( fields ) {
@@ -159,7 +159,7 @@ export class CComment {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5003000, msg: 'CMessage GetChatUser'})
+            throw ({err: 5003000, msg: 'CComment GetChatUser'})
         }
     }
 
@@ -200,7 +200,7 @@ export class CComment {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CMessage Delete'})
+            throw ({err: 7001000, msg: 'CComment Delete'})
         }
     }
 
