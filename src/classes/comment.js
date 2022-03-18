@@ -32,11 +32,62 @@ export class CComment {
             throw ({err: 2001000, msg: 'CComment Add'})
         }
     }
+    //загрузка по id
+    static async GetById ( ids ) {
+        try {
+            ids = new DB().arObjectID(ids)
 
+            let collection = DB.Client.collection('comment');
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            _id: {$in: ids}
+                        }
+                },
+                { $lookup:
+                        {
+                            from: 'file',
+                            localField: 'file_ids',
+                            foreignField: '_id',
+                            as: '_file_ids',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_file_ids',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }
+            ]).toArray();
+
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 6002000, msg: 'CMessage GetById'})
+        }
+    }
     static async Get ( fields ) {
         try {
             fields.object_id = new DB().ObjectID(fields.object_id)
-            fields.from_id = new DB().ObjectID(fields.from_id)
             fields.comment_id = new DB().ObjectID(fields.comment_id)
 
             let collection = DB.Client.collection('comment')
@@ -45,8 +96,7 @@ export class CComment {
                 {
                     $match: {
                         module: fields.module,
-                        object_id: fields.object_id,
-                        from_id: fields.from_id
+                        object_id: fields.object_id
                     }
                 },{
                     $lookup: {
@@ -113,53 +163,45 @@ export class CComment {
         }
     }
 
-    //количество
     static async Count ( fields ) {
         try {
+            fields.object_id = new DB().ObjectID(fields.object_id)
 
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}comment WHERE module=$1 AND object_id=$2`
-            let result = await DB.Init.Query(sql, [fields.module, fields.object_id])
+            let collection = DB.Client.collection('comment')
 
-            return Number (result[0].count)
-
-        } catch (err) {
-            console.log(err)
-            throw ({err: 2003000, msg: 'CComment Count'})
-        }
-    }
-
-    //пользователи
-    static async GetUsers ( items ) {
-        try {
-
-            //нет массива для обработки
-            if ((!items) || (!items.length))
-                return []
-
-            /* выгрузка индентификаторов из объектов / пользователей */
-            let arUsersId = items.map((item, i) => {
-                return item.from_id
-            })
-
-            //удаление одинаковых id из массива
-            arUsersId = Array.from(new Set(arUsersId))
-
-            let sql = `SELECT id,login,first_name,create_date,birthday,photo FROM ${DB.Init.TablePrefix}user WHERE id in (${arUsersId})`
-            let users = await DB.Init.Query(sql)
-
-            users = await Promise.all(users.map(async (user, i)=>{
-                if (user.photo) {
-                    user.photo = await CFile.GetById([user.photo]);
-                    user.photo = user.photo[0]
+            let Aggregate = [
+                {
+                    $match: {
+                        module: fields.module,
+                        object_id: fields.object_id
+                    }
+                },{
+                    $count: 'count'
                 }
-                return user
-            }))
+            ]
 
-            return users
+            let result = await collection.aggregate(Aggregate).toArray();
+            if (!result.length) return 0
+            return result[0].count
 
         } catch (err) {
             console.log(err)
-            throw ({err: 2004000, msg: 'CComment GetUsers'})
+            throw ({err: 5003000, msg: 'CComment Count'})
         }
     }
+    static async Delete ( id ) {
+        try {
+            id = new DB().ObjectID(id)
+
+            let collection = DB.Client.collection('comment');
+
+            let result = collection.deleteOne({_id: id})
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 7001000, msg: 'CMessage Delete'})
+        }
+    }
+
 }
