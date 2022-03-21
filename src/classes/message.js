@@ -231,6 +231,30 @@ export class CMessage {
                             }
                         ]
                     },
+                },{ $lookup:
+                        {
+                            from: 'file',
+                            localField: 'file_ids',
+                            foreignField: '_id',
+                            as: '_file_ids',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        },
                 },{
                     $unwind: {
                         path: '$_from_id',
