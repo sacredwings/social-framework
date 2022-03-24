@@ -224,7 +224,7 @@ export class CVideo {
                             preserveNullAndEmptyArrays: false
                         }
                 })
-                arAggregate[1].$lookup.pipeline[0].$match.album_id = fields.album_id
+                arAggregate[arAggregate.length-2].$lookup.pipeline[0].$match.album_id = fields.album_id
             }
 
             arAggregate.push({
