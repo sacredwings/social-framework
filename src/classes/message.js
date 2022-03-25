@@ -490,6 +490,24 @@ export class CMessage {
         }
     }
 
+    static async Edit(id, fields) {
+        try {
+            id = new DB().ObjectID(id)
+
+            let collection = DB.Client.collection('message');
+            let arFields = {
+                _id: id
+            }
+
+            let result = collection.updateOne(arFields, {$set: fields})
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CMessage Edit'})
+        }
+    }
+    /*
     //прочитать выбранные сообщения
     static async MarkAsRead( fields ) {
         try {
@@ -513,7 +531,7 @@ export class CMessage {
             throw ({err: 5005000, msg: 'CMessage DeleteAll'})
         }
     }
-
+*/
     /*
     //удалить выбранные сообщения
     static async Delete( fields ) {
