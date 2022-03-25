@@ -189,6 +189,23 @@ export class CComment {
             throw ({err: 5003000, msg: 'CComment Count'})
         }
     }
+    static async Edit(id, fields) {
+        try {
+            id = new DB().ObjectID(id)
+
+            let collection = DB.Client.collection('comment');
+            let arFields = {
+                _id: id
+            }
+
+            let result = collection.updateOne(arFields, {$set: fields})
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 8001000, msg: 'CComment Edit'})
+        }
+    }
     static async Delete ( id ) {
         try {
             id = new DB().ObjectID(id)
