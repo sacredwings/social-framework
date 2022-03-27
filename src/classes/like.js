@@ -2,34 +2,150 @@ import { DB } from "./db";
 
 export class CLike {
 
+    //новый комментарий
     static async Add ( fields ) {
         try {
-            fields.like = false
-            if (fields.like)
-                fields.like = true
+            let collection = DB.Client.collection('like')
 
-            //запись
-            let result = await DB.Init.Insert(`${DB.Init.TablePrefix}like`, fields, `ID`)
-            return result[0]
+            let dislike = null
+            if (fields.dislike)
+                dislike = true
+
+            //обработка полей
+            fields.object_id = new DB().ObjectID(fields.object_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.create_date = new Date()
+
+            console.log(fields)
+
+            let arFields = {
+                object_id: fields.object_id,
+                from_id: fields.from_id,
+            }
+
+            console.log(arFields)
+
+            let rsLike = await this.GetByUser(arFields)
+            console.log(rsLike)
+            if (!rsLike) {
+                //записи нет /создаем
+                arFields = {
+                    object_id: fields.object_id,
+                    from_id: fields.from_id,
+                    dislike: dislike,
+                    create_date: fields.create_date,
+                }
+                await collection.insertOne(arFields)
+
+                return true
+            }
+
+            //есть запись
+            if (rsLike.dislike) { //стоит дизлайк
+
+                if (fields.dislike) //нужен дизлайк
+                    await collection.deleteOne({_id: rsLike._id}) //удаляем дизлайк
+                else
+                    await collection.updateOne({_id: rsLike._id}, {$set: {dislike: null}}) //изменили на лайк
+
+            } else { //стоит лайк
+
+                if (fields.dislike) //нужен дизлайк
+                    await collection.updateOne({_id: rsLike._id}, {$set: {dislike: true}}) //изменили на лайк
+                else
+                    await collection.deleteOne({_id: rsLike._id}) //удаляем лайк
+
+            }
+
+            return true
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CLike Add'})
+            throw ({err: 2001000, msg: 'CLike Add'})
         }
     }
+
+    /*
+    static async Get ( fields ) {
+        try {
+            fields.object_id = new DB().ObjectID(fields.object_id)
+            //fields.from_id = new DB().ObjectID(fields.from_id)
+
+            let collection = DB.Client.collection('like')
+            let arFields = {
+                object_id: fields.object_id
+            }
+            let result = await collection.findOne(arFields)
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4003000, msg: 'CLike Get'})
+        }
+    }
+    */
 
     static async Count ( fields ) {
         try {
-            fields.like = false
-            if (fields.like)
-                fields.like = true
+            let dislike = null
+            if (fields.dislike)
+                dislike = true
+            fields.object_id = new DB().ObjectID(fields.object_id)
+            //fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}like WHERE module=${fields.module} AND object_id=${fields.object_id} AND dislike=${fields.like}`
-            let result = await DB.Init.Query(sql)
+            let collection = DB.Client.collection('like')
+            let arFields = {
+                object_id: fields.object_id,
+                dislike: dislike,
+            }
+            let result = await collection.count(arFields)
+            return result
 
-            return Number (result[0].count)
         } catch (err) {
             console.log(err)
-            throw ({err: 4003000, msg: 'CLike Count'})
+            throw ({err: 4003000, msg: 'CLike Get'})
         }
     }
+
+    static async GetByUser ( fields ) {
+        try {
+            fields.object_id = new DB().ObjectID(fields.object_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+
+            let collection = DB.Client.collection('like')
+            let arFields = {
+                from_id: fields.from_id,
+                object_id: fields.object_id,
+            }
+            let result = await collection.findOne(arFields)
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4003000, msg: 'CLike GetByUser'})
+        }
+    }
+
+    /*
+    static async GetByUserLike ( fields ) {
+        try {
+            let dislike = null
+            if (fields.dislike)
+                dislike = true
+            fields.object_id = new DB().ObjectID(fields.object_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+
+            let collection = DB.Client.collection('like')
+            let arFields = {
+                from_id: fields.from_id,
+                object_id: fields.object_id,
+                dislike: dislike,
+            }
+            let result = await collection.findOne(arFields)
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4003000, msg: 'CLike GetByUserLike'})
+        }
+    }*/
 }
