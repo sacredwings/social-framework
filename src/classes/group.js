@@ -465,10 +465,10 @@ export class CGroup {
                 user_id: fields.user_id,
                 group_id: fields.group_id
             }
-            let getResult = await this.PayGet (fields)
+            let getResult = await this.PayGet (arFields)
 
             arFields.actual = true
-            let getResultActual = await this.PayGet (fields)
+            let getResultActual = await this.PayGet (arFields)
 
             console.log('+++++++++++++++++++++++')
             console.log(getResult)
