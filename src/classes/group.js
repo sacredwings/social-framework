@@ -470,6 +470,9 @@ export class CGroup {
             arFields.actual = true
             let getResultActual = await this.PayGet (fields)
 
+            console.log('+++++++++++++++++++++++')
+            console.log(getResult)
+            console.log(getResultActual)
             //сколько дней оплаты
             let dateDay = new Date()
             let newDateDay = Day(fields.day)
