@@ -471,17 +471,47 @@ export class CGroup {
             let getResultActual = await this.PayGet (fields)
 
             //сколько дней оплаты
-            let dateDay = new Date();
-            let newDateDay = Day(30)
+            let dateDay = new Date()
+            let newDateDay = Day(fields.day)
 
             let arSearch = {
                 user_id: fields.user_id,
                 group_id: fields.group_id
             }
+
+            //еще действует оплата
+            if (getResultActual) {
+                arFields = {
+                    date_pay: Day(fields.day, getResultActual.date_pay),
+                    transaction_id: fields.transaction_id,
+                    price: fields.price,
+                    change_date: new Date()
+                    //date_create: new Date()
+                }
+                let result = collection.updateOne(arSearch, {$set: arFields}, {upsert: true})
+
+                return true
+            }
+
+            //оплата устарела
+            if (getResult) {
+                arFields = {
+                    date_pay: Day(fields.day),
+                    transaction_id: fields.transaction_id,
+                    price: fields.price,
+                    change_date: new Date()
+                }
+                let result = collection.updateOne(arSearch, {$set: arFields}, {upsert: true})
+
+                return true
+            }
+
+            //новая оплата
             arFields = {
                 date_pay: newDateDay,
                 transaction_id: fields.transaction_id,
                 price: fields.price,
+                change_date: new Date(),
                 date_create: new Date()
             }
             let result = collection.updateOne(arSearch, {$set: arFields}, {upsert: true})
@@ -623,8 +653,8 @@ export class CGroup {
     }*/
 }
 
-function Day(day) {
-    let date = new Date(); // Now
+function Day(day, startDate=null) {
+    let date = new Date(startDate); // Now
     date.setDate(date.getDate() + day); // Set now + 30 days as the new date
 
     return date
