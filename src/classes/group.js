@@ -496,7 +496,7 @@ export class CGroup {
             //оплата устарела
             if (getResult) {
                 arFields = {
-                    date_pay: Day(fields.day),
+                    date_pay: Day(fields.day, dateDay),
                     transaction_id: fields.transaction_id,
                     price: fields.price,
                     change_date: new Date()
