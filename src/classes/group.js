@@ -470,9 +470,6 @@ export class CGroup {
             arFields.actual = true
             let getResultActual = await this.PayGet (arFields)
 
-            console.log('+++++++++++++++++++++++')
-            console.log(getResult)
-            console.log(getResultActual)
             //сколько дней оплаты
             let dateDay = new Date()
             let newDateDay = Day(fields.day)
@@ -484,7 +481,6 @@ export class CGroup {
 
             //еще действует оплата
             if (getResultActual) {
-                console.log('Оплата актуальна')
                 arFields = {
                     date_pay: Day(fields.day, getResultActual.date_pay),
                     transaction_id: fields.transaction_id,
@@ -499,7 +495,6 @@ export class CGroup {
 
             //оплата устарела
             if (getResult) {
-                console.log('Оплата устарела')
                 arFields = {
                     date_pay: Day(fields.day, dateDay),
                     transaction_id: fields.transaction_id,
@@ -511,7 +506,6 @@ export class CGroup {
                 return true
             }
 
-            console.log('Оплаты еще не было')
             //новая оплата
             arFields = {
                 date_pay: newDateDay,
