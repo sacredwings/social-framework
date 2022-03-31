@@ -96,13 +96,16 @@ export class CGroup {
             fields.user_id = new DB().ObjectID(fields.user_id)
 
             let collection = DB.Client.collection('group');
-            //let result = await collection.find({_id: { $in: ids}}).toArray()
-            let result = await collection.aggregate([
-                { $match:
-                        {
-                            create_id: fields.user_id
-                        }
-                },
+
+            let arAggregate = []
+
+            if (fields.user_id)
+                arAggregate.push({ $match: {
+                        create_id: fields.user_id
+                    }
+                })
+
+            arAggregate.push(
                 { $lookup:
                         {
                             from: 'file',
@@ -127,7 +130,8 @@ export class CGroup {
                                 }
                             ]
                         },
-                },
+                })
+            arAggregate.push(
                 { $lookup:
                         {
                             from: 'file',
@@ -152,23 +156,26 @@ export class CGroup {
                                 }
                             ]
                         },
-                },
+                })
+            arAggregate.push(
                 {
                     $unwind:
                         {
                             path: '$_photo',
                             preserveNullAndEmptyArrays: true
                         }
-                },
+                })
+            arAggregate.push(
                 {
                     $unwind:
                         {
                             path: '$_photo_big',
                             preserveNullAndEmptyArrays: true
                         }
-                }
+                })
 
-            ]).limit(fields.count+fields.offset).skip(fields.offset).toArray();
+            //let result = await collection.find({_id: { $in: ids}}).toArray()
+            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
 
             return result
         } catch (err) {
@@ -183,14 +190,14 @@ export class CGroup {
             fields.user_id = new DB().ObjectID(fields.user_id)
             let collection = DB.Client.collection('group');
 
-            //let result = await collection.find({_id: { $in: ids}}).toArray()
-            let result = await collection.count(
-                {
-                    create_id: fields.user_id
-                }
-            )
+            if (fields.user_id)
+                return await collection.count(
+                    {
+                        create_id: fields.user_id
+                    }
+                )
 
-            return result
+            return await collection.count()
         } catch (err) {
             console.log(err)
             throw ({err: 4004000, msg: 'CGroup GetCount'})
