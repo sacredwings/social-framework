@@ -15,10 +15,15 @@ export class DB {
     }
 
     ObjectID (value) {
-        if ((value) && (typeof value === 'string'))
+        //строка 24 символа
+        if ((value) && (typeof value === 'string') && (value.length === 24))
             return ObjectId(value)
 
-        return value
+        //уже объект
+        if ((value) && (typeof value === 'object'))
+            return value
+
+        return null
     }
 
     arObjectID (arValue) {
@@ -28,11 +33,14 @@ export class DB {
         if (!arValue) return null
 
         arValue.forEach(function(value, i, arr) {
-            if ((value) && (typeof value === 'string'))
+            if ((value) && (typeof value === 'string') && (value.length === 24))
                 arResult.push(ObjectId(value))
 
             if ((value) && (typeof value === 'object'))
                 arResult.push(value)
+
+            if (!value)
+                arResult.push(null)
         });
 
         if (arResult.length) return arResult
