@@ -254,6 +254,21 @@ export class CVideo {
             throw ({err: 8001000, msg: 'CVideo Count'})
         }
     }
+
+    static async Delete ( id ) {
+        try {
+            id = new DB().ObjectID(id)
+
+            let collection = DB.Client.collection('file');
+
+            let result = collection.deleteOne({_id: id})
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({err: 7001000, msg: 'CVideo Delete'})
+        }
+    }
 /*
     //пользователи
     static async GetUsers ( items ) {
