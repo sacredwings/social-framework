@@ -61,13 +61,6 @@ export class CPost {
                                 }
                             ]
                         },
-                },
-                {
-                    $unwind:
-                        {
-                            path: '$_file_ids',
-                            preserveNullAndEmptyArrays: true
-                        }
                 }
             ]).toArray();
 
