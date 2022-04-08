@@ -295,6 +295,8 @@ export class CUser {
 
     static async Edit ( id, fields ) {
         try {
+            id = new DB().ObjectID(id)
+
             if (fields.password) {
                 const salt = await bcrypt.genSalt();
                 fields.password = await bcrypt.hash(fields.password, salt);
