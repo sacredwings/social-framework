@@ -13,6 +13,7 @@ import { CPost } from './classes/post'
 import { CTopic } from './classes/topic'
 import { CUser } from './classes/user'
 import { CVideo } from './classes/video'
+import { CView } from './classes/view'
 
 export {
     DB,
@@ -29,5 +30,6 @@ export {
     CPost,
     CTopic,
     CUser,
-    CVideo
+    CVideo,
+    CView
 }
