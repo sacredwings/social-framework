@@ -5,6 +5,8 @@ export class CView {
     //новый комментарий
     static async Add ( fields ) {
         try {
+            if (!fields.from_id) return false
+
             let collection = DB.Client.collection('view')
 
             //обработка полей
@@ -38,6 +40,8 @@ export class CView {
 
     static async GetByUser ( fields ) {
         try {
+            if (!fields.from_id) return false
+
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
