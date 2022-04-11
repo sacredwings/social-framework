@@ -14,6 +14,9 @@ export class CFile {
             if (fields.to_group_id)
                 delete fields.to_user_id
 
+            if (fields.album_ids)
+                fields.album_ids = new DB().arObjectID(fields.album_ids)
+
             //id вложенного файла
             fields.file_id = new DB().ObjectID(fields.file_id)
 

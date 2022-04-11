@@ -6,20 +6,39 @@ export class CFriend {
 
     static async Add ( fields ) {
         try {
+            /*
             let sql = `SELECT * FROM ${DB.Init.TablePrefix}friend WHERE
                                 ((user_id=${fields.user_id} AND friend_id=${fields.friend_id}) OR
                                  (user_id=${fields.friend_id} AND friend_id=${fields.user_id}))
                             AND allowed is null`
 
             console.log(sql)
-            let resultFriend = await DB.Init.Query(sql)
+            let resultFriend = await DB.Init.Query(sql)*/
 
-            console.log(resultFriend)
+            //console.log(resultFriend)
 
-            if (!resultFriend.length) {
+            /*
+                        if (!resultFriend.length) {
                 let resultAdd = await DB.Init.Insert(`${DB.Init.TablePrefix}friend`, fields, `ID`)
                 return resultAdd[0]
             }
+             */
+
+            let collection = DB.Client.collection('friend')
+
+            //обработка полей
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
+            fields.create_date = new Date()
+
+            let arFields = {
+                from_id: fields.from_id,
+                to_id: fields.to_id,
+                viewed: true,
+                allowed: true,
+                create_date: new Date()
+            }
+            await collection.insertOne(arFields)
 
             //заявка входящая
             if (Number (resultFriend[0].friend_id) === Number(fields.user_id)) {
@@ -85,29 +104,53 @@ export class CFriend {
         }
     }
 
+    static async GetByUser ( fields ) {
+        try {
+            let collection = DB.Client.collection('friend')
+
+            //обработка полей
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
+            let Aggregate = [{
+                $match: {
+                    $or: [{
+                        from_id: fields.from_id,
+                        to_id: fields.to_id,
+                    },{
+                        from_id: fields.to_id,
+                        to_id: fields.from_id,
+                    }],
+                }
+            }]
+
+            let result = await collection.aggregate(Aggregate).toArray()
+            if (result.length)
+                return result[0]
+
+            return false
+        } catch (err) {
+            console.log(err)
+            throw ({err: 4001000, msg: 'CFriend GetByUser'})
+        }
+    }
+
     static async Status ( fields ) {
         try {
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}friend WHERE
-                                ((user_id=${fields.user_id} AND friend_id=${fields.friend_id}) OR
-                                 (user_id=${fields.friend_id} AND friend_id=${fields.user_id}))`
-
-            console.log(sql)
-            let resultFriend = await DB.Init.Query(sql)
-
-            console.log(resultFriend)
+            let result = await this.GetByUser(fields)
 
             //нет заявки
-            if (!resultFriend.length)
+            if (!result)
                 return 'none'
 
-            resultFriend = resultFriend[0]
-
             //друг
-            if (resultFriend.allowed === true)
+            if (result.allowed === true)
                 return 'friend'
 
+            result.from_id = result.from_id.toString()
+            result.to_id = result.to_id.toString()
+
             //заявка входящая
-            if ((Number (resultFriend.friend_id) === Number(fields.user_id)) && (resultFriend.viewed === true))
+            if ((result.from_id === Number(fields.user_id)) && (resultFriend.viewed === true))
                 return 'viewed'
 
             //заявка входящая

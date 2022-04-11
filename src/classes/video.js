@@ -52,9 +52,14 @@ export class CVideo {
                             as: '_file_id',
                         },
 
-                },
-                {
-                    $unwind:
+                },{ $lookup:
+                        {
+                            from: 'album',
+                            localField: 'album_ids',
+                            foreignField: '_id',
+                            as: '_album_ids'
+                        }
+                },{ $unwind:
                         {
                             path: '$_file_id',
                             preserveNullAndEmptyArrays: true
@@ -113,8 +118,14 @@ export class CVideo {
                         foreignField: '_id',
                         as: '_file_id'
                     }
-            },{
-                $unwind:
+            },{ $lookup:
+                    {
+                        from: 'album',
+                        localField: 'album_ids',
+                        foreignField: '_id',
+                        as: '_album_ids'
+                    }
+            },{ $unwind:
                     {
                         path: '$_file_id',
                         preserveNullAndEmptyArrays: true
@@ -127,6 +138,10 @@ export class CVideo {
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
 
+            if (fields.album_id)
+                arAggregate[0].$match.album_ids = fields.album_id
+
+            /*
             if (fields.album_id) {
                 arAggregate.push({
                     $lookup:
@@ -146,9 +161,9 @@ export class CVideo {
                             path: '$_album_video_link',
                             preserveNullAndEmptyArrays: false
                         }
-                })
                 arAggregate[arAggregate.length-2].$lookup.pipeline[0].$match.album_id = fields.album_id
-            }
+            }                })*/
+
 
             arAggregate.push({
                 $sort: {

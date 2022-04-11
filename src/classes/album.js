@@ -194,6 +194,7 @@ export class CAlbum {
         }
     }
 
+    /*
     //добавить новое в альбом
     static async InAlbum ( fields ) {
         try {
@@ -228,5 +229,5 @@ export class CAlbum {
             console.log(err)
             throw ({err: 8001000, msg: 'CAlbum InAlbum'})
         }
-    }
+    }*/
 }
