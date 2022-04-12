@@ -68,7 +68,8 @@ export class CArticle {
                             foreignField: '_id',
                             as: '_album_ids'
                         }
-                },{ $unwind:
+                },{
+                    $unwind:
                         {
                             path: '$_image_id',
                             preserveNullAndEmptyArrays: true
@@ -98,6 +99,9 @@ export class CArticle {
     static async Edit(id, fields) {
         try {
             id = new DB().ObjectID(id)
+
+            if (fields.album_ids)
+                fields.album_ids = new DB().arObjectID(fields.album_ids)
 
             let collection = DB.Client.collection('article');
             let arFields = {
@@ -154,6 +158,13 @@ export class CArticle {
                             }
                         ]
                     },
+            },{ $lookup:
+                    {
+                        from: 'album',
+                        localField: 'album_ids',
+                        foreignField: '_id',
+                        as: '_album_ids'
+                    }
             },{
                 $unwind:
                     {

@@ -108,7 +108,7 @@ export class CFile {
 
                 title: (fields.title) ? fields.title : fields.file.title,
                 text: fields.text,
-
+                album_ids: fields.album_ids,
                 create_id: fields.create_id
             }
 

@@ -16,6 +16,8 @@ export class CVideo {
 */
 
             id = new DB().ObjectID(id)
+            if (fields.album_ids)
+                fields.album_ids = new DB().arObjectID(fields.album_ids)
 
             let collection = DB.Client.collection('file');
             let arFields = {
