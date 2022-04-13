@@ -33,10 +33,14 @@ export class CMessage {
 
             //поиск чата с этим пользователем
             let arFields = {
-                user_ids: [
-                    fields.from_id,
-                    fields.to_id
-                ]
+                user_ids:
+                    {
+                        $in:
+                            [
+                                fields.from_id,
+                                fields.to_id
+                            ]
+                    }
             }
             let rsSearch = await collection.findOne(arFields)
 
