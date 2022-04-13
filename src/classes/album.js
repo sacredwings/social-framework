@@ -34,8 +34,14 @@ export class CAlbum {
                         {
                             _id: {$in: ids}
                         }
-                },
-                { $lookup:
+                },{ $lookup:
+                        {
+                            from: 'album',
+                            localField: '_id',
+                            foreignField: 'album_id',
+                            as: '_album_id'
+                        }
+                },{ $lookup:
                         {
                             from: 'file',
                             localField: 'image_id',
@@ -59,9 +65,7 @@ export class CAlbum {
                                 }
                             ]
                         },
-                },
-                {
-                    $unwind:
+                },{ $unwind:
                         {
                             path: '$_image_id',
                             preserveNullAndEmptyArrays: true
@@ -106,12 +110,19 @@ export class CAlbum {
             let collection = DB.Client.collection('album');
 
             let arAggregate = [
-                { $match: {
-                        module: fields.module,
-                        album_id: fields.album_id
-                    }
-                },
-                { $lookup:
+                { $match:
+                        {
+                            module: fields.module,
+                            album_id: fields.album_id
+                        }
+                },{ $lookup:
+                        {
+                            from: 'album',
+                            localField: '_id',
+                            foreignField: 'album_id',
+                            as: '_album_id'
+                        }
+                },{ $lookup:
                         {
                             from: 'file',
                             localField: 'image_id',
@@ -125,8 +136,7 @@ export class CAlbum {
                                             foreignField: '_id',
                                             as: '_file_id'
                                         }
-                                },
-                                {
+                                },{
                                     $unwind:
                                         {
                                             path: '$_file_id',
@@ -135,9 +145,7 @@ export class CAlbum {
                                 }
                             ]
                         },
-                },
-                {
-                    $unwind:
+                },{ $unwind:
                         {
                             path: '$_image_id',
                             preserveNullAndEmptyArrays: true
