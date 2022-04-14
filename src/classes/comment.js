@@ -27,6 +27,19 @@ export class CComment {
             }
             await collection.insertOne(arFieldsMessage)
 
+            //КОММЕНТЫ
+            //количество
+            let arFields = {
+                module: fields.module,
+                object_id: fields.object_id,
+            }
+            let commentCount = await this.Count ( arFields )
+
+            //выбираем коллекцию с объектом
+            collection = DB.Client.collection(fields.module)
+            //обновляем поля в объекте
+            await collection.updateOne({_id: fields.object_id}, {$set: {comment: commentCount}})
+
         } catch (err) {
             console.log(err)
             throw ({err: 2001000, msg: 'CComment Add'})
@@ -172,7 +185,7 @@ export class CComment {
             let Aggregate = [
                 {
                     $match: {
-                        module: fields.module,
+                        //module: fields.module,
                         object_id: fields.object_id
                     }
                 },{

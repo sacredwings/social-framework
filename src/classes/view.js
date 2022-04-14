@@ -25,11 +25,24 @@ export class CView {
             //записи нет /создаем
             arFields = {
                 object_id: fields.object_id,
+                module: fields.module,
                 from_id: fields.from_id,
 
                 create_date: fields.create_date,
             }
             await collection.insertOne(arFields)
+
+            //ПРОСМОТРЫ
+            arFields = {
+                object_id: fields.object_id,
+            }
+            //количество просмотров
+            let viewCount = await CView.Count ( arFields )
+
+            //выбираем коллекцию с объектом
+            collection = DB.Client.collection(fields.module)
+            //обновляем поля в объекте
+            await collection.updateOne({_id: fields.object_id}, {$set: {view: viewCount}})
 
             return true
         } catch (err) {

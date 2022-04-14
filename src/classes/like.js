@@ -7,30 +7,26 @@ export class CLike {
         try {
             let collection = DB.Client.collection('like')
 
-            let dislike = null
+            let dislike = null //лайк
             if (fields.dislike)
-                dislike = true
+                dislike = true //дизлайк
 
             //обработка полей
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.create_date = new Date()
 
-            console.log(fields)
-
+            //установленно мной
             let arFields = {
                 object_id: fields.object_id,
                 from_id: fields.from_id,
             }
-
-            console.log(arFields)
-
             let rsLike = await this.GetByUser(arFields)
-            console.log(rsLike)
             if (!rsLike) {
                 //записи нет /создаем
                 arFields = {
                     object_id: fields.object_id,
+                    module: fields.module,
                     from_id: fields.from_id,
                     dislike: dislike,
                     create_date: fields.create_date,
@@ -56,6 +52,19 @@ export class CLike {
                     await collection.deleteOne({_id: rsLike._id}) //удаляем лайк
 
             }
+
+            //СЧЕТЧИКИ
+            arFields = {
+                object_id: fields.object_id,
+            }
+            let LikeCount = await this.Count ( arFields )
+            arFields.dislike = true
+            let DisLikeCount = await this.Count ( arFields )
+
+            //выбираем коллекцию с объектом
+            collection = DB.Client.collection(fields.module)
+            //обновляем поля в объекте
+            await collection.updateOne({_id: fields.object_id}, {$set: {dislike: DisLikeCount, like: LikeCount}})
 
             return true
         } catch (err) {
