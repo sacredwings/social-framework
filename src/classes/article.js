@@ -132,46 +132,43 @@ export class CArticle {
 
             let collection = DB.Client.collection('article');
 
-            let arAggregate = [{
-                $match: {},
-            },{
-                $lookup:
-                    {
-                        from: 'file',
-                        localField: 'image_id',
-                        foreignField: '_id',
-                        as: '_image_id',
-                        pipeline: [
-                            { $lookup:
-                                    {
-                                        from: 'file',
-                                        localField: 'file_id',
-                                        foreignField: '_id',
-                                        as: '_file_id'
-                                    }
-                            },{
-                                $unwind:
-                                    {
-                                        path: '$_file_id',
-                                        preserveNullAndEmptyArrays: true
-                                    }
-                            }
-                        ]
-                    },
-            },{ $lookup:
-                    {
-                        from: 'album',
-                        localField: 'album_ids',
-                        foreignField: '_id',
-                        as: '_album_ids'
-                    }
-            },{
-                $unwind:
-                    {
-                        path: '$_image_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-            }]
+            let arAggregate = [
+                { $match: {},
+                },{ $lookup:
+                        {
+                            from: 'file',
+                            localField: 'image_id',
+                            foreignField: '_id',
+                            as: '_image_id',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'file_id',
+                                            foreignField: '_id',
+                                            as: '_file_id'
+                                        }
+                                },{ $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        }
+                },{ $lookup:
+                        {
+                            from: 'album',
+                            localField: 'album_ids',
+                            foreignField: '_id',
+                            as: '_album_ids'
+                        }
+                },{ $unwind:
+                        {
+                            path: '$_image_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }]
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
@@ -210,7 +207,10 @@ export class CArticle {
 
             arAggregate.push({
                 $sort: {
-                    _id: -1
+                    comment: -1,
+                    like: -1,
+                    view: -1,
+                    _id: -1,
                 }
             })
 

@@ -45,15 +45,13 @@ export class CVideo {
                         {
                             _id: {$in: ids}
                         }
-                },
-                { $lookup:
+                },{ $lookup:
                         {
                             from: 'file',
                             localField: 'file_id',
                             foreignField: '_id',
                             as: '_file_id',
-                        },
-
+                        }
                 },{ $lookup:
                         {
                             from: 'album',
@@ -67,7 +65,7 @@ export class CVideo {
                             preserveNullAndEmptyArrays: true
                         }
                 }
-            ]).toArray();
+            ]).toArray()
 
             result = await Promise.all(result.map(async (item, i) => {
                 if (item.text === null) item.text = ''
@@ -106,33 +104,34 @@ export class CVideo {
 
             let collection = DB.Client.collection('file');
 
-            let arAggregate = [{
-                $match: {
-                    $or: [
-                        {type: 'video/mp4'},
-                        {type: 'video/avi'},
-                    ]
-                },
-            },{ $lookup:
-                    {
-                        from: 'file',
-                        localField: 'file_id',
-                        foreignField: '_id',
-                        as: '_file_id'
-                    }
-            },{ $lookup:
-                    {
-                        from: 'album',
-                        localField: 'album_ids',
-                        foreignField: '_id',
-                        as: '_album_ids'
-                    }
-            },{ $unwind:
-                    {
-                        path: '$_file_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-            }]
+            let arAggregate = [
+                { $match:
+                        {
+                            $or: [
+                                {type: 'video/mp4'},
+                                {type: 'video/avi'},
+                            ]
+                        }
+                },{ $lookup:
+                        {
+                            from: 'file',
+                            localField: 'file_id',
+                            foreignField: '_id',
+                            as: '_file_id'
+                        }
+                },{ $lookup:
+                        {
+                            from: 'album',
+                            localField: 'album_ids',
+                            foreignField: '_id',
+                            as: '_album_ids'
+                        }
+                },{ $unwind:
+                        {
+                            path: '$_file_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }]
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = `${fields.q}`
@@ -169,7 +168,10 @@ export class CVideo {
 
             arAggregate.push({
                 $sort: {
-                    _id: -1
+                    comment: -1,
+                    like: -1,
+                    view: -1,
+                    _id: -1,
                 }
             })
 
