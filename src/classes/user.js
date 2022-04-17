@@ -321,8 +321,7 @@ export class CUser {
             let arAggregate = []
 
             if (fields.q) arAggregate.push(
-                {
-                    $match:
+                { $match:
                         {
                             $text: {
                                 $search: fields.q
@@ -332,8 +331,7 @@ export class CUser {
             )
 
             arAggregate.push(
-                {
-                    $lookup:
+                { $lookup:
                         {
                             from: 'file',
                             localField: 'photo',
@@ -350,15 +348,19 @@ export class CUser {
                                 }
                             ]
                         },
-                },
-                {
-                    $unwind:
+                },{ $unwind:
                         {
                             path: '$_photo',
                             preserveNullAndEmptyArrays: true
                         }
                 },
             )
+
+            arAggregate.push({
+                $sort: {
+                    last_action_date: -1,
+                }
+            })
 
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
             return result
