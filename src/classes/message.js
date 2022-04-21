@@ -35,7 +35,7 @@ export class CMessage {
             let arFields = {
                 user_ids:
                     {
-                        $in:
+                        $eq:
                             [
                                 fields.from_id,
                                 fields.to_id
