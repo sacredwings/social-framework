@@ -30,12 +30,13 @@ export class CAdmin {
             */
 
             collection = DB.Client.collection('file')
+            /*
             try {
                 await collection.dropIndex('title_text')
                 await collection.dropIndex('title_text_text_text')
             } catch (e) {
 
-            }
+            }*/
 
             indexUser = await collection.createIndex({
                 "title":"text",
@@ -56,14 +57,6 @@ export class CAdmin {
                 "post":"text",
             })
             console.log('topic')
-
-            collection = DB.Client.collection('album_video_link')
-            indexUser = await collection.createIndex( { album_id: 1, object_id: 1 }, { unique: true } )
-            console.log('album_video_link')
-
-            collection = DB.Client.collection('album_article_link')
-            indexUser = await collection.createIndex( { album_id: 1, object_id: 1 }, { unique: true } )
-            console.log('album_article_link')
 
         } catch (err) {
             console.log(err)
