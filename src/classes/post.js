@@ -205,6 +205,8 @@ export class CPost {
     static async Edit(id, fields) {
         try {
             id = new DB().ObjectID(id)
+            if (fields.file_ids)
+                fields.file_ids = new DB().arObjectID(fields.file_ids)
 
             let collection = DB.Client.collection('post');
             let arFields = {
