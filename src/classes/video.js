@@ -142,6 +142,27 @@ export class CVideo {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
 
+            if (!fields.to_group_id) {
+                arAggregate.push(
+                    { $lookup:
+                            {
+                                from: 'group',
+                                localField: 'to_group_id',
+                                foreignField: '_id',
+                                as: '_to_group_id',
+                            }
+                    }
+                )
+
+                arAggregate.push(
+                    { $match: {
+                            "_to_group_id.price": null,
+
+                        }
+                    }
+                )
+            }
+
             /*
             if (fields.album_id) {
                 arAggregate.push({
@@ -223,27 +244,28 @@ export class CVideo {
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
 
-            if (fields.album_id) {
-                arAggregate.push({
-                    $lookup:
-                        {
-                            from: 'album_video_link',
-                            localField: '_id',
-                            foreignField: 'object_id',
-                            as: '_album_video_link',
-                            pipeline: [
-                                { $match: {} },
-                            ]
+            if (fields.album_id)
+                arAggregate[0].$match.album_ids = fields.album_id
+
+            if (!fields.to_group_id) {
+                arAggregate.push(
+                    { $lookup:
+                            {
+                                from: 'group',
+                                localField: 'to_group_id',
+                                foreignField: '_id',
+                                as: '_to_group_id',
+                            }
+                    }
+                )
+
+                arAggregate.push(
+                    { $match: {
+                            "_to_group_id.price": null,
+
                         }
-                })
-                arAggregate.push({
-                    $unwind:
-                        {
-                            path: '$_album_video_link',
-                            preserveNullAndEmptyArrays: false
-                        }
-                })
-                arAggregate[arAggregate.length-2].$lookup.pipeline[0].$match.album_id = fields.album_id
+                    }
+                )
             }
 
             arAggregate.push({
