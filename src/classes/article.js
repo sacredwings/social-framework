@@ -180,6 +180,7 @@ export class CArticle {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
 
+            /*
             if (!fields.to_group_id) {
                 arAggregate.push(
                     { $lookup:
@@ -199,49 +200,8 @@ export class CArticle {
                         }
                     }
                 )
-            }
-            /*
-            //альбома нет, поиск глобальный, показываем группы с price null
-            if (!fields.to_group_id) {
-                arAggregate[2].$lookup.pipeline = []
-                arAggregate[2].$lookup.pipeline[0] = {}
-                arAggregate[2].$lookup.pipeline[0].$match = {
-                    price: null
-                }
-
-
-                arAggregate[2].$lookup.pipeline[0].$unwind = {
-                    path: '$_file_id',
-                    preserveNullAndEmptyArrays: true
-                }
             }*/
 
-
-            /*
-            if (fields.album_id) {
-                arAggregate.push({
-                    $lookup:
-                        {
-                            from: 'album_article_link',
-                            localField: '_id',
-                            foreignField: 'object_id',
-                            as: '_album_article_link',
-                            pipeline: [
-                                { $match: {} },
-                            ]
-                        }
-                })
-                arAggregate.push({
-                    $unwind:
-                        {
-                            path: '$_album_article_link',
-                            preserveNullAndEmptyArrays: false
-                        }
-                })
-
-                //сдвиг /может не быть $match
-                arAggregate[arAggregate.length-2].$lookup.pipeline[0].$match.album_id = fields.album_id
-            }*/
 
             arAggregate.push({
                 $sort: {
@@ -290,6 +250,7 @@ export class CArticle {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
 
+            /*
             //альбома нет, поиск глобальный, показываем группы с price null
             if (!fields.to_group_id) {
                 arAggregate.push(
@@ -310,31 +271,6 @@ export class CArticle {
                         }
                     }
                 )
-            }
-
-
-            /*
-            if (fields.album_id) {
-                arAggregate.push({
-                    $lookup:
-                        {
-                            from: 'album_article_link',
-                            localField: '_id',
-                            foreignField: 'object_id',
-                            as: '_album_article_link',
-                            pipeline: [
-                                { $match: {} },
-                            ]
-                        }
-                })
-                arAggregate.push({
-                    $unwind:
-                        {
-                            path: '$_album_article_link',
-                            preserveNullAndEmptyArrays: false
-                        }
-                })
-                arAggregate[1].$lookup.pipeline[0].$match.album_id = fields.album_id
             }*/
 
             arAggregate.push({

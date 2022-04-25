@@ -142,6 +142,7 @@ export class CVideo {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
 
+            /*
             if (!fields.to_group_id) {
                 arAggregate.push(
                     { $lookup:
@@ -161,31 +162,7 @@ export class CVideo {
                         }
                     }
                 )
-            }
-
-            /*
-            if (fields.album_id) {
-                arAggregate.push({
-                    $lookup:
-                        {
-                            from: 'album_video_link',
-                            localField: '_id',
-                            foreignField: 'object_id',
-                            as: '_album_video_link',
-                            pipeline: [
-                                { $match: {} },
-                            ]
-                        }
-                })
-                arAggregate.push({
-                    $unwind:
-                        {
-                            path: '$_album_video_link',
-                            preserveNullAndEmptyArrays: false
-                        }
-                arAggregate[arAggregate.length-2].$lookup.pipeline[0].$match.album_id = fields.album_id
-            }                })*/
-
+            }*/
 
             arAggregate.push({
                 $sort: {
@@ -195,7 +172,6 @@ export class CVideo {
                     _id: -1,
                 }
             })
-
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
 
@@ -247,6 +223,7 @@ export class CVideo {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
 
+            /*
             if (!fields.to_group_id) {
                 arAggregate.push(
                     { $lookup:
@@ -266,7 +243,7 @@ export class CVideo {
                         }
                     }
                 )
-            }
+            }*/
 
             arAggregate.push({
                 $count: 'count'
