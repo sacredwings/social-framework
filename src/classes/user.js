@@ -24,11 +24,11 @@ export class CUser {
 
             let arUsers = await this.GetByEmail(fields.email);
             if (arUsers)
-                throw ({err: 30020001, msg: 'Такой email уже зарегистрирован'});
+                throw ({code: 30020001, msg: 'Такой email уже зарегистрирован'});
 
             arUsers = await this.GetByLogin(fields.login);
             if (arUsers)
-                throw ({err: 30020001, msg: 'Такой login уже зарегистрирован'});
+                throw ({code: 30020001, msg: 'Такой login уже зарегистрирован'});
 
             let collection = DB.Client.collection('user');
 
@@ -46,7 +46,7 @@ export class CUser {
             return arFields
         } catch (err) {
             console.log(err)
-            throw ({...{err: 7001000, msg: 'CUser AddUser'}, ...err})
+            throw ({...{code: 7001000, msg: 'CUser AddUser'}, ...err})
         }
     }
 
@@ -119,7 +119,7 @@ export class CUser {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CUser GetById'})
+            throw ({code: 7001000, msg: 'CUser GetById'})
         }
     }
 
@@ -195,7 +195,7 @@ export class CUser {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CUser GetByEmail'})
+            throw ({code: 7001000, msg: 'CUser GetByEmail'})
         }
     }
 
@@ -289,7 +289,7 @@ export class CUser {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CUser GetByLogin'})
+            throw ({code: 7001000, msg: 'CUser GetByLogin'})
         }
     }
 
@@ -309,7 +309,7 @@ export class CUser {
             return fields
         } catch (err) {
             console.log(err)
-            throw ({err: 7002000, msg: 'CUser Edit'})
+            throw ({code: 7002000, msg: 'CUser Edit'})
         }
     }
 
@@ -366,7 +366,7 @@ export class CUser {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CUser Get'})
+            throw ({code: 7001000, msg: 'CUser Get'})
         }
     }
 
@@ -382,7 +382,7 @@ export class CUser {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CUser GetCount'})
+            throw ({code: 7001000, msg: 'CUser GetCount'})
         }
     }
 
@@ -395,7 +395,7 @@ export class CUser {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CUser Count'})
+            throw ({code: 8001000, msg: 'CUser Count'})
         }
     }
     /*
@@ -409,7 +409,7 @@ export class CUser {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CVideo Count'})
+            throw ({code: 8001000, msg: 'CVideo Count'})
         }
     }*/
 /*
@@ -477,7 +477,7 @@ export class CUser {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6005000, msg: 'CUser GetByField'})
+            throw ({code: 6005000, msg: 'CUser GetByField'})
         }
     }*/
 /*
@@ -490,7 +490,7 @@ static async reset (value) {
         let arUsers = await modelsProfile.getUserByEmail(value.email);
         console.log(arUsers)
         if (!arUsers.length)
-            throw ({err: 30040001, msg: 'Такой email не зарегистрирован'});
+            throw ({code: 30040001, msg: 'Такой email не зарегистрирован'});
 
         await modelsProfile.setByCode(arUsers[0].id, 1, hash);
 
@@ -517,14 +517,14 @@ static async reset (value) {
         return true;
 
     } catch (err) {
-        throw ({...{err: 30040000, msg: 'Отправка кода на e-mail'}, ...err});
+        throw ({...{code: 30040000, msg: 'Отправка кода на e-mail'}, ...err});
     }
 }
 static async resetActivate (value) {
     try {
         let code = await modelsProfile.getByCode(1, value.code);
         if (!code.length)
-            throw ({err: 30050001, msg: 'Такого кода не существует, попробуйте востановить пароль еще раз'});
+            throw ({code: 30050001, msg: 'Такого кода не существует, попробуйте востановить пароль еще раз'});
 
         //создание хеш пароля
         const saltRounds = 10;
@@ -536,6 +536,6 @@ static async resetActivate (value) {
         return true;
 
     } catch (err) {
-        throw ({...{err: 30050000, msg: 'Отправка кода на e-mail'}, ...err});
+        throw ({...{code: 30050000, msg: 'Отправка кода на e-mail'}, ...err});
     }*/
 }

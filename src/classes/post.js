@@ -21,7 +21,7 @@ export class CPost {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6001000, msg: 'CPost Add'})
+            throw ({code: 6001000, msg: 'CPost Add'})
         }
     }
 
@@ -68,7 +68,7 @@ export class CPost {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6002000, msg: 'CPost GetById'})
+            throw ({code: 6002000, msg: 'CPost GetById'})
         }
     }
 
@@ -154,7 +154,7 @@ export class CPost {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6003000, msg: 'CPost Get'})
+            throw ({code: 6003000, msg: 'CPost Get'})
         }
     }
 
@@ -185,7 +185,7 @@ export class CPost {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6004000, msg: 'CPost GetCount'})
+            throw ({code: 6004000, msg: 'CPost GetCount'})
         }
     }
 
@@ -198,7 +198,7 @@ export class CPost {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CPost Count'})
+            throw ({code: 8001000, msg: 'CPost Count'})
         }
     }
 
@@ -218,7 +218,7 @@ export class CPost {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CPost Edit'})
+            throw ({code: 8001000, msg: 'CPost Edit'})
         }
     }
 
@@ -233,7 +233,7 @@ export class CPost {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CPost Delete'})
+            throw ({code: 7001000, msg: 'CPost Delete'})
         }
     }
 
@@ -267,7 +267,7 @@ export class CPost {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6005000, msg: 'CPost GetUsers'})
+            throw ({code: 6005000, msg: 'CPost GetUsers'})
         }
     }
 
@@ -312,7 +312,7 @@ export class CPost {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CPost Search'})
+            throw ({code: 7001000, msg: 'CPost Search'})
         }
     }
 
@@ -338,7 +338,7 @@ export class CPost {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CPost SearchCount'})
+            throw ({code: 7001000, msg: 'CPost SearchCount'})
         }
     }
 */

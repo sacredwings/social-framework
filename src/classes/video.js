@@ -29,7 +29,7 @@ export class CVideo {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CVideo Edit'})
+            throw ({code: 8001000, msg: 'CVideo Edit'})
         }
     }
 
@@ -76,7 +76,7 @@ export class CVideo {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CVideo GetById'})
+            throw ({code: 8001000, msg: 'CVideo GetById'})
         }
     }
 
@@ -177,7 +177,7 @@ export class CVideo {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CVideo Get'})
+            throw ({code: 8001000, msg: 'CVideo Get'})
         }
     }
 
@@ -256,7 +256,7 @@ export class CVideo {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CVideo GetCount'})
+            throw ({code: 8001000, msg: 'CVideo GetCount'})
         }
     }
 
@@ -269,7 +269,7 @@ export class CVideo {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CVideo Count'})
+            throw ({code: 8001000, msg: 'CVideo Count'})
         }
     }
 
@@ -284,7 +284,7 @@ export class CVideo {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CVideo Delete'})
+            throw ({code: 7001000, msg: 'CVideo Delete'})
         }
     }
 /*
@@ -318,7 +318,7 @@ export class CVideo {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CVideo GetUsers'})
+            throw ({code: 8001000, msg: 'CVideo GetUsers'})
         }
     }
 */
@@ -368,7 +368,7 @@ export class CVideo {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CVideo Search'})
+            throw ({code: 7001000, msg: 'CVideo Search'})
         }
     }
 */
@@ -396,7 +396,7 @@ export class CVideo {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CVideo SearchCount'})
+            throw ({code: 7001000, msg: 'CVideo SearchCount'})
         }
     }*/
 }

@@ -74,7 +74,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5001000, msg: 'CMessage Add'})
+            throw ({code: 5001000, msg: 'CMessage Add'})
         }
     }
 
@@ -137,7 +137,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5003000, msg: 'CMessage Get'})
+            throw ({code: 5003000, msg: 'CMessage Get'})
         }
     }
 
@@ -163,7 +163,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5003000, msg: 'CMessage Count'})
+            throw ({code: 5003000, msg: 'CMessage Count'})
         }
     }
 
@@ -281,7 +281,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5003000, msg: 'CMessage GetChatUser'})
+            throw ({code: 5003000, msg: 'CMessage GetChatUser'})
         }
     }
 
@@ -316,7 +316,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5003000, msg: 'CMessage GetChatUser'})
+            throw ({code: 5003000, msg: 'CMessage GetChatUser'})
         }
     }
 
@@ -343,7 +343,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5003000, msg: 'CMessage CountNoRead'})
+            throw ({code: 5003000, msg: 'CMessage CountNoRead'})
         }
     }
 
@@ -429,7 +429,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6002000, msg: 'CMessage GetById'})
+            throw ({code: 6002000, msg: 'CMessage GetById'})
         }
     }
 
@@ -460,7 +460,7 @@ export class CMessage {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CMessage Delete'})
+            throw ({code: 7001000, msg: 'CMessage Delete'})
         }
     }
 
@@ -490,7 +490,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5004000, msg: 'CMessage MarkAsReadAll'})
+            throw ({code: 5004000, msg: 'CMessage MarkAsReadAll'})
         }
     }
 
@@ -508,7 +508,7 @@ export class CMessage {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CMessage Edit'})
+            throw ({code: 8001000, msg: 'CMessage Edit'})
         }
     }
     /*
@@ -520,7 +520,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5005000, msg: 'CMessage Add'})
+            throw ({code: 5005000, msg: 'CMessage Add'})
         }
     }
 
@@ -532,7 +532,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5005000, msg: 'CMessage DeleteAll'})
+            throw ({code: 5005000, msg: 'CMessage DeleteAll'})
         }
     }
 */
@@ -546,7 +546,7 @@ export class CMessage {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5005000, msg: 'CMessage Add'})
+            throw ({code: 5005000, msg: 'CMessage Add'})
         }
     }*/
 }

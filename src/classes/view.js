@@ -47,7 +47,7 @@ export class CView {
             return true
         } catch (err) {
             console.log(err)
-            throw ({err: 2001000, msg: 'CView Add'})
+            throw ({code: 2001000, msg: 'CView Add'})
         }
     }
 
@@ -68,7 +68,7 @@ export class CView {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 4003000, msg: 'CView GetByUser'})
+            throw ({code: 4003000, msg: 'CView GetByUser'})
         }
     }
 
@@ -85,7 +85,7 @@ export class CView {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 4003000, msg: 'CView Get'})
+            throw ({code: 4003000, msg: 'CView Get'})
         }
     }
 

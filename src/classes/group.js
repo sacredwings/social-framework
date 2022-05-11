@@ -13,7 +13,7 @@ export class CGroup {
             return fields
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CGroup Add'})
+            throw ({code: 4001000, msg: 'CGroup Add'})
         }
     }
 
@@ -86,7 +86,7 @@ export class CGroup {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 4002000, msg: 'CGroup GetById'})
+            throw ({code: 4002000, msg: 'CGroup GetById'})
         }
     }
 
@@ -180,7 +180,7 @@ export class CGroup {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 4003000, msg: 'CGroup Get'})
+            throw ({code: 4003000, msg: 'CGroup Get'})
         }
     }
 
@@ -200,7 +200,7 @@ export class CGroup {
             return await collection.count()
         } catch (err) {
             console.log(err)
-            throw ({err: 4004000, msg: 'CGroup GetCount'})
+            throw ({code: 4004000, msg: 'CGroup GetCount'})
         }
     }
 
@@ -213,7 +213,7 @@ export class CGroup {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CGroup Count'})
+            throw ({code: 8001000, msg: 'CGroup Count'})
         }
     }
 /*
@@ -289,7 +289,7 @@ export class CGroup {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 4005000, msg: 'CGroup GetUsers'})
+            throw ({code: 4005000, msg: 'CGroup GetUsers'})
         }
     }
 */
@@ -302,7 +302,7 @@ export class CGroup {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 4006000, msg: 'CGroup Update'})
+            throw ({code: 4006000, msg: 'CGroup Update'})
         }
     }
 
@@ -316,7 +316,7 @@ export class CGroup {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 4007000, msg: 'CGroup Delete'})
+            throw ({code: 4007000, msg: 'CGroup Delete'})
         }
     }
 /*
@@ -388,7 +388,7 @@ export class CGroup {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CGroup Search'})
+            throw ({code: 7001000, msg: 'CGroup Search'})
         }
     }
 
@@ -404,7 +404,7 @@ export class CGroup {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CGroup SearchCount'})
+            throw ({code: 7001000, msg: 'CGroup SearchCount'})
         }
     }
 */
@@ -431,7 +431,7 @@ export class CGroup {
             return fields
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CGroup PayTransactionAdd'})
+            throw ({code: 4001000, msg: 'CGroup PayTransactionAdd'})
         }
     }
     //добавить новую группу
@@ -443,7 +443,7 @@ export class CGroup {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CGroup PayTransactionGet'})
+            throw ({code: 4001000, msg: 'CGroup PayTransactionGet'})
         }
     }
     static async PayTransactionUpdate ( fields ) {
@@ -454,7 +454,7 @@ export class CGroup {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CGroup PayTransactionAdd'})
+            throw ({code: 4001000, msg: 'CGroup PayTransactionAdd'})
         }
     }
 
@@ -525,7 +525,7 @@ export class CGroup {
             return true
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CGroup PayAdd'})
+            throw ({code: 4001000, msg: 'CGroup PayAdd'})
         }
     }
 
@@ -555,7 +555,7 @@ export class CGroup {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CGroup PayGet'})
+            throw ({code: 4001000, msg: 'CGroup PayGet'})
         }
     }
 
@@ -590,7 +590,7 @@ export class CGroup {
             return true
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CGroup PayStatus'})
+            throw ({code: 4001000, msg: 'CGroup PayStatus'})
         }
     }
 
@@ -618,7 +618,7 @@ export class CGroup {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CGroup Access'})
+            throw ({code: 4001000, msg: 'CGroup Access'})
         }
     }
 /*
@@ -655,7 +655,7 @@ export class CGroup {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6005000, msg: 'CGroup GetByField'})
+            throw ({code: 6005000, msg: 'CGroup GetByField'})
         }
     }*/
 }

@@ -117,7 +117,7 @@ export class CFile {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 3001000, msg: 'CFile SaveFile'})
+            throw ({code: 3001000, msg: 'CFile SaveFile'})
         }
 
     }
@@ -162,7 +162,7 @@ export class CFile {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CFile GetById'})
+            throw ({code: 8001000, msg: 'CFile GetById'})
         }
     }
 
@@ -184,7 +184,7 @@ export class CFile {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 3003000, msg: 'CFile Delete'})
+            throw ({code: 3003000, msg: 'CFile Delete'})
         }
 
     }

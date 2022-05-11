@@ -79,7 +79,7 @@ export class DB {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 100, msg: 'DB Creating: no db connect'})
+            throw ({code: 100, msg: 'DB Creating: no db connect'})
         }
     }
 
@@ -92,7 +92,7 @@ export class DB {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 110, msg: 'DB Create'})
+            throw ({code: 110, msg: 'DB Create'})
         }
     }
 
@@ -103,7 +103,7 @@ export class DB {
             return result.rows
         } catch (err) {
             console.log(err)
-            throw ({err: 120, msg: 'DB Query'})
+            throw ({code: 120, msg: 'DB Query'})
         }
     }
 
@@ -150,7 +150,7 @@ export class DB {
         } catch (err) {
             console.log(err)
             if (!err.err) console.log(err)
-            throw ({err: 130, msg: 'DB Insert'})
+            throw ({code: 130, msg: 'DB Insert'})
         }
     }
 
@@ -203,7 +203,7 @@ export class DB {
 
         } catch (err) {
             if (!err.err) console.log(err);
-            throw ({err: 140, msg: 'DB Update'});
+            throw ({code: 140, msg: 'DB Update'});
         }
     }
 

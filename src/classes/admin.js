@@ -60,7 +60,7 @@ export class CAdmin {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CAdmin DdIndex'})
+            throw ({code: 7001000, msg: 'CAdmin DdIndex'})
         }
     }
 }

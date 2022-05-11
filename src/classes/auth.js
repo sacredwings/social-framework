@@ -10,21 +10,21 @@ export class CAuth {
             //поиск пользователя по логину
             let user = await CUser.GetByLogin(fields.login);
             if (!user)
-                throw ({err: 1001001, msg: 'Неверный логин'});
+                throw ({code: 1001001, msg: 'Неверный логин'});
 
             //сравнение паролей
             let match = await bcrypt.compare(fields.password, user.password);
             if (!match)
-                throw ({err: 1001002, msg: 'Неверный пароль'});
+                throw ({code: 1001002, msg: 'Неверный пароль'});
 
             let token = await this.AddToken(user._id, fields.ip, fields.browser);
             if (!token)
-                throw ({err: 1001003, msg: 'Токен не создан'});
+                throw ({code: 1001003, msg: 'Токен не создан'});
 
             return {tid: token._id, token: token.token, _id: user._id, login: user.login}
 
         } catch (err) {
-            throw ({...{err: 1001000, msg: 'CAuth Login'}, ...err});
+            throw ({...{code: 1001000, msg: 'CAuth Login'}, ...err});
         }
     }
 
@@ -41,7 +41,7 @@ export class CAuth {
             return false
         } catch (err) {
             console.log(err)
-            throw ({err: 1003000, msg: 'CAuth GetById'})
+            throw ({code: 1003000, msg: 'CAuth GetById'})
         }
     }
 
@@ -73,7 +73,7 @@ export class CAuth {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 1004000, msg: 'CAuth AddToken'})
+            throw ({code: 1004000, msg: 'CAuth AddToken'})
         }
     }
 
@@ -96,7 +96,7 @@ export class CAuth {
             return user.user_id
         } catch (err) {
             console.log(err)
-            throw ({err: 1004000, msg: 'CAuth Access'})
+            throw ({code: 1004000, msg: 'CAuth Access'})
         }
     }
 }

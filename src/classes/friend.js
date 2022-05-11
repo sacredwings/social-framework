@@ -55,7 +55,7 @@ export class CFriend {
             return false
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CFriend Add'})
+            throw ({code: 4001000, msg: 'CFriend Add'})
         }
     }
 
@@ -100,7 +100,7 @@ export class CFriend {
             return false
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CFriend Add'})
+            throw ({code: 4001000, msg: 'CFriend Add'})
         }
     }
 
@@ -130,7 +130,7 @@ export class CFriend {
             return false
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CFriend GetByUser'})
+            throw ({code: 4001000, msg: 'CFriend GetByUser'})
         }
     }
 
@@ -164,7 +164,7 @@ export class CFriend {
             return false
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CFriend Status'})
+            throw ({code: 4001000, msg: 'CFriend Status'})
         }
     }
 
@@ -219,7 +219,7 @@ export class CFriend {
             return arUsers
         } catch (err) {
             console.log(err)
-            throw ({err: 6003000, msg: 'CFriend Get'})
+            throw ({code: 6003000, msg: 'CFriend Get'})
         }
     }
 
@@ -234,7 +234,7 @@ export class CFriend {
             return Number (result[0].count)
         } catch (err) {
             console.log(err)
-            throw ({err: 6004000, msg: 'CFriend GetCount'})
+            throw ({code: 6004000, msg: 'CFriend GetCount'})
         }
     }
 
@@ -249,7 +249,7 @@ export class CFriend {
             return result[0]
         } catch (err) {
             console.log(err)
-            throw ({err: 4001000, msg: 'CFriend Accept'})
+            throw ({code: 4001000, msg: 'CFriend Accept'})
         }
     }
 }

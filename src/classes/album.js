@@ -19,7 +19,7 @@ export class CAlbum {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CAlbum Add'})
+            throw ({code: 8001000, msg: 'CAlbum Add'})
         }
     }
 
@@ -76,7 +76,7 @@ export class CAlbum {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CAlbum GetById'})
+            throw ({code: 8001000, msg: 'CAlbum GetById'})
         }
     }
 
@@ -93,7 +93,7 @@ export class CAlbum {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CAlbum Edit'})
+            throw ({code: 8001000, msg: 'CAlbum Edit'})
         }
     }
 
@@ -168,7 +168,7 @@ export class CAlbum {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CAlbum Get'})
+            throw ({code: 8001000, msg: 'CAlbum Get'})
         }
     }
 
@@ -198,7 +198,7 @@ export class CAlbum {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CAlbum Count'})
+            throw ({code: 8001000, msg: 'CAlbum Count'})
         }
     }
 
@@ -235,7 +235,7 @@ export class CAlbum {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CAlbum InAlbum'})
+            throw ({code: 8001000, msg: 'CAlbum InAlbum'})
         }
     }*/
 }

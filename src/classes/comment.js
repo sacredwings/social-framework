@@ -42,7 +42,7 @@ export class CComment {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 2001000, msg: 'CComment Add'})
+            throw ({code: 2001000, msg: 'CComment Add'})
         }
     }
     //загрузка по id
@@ -95,7 +95,7 @@ export class CComment {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6002000, msg: 'CComment GetById'})
+            throw ({code: 6002000, msg: 'CComment GetById'})
         }
     }
     static async Get ( fields ) {
@@ -172,7 +172,7 @@ export class CComment {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5003000, msg: 'CComment GetChatUser'})
+            throw ({code: 5003000, msg: 'CComment GetChatUser'})
         }
     }
 
@@ -199,7 +199,7 @@ export class CComment {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 5003000, msg: 'CComment Count'})
+            throw ({code: 5003000, msg: 'CComment Count'})
         }
     }
     static async Edit(id, fields) {
@@ -216,7 +216,7 @@ export class CComment {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CComment Edit'})
+            throw ({code: 8001000, msg: 'CComment Edit'})
         }
     }
     static async Delete ( id ) {
@@ -230,7 +230,7 @@ export class CComment {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CComment Delete'})
+            throw ({code: 7001000, msg: 'CComment Delete'})
         }
     }
 

@@ -69,7 +69,7 @@ export class CLike {
             return true
         } catch (err) {
             console.log(err)
-            throw ({err: 2001000, msg: 'CLike Add'})
+            throw ({code: 2001000, msg: 'CLike Add'})
         }
     }
 
@@ -88,7 +88,7 @@ export class CLike {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 4003000, msg: 'CLike Get'})
+            throw ({code: 4003000, msg: 'CLike Get'})
         }
     }
     */
@@ -111,7 +111,7 @@ export class CLike {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 4003000, msg: 'CLike Get'})
+            throw ({code: 4003000, msg: 'CLike Get'})
         }
     }
 
@@ -130,7 +130,7 @@ export class CLike {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 4003000, msg: 'CLike GetByUser'})
+            throw ({code: 4003000, msg: 'CLike GetByUser'})
         }
     }
 
@@ -154,7 +154,7 @@ export class CLike {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 4003000, msg: 'CLike GetByUserLike'})
+            throw ({code: 4003000, msg: 'CLike GetByUserLike'})
         }
     }*/
 }

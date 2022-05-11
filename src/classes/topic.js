@@ -15,7 +15,7 @@ export class CTopic {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6001000, msg: 'CTopic Add'})
+            throw ({code: 6001000, msg: 'CTopic Add'})
         }
     }
 
@@ -37,7 +37,7 @@ export class CTopic {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6002000, msg: 'CTopic GetById'})
+            throw ({code: 6002000, msg: 'CTopic GetById'})
         }
     }
 
@@ -70,7 +70,7 @@ export class CTopic {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 6003000, msg: 'CTopic Get'})
+            throw ({code: 6003000, msg: 'CTopic Get'})
         }
     }
 
@@ -83,7 +83,7 @@ export class CTopic {
             return Number (result[0].count)
         } catch (err) {
             console.log(err)
-            throw ({err: 6004000, msg: 'CTopic GetCount'})
+            throw ({code: 6004000, msg: 'CTopic GetCount'})
         }
     }
 
@@ -97,7 +97,7 @@ export class CTopic {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CTopic Count'})
+            throw ({code: 8001000, msg: 'CTopic Count'})
         }
     }
 
@@ -131,7 +131,7 @@ export class CTopic {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6005000, msg: 'CTopic GetUsers'})
+            throw ({code: 6005000, msg: 'CTopic GetUsers'})
         }
     }
 
@@ -176,7 +176,7 @@ export class CTopic {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CTopic Search'})
+            throw ({code: 7001000, msg: 'CTopic Search'})
         }
     }
 
@@ -202,7 +202,7 @@ export class CTopic {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CTopic SearchCount'})
+            throw ({code: 7001000, msg: 'CTopic SearchCount'})
         }
     }
 }

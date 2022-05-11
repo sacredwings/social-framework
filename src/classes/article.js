@@ -21,7 +21,7 @@ export class CArticle {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 6001000, msg: 'CArticle Add'})
+            throw ({code: 6001000, msg: 'CArticle Add'})
         }
     }
 
@@ -92,7 +92,7 @@ export class CArticle {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CArticle GetById'})
+            throw ({code: 8001000, msg: 'CArticle GetById'})
         }
     }
 
@@ -113,7 +113,7 @@ export class CArticle {
             return result
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CArticle Edit'})
+            throw ({code: 8001000, msg: 'CArticle Edit'})
         }
     }
 
@@ -217,7 +217,7 @@ export class CArticle {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CArticle Get'})
+            throw ({code: 8001000, msg: 'CArticle Get'})
         }
     }
 
@@ -285,7 +285,7 @@ export class CArticle {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CArticle GetCount'})
+            throw ({code: 8001000, msg: 'CArticle GetCount'})
         }
     }
 
@@ -298,7 +298,7 @@ export class CArticle {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CArticle Count'})
+            throw ({code: 8001000, msg: 'CArticle Count'})
         }
     }
 
@@ -333,7 +333,7 @@ export class CArticle {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 8001000, msg: 'CArticle GetUsers'})
+            throw ({code: 8001000, msg: 'CArticle GetUsers'})
         }
     }*/
 /*
@@ -383,7 +383,7 @@ export class CArticle {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CArticle Search'})
+            throw ({code: 7001000, msg: 'CArticle Search'})
         }
     }
 
@@ -409,7 +409,7 @@ export class CArticle {
 
         } catch (err) {
             console.log(err)
-            throw ({err: 7001000, msg: 'CArticle SearchCount'})
+            throw ({code: 7001000, msg: 'CArticle SearchCount'})
         }
     }*/
 
