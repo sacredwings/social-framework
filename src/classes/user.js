@@ -62,8 +62,7 @@ export class CUser {
                         {
                             _id: {$in: ids}
                         }
-                },
-                { $lookup:
+                },{ $lookup:
                         {
                             from: 'file',
                             localField: 'photo',
@@ -77,11 +76,15 @@ export class CUser {
                                             foreignField: '_id',
                                             as: '_file_id'
                                         }
+                                },{ $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
                                 }
                             ]
                         },
-                },
-                { $lookup:
+                },{ $lookup:
                         {
                             from: 'file',
                             localField: 'photo_big',
@@ -95,19 +98,20 @@ export class CUser {
                                             foreignField: '_id',
                                             as: '_file_id'
                                         }
+                                },{ $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
                                 }
                             ]
                         },
-                },
-                {
-                    $unwind:
+                },{ $unwind:
                         {
                             path: '$_photo',
                             preserveNullAndEmptyArrays: true
                         }
-                },
-                {
-                    $unwind:
+                },{ $unwind:
                         {
                             path: '$_photo_big',
                             preserveNullAndEmptyArrays: true
