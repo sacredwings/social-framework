@@ -99,11 +99,15 @@ export class CGroup {
 
             let arAggregate = []
 
+            if (fields.user_id || fields.q)
+                arAggregate.push({ $match: {}})
+
             if (fields.user_id)
-                arAggregate.push({ $match: {
-                        create_id: fields.user_id
-                    }
-                })
+                arAggregate[0].$match.create_id = fields.user_id
+            if (fields.q) {
+                arAggregate[0].$match.$text = {}
+                arAggregate[0].$match.$text.$search = fields.q
+            }
 
             arAggregate.push(
                 { $lookup:
@@ -174,6 +178,7 @@ export class CGroup {
                         }
                 })
 
+            //return arAggregate
             //let result = await collection.find({_id: { $in: ids}}).toArray()
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
 
@@ -190,14 +195,39 @@ export class CGroup {
             fields.user_id = new DB().ObjectID(fields.user_id)
             let collection = DB.Client.collection('group');
 
+            let arFields = {}
             if (fields.user_id)
-                return await collection.count(
-                    {
-                        create_id: fields.user_id
-                    }
-                )
+                arFields.create_id = fields.user_id
+            if (fields.q) {
+                arFields.$text = {}
+                arFields.$text.$search = fields.q
+            }
 
-            return await collection.count()
+
+            return await collection.count(arFields)
+
+            /*
+            let arAggregate = []
+
+            if (fields.user_id || fields.q)
+                arAggregate.push({ $match: {}})
+
+            if (fields.user_id)
+                arAggregate[0].$match.create_id = fields.user_id
+            if (fields.q) {
+                arAggregate[0].$match.$text = {}
+                arAggregate[0].$match.$text.$search = fields.q
+            }
+
+            arAggregate.push({
+                $count: 'count'
+            })*/
+
+            /*
+            let result = await collection.aggregate(arAggregate).toArray();
+            if (!result.length) return 0
+            return result[0].count*/
+
         } catch (err) {
             console.log(err)
             throw ({code: 4004000, msg: 'CGroup GetCount'})
