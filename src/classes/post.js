@@ -61,6 +61,36 @@ export class CPost {
                                 }
                             ]
                         },
+                },{
+                    $lookup:
+                        {
+                            from: 'user',
+                            localField: 'from_id',
+                            foreignField: '_id',
+                            as: '_from_id',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'photo',
+                                            foreignField: '_id',
+                                            as: '_photo'
+                                        }
+                                },{
+                                    $unwind:
+                                        {
+                                            path: '$_photo',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        },
+                },{
+                    $unwind:
+                        {
+                            path: '$_from_id',
+                            preserveNullAndEmptyArrays: true
+                        }
                 }
             ]).toArray();
 
