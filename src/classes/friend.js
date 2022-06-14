@@ -162,58 +162,64 @@ export class CFriend {
 
             let arAggregate = [{
                 $match: {
-                    user_id: fields.user_id
+                    $or: [{
+                        user_id: fields.user_id,
+                        allowed: true,
+                    },{
+                        friend_id: fields.user_id,
+                        allowed: true,
+                    }],
+                }
+            },{
+                $lookup: {
+                    from: 'user',
+                    localField: 'user_id',
+                    foreignField: '_id',
+                    as: '_user_id',
+                    pipeline: [{
+                        $lookup: {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo'
+                        }
+                    },{
+                        $unwind: {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                    }]
                 },
             },{
-                $lookup:
-                    {
-                        from: 'user',
-                        localField: 'user_id',
-                        foreignField: '_id',
-                        as: '_user_id',
-                        pipeline: [
-                            { $lookup:
-                                    {
-                                        from: 'file',
-                                        localField: 'photo',
-                                        foreignField: '_id',
-                                        as: '_photo'
-                                    }
-                            },
-                            {
-                                $unwind:
-                                    {
-                                        path: '$_photo',
-                                        preserveNullAndEmptyArrays: true
-                                    }
-                            }
-                        ]
-                    },
+                $lookup: {
+                    from: 'user',
+                    localField: 'friend_id',
+                    foreignField: '_id',
+                    as: '_friend_id',
+                    pipeline: [{
+                        $lookup: {
+                            from: 'file',
+                            localField: 'photo',
+                            foreignField: '_id',
+                            as: '_photo'
+                        }
+                    },{
+                        $unwind: {
+                            path: '$_photo',
+                            preserveNullAndEmptyArrays: true
+                        }
+                    }]
+                }
             },{
-                $lookup:
-                    {
-                        from: 'user',
-                        localField: 'friend_id',
-                        foreignField: '_id',
-                        as: '_friend_id',
-                        pipeline: [
-                            { $lookup:
-                                    {
-                                        from: 'file',
-                                        localField: 'photo',
-                                        foreignField: '_id',
-                                        as: '_photo'
-                                    }
-                            },
-                            {
-                                $unwind:
-                                    {
-                                        path: '$_photo',
-                                        preserveNullAndEmptyArrays: true
-                                    }
-                            }
-                        ]
-                    },
+                $unwind: {
+                    path: '$_friend_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            },{
+                $unwind: {
+                    path: '$_user_id',
+                    preserveNullAndEmptyArrays: true
+                }
             },{
                 $sort: {
                     _id: -1

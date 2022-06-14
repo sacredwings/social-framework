@@ -335,20 +335,43 @@ export class CMessage {
 
     static async CountNoRead ( fields ) {
         try {
-            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
 
             let collection = DB.Client.collection('message')
 
+            let Aggregate = []
+            if (!fields.to_id)
+                Aggregate.push({
+                    $match: {
+                        to_id: fields.to_id,
+                        read: null
+                    }
+                })
+            else
+                Aggregate.push({
+                    $match: {
+                        from_id: fields.from_id,
+                        to_id: fields.to_id,
+                        read: null
+                    }
+                })
+
+            Aggregate.push({
+                $count: 'count'
+            })
+
+            /*
             let Aggregate = [
                 {
                     $match: {
-                        to_id: fields.user_id,
+                        to_id: fields.to_id,
                         read: null
                     }
                 },{
                     $count: 'count'
                 }
-            ]
+            ]*/
 
             let result = await collection.aggregate(Aggregate).toArray();
             if (!result.length) return 0
