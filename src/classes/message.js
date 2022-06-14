@@ -341,7 +341,7 @@ export class CMessage {
             let collection = DB.Client.collection('message')
 
             let Aggregate = []
-            if (!fields.to_id)
+            if (!fields.from_id)
                 Aggregate.push({
                     $match: {
                         to_id: fields.to_id,
