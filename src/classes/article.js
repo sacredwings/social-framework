@@ -123,8 +123,8 @@ export class CArticle {
             if (fields.q)
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
 
-            if (fields.to_group_id)
-                delete fields.to_user_id
+            //if (fields.to_group_id)
+                //delete fields.to_user_id
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -132,44 +132,75 @@ export class CArticle {
 
             let collection = DB.Client.collection('article');
 
-            let arAggregate = [
-                { $match:
-                        {},
-                },{ $lookup:
+            let arAggregate = []
+            arAggregate.push({
+                $match:
+                    {}
+            })
+            arAggregate.push({
+                $lookup:
+                    {
+                        from: 'file',
+                        localField: 'image_id',
+                        foreignField: '_id',
+                        as: '_image_id',
+                        pipeline: [
+                            { $lookup:
+                                    {
+                                        from: 'file',
+                                        localField: 'file_id',
+                                        foreignField: '_id',
+                                        as: '_file_id'
+                                    }
+                            },{ $unwind:
+                                    {
+                                        path: '$_file_id',
+                                        preserveNullAndEmptyArrays: true
+                                    }
+                            }
+                        ]
+                    }
+            })
+            arAggregate.push({
+                $lookup:
+                    {
+                        from: 'album',
+                        localField: 'album_ids',
+                        foreignField: '_id',
+                        as: '_album_ids'
+                    }
+            })
+
+            //нет группы, ищем только в бесплатных группах
+            if ((!fields.to_group_id) && (!fields.to_user_id)) {
+                arAggregate.push({
+                    $lookup:
                         {
-                            from: 'file',
-                            localField: 'image_id',
+                            from: 'group',
+                            localField: 'to_group_id',
                             foreignField: '_id',
-                            as: '_image_id',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },{ $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
+                            as: '_to_group_id'
+                        }
+                })
+                arAggregate.push({
+                    $match:
+                        {
+                            $or: [
+                                {'_to_group_id.price': null},
+                                {'_to_group_id.price': 0},
+                                //{'_to_group_id.price': { '$exists' : true }},
                             ]
                         }
-                },{ $lookup:
-                        {
-                            from: 'album',
-                            localField: 'album_ids',
-                            foreignField: '_id',
-                            as: '_album_ids'
-                        }
-                },{ $unwind:
-                        {
-                            path: '$_image_id',
-                            preserveNullAndEmptyArrays: true
-                        }
-                }]
+                })
+            }
+
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_image_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
@@ -228,8 +259,8 @@ export class CArticle {
             if (fields.q)
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
 
-            if (fields.to_group_id)
-                delete fields.to_user_id
+            //if (fields.to_group_id)
+                //delete fields.to_user_id
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -240,6 +271,29 @@ export class CArticle {
             let arAggregate = [{
                 $match: {},
             }]
+
+            //нет группы, ищем только в бесплатных группах
+            if ((!fields.to_group_id) && (!fields.to_user_id)) {
+                arAggregate.push({
+                    $lookup:
+                        {
+                            from: 'group',
+                            localField: 'to_group_id',
+                            foreignField: '_id',
+                            as: '_to_group_id'
+                        }
+                })
+                arAggregate.push({
+                    $match:
+                        {
+                            $or: [
+                                {'_to_group_id.price': null},
+                                {'_to_group_id.price': 0},
+                                //{'_to_group_id.price': { '$exists' : true }},
+                            ]
+                        }
+                })
+            }
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`

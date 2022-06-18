@@ -95,43 +95,74 @@ export class CVideo {
                 fields.q = strSearchLike
             }
 
-            if (fields.to_group_id)
-                delete fields.to_user_id
-
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
+            //if (fields.to_group_id)
+                //delete fields.to_user_id
+
             let collection = DB.Client.collection('file');
 
-            let arAggregate = [
-                { $match:
+            let arAggregate = []
+            arAggregate.push({
+                $match:
+                    {
+                        $or: [
+                            {type: 'video/mp4'},
+                            {type: 'video/avi'},
+                        ]
+                    }
+            })
+            arAggregate.push({
+                $lookup:
+                    {
+                        from: 'file',
+                        localField: 'file_id',
+                        foreignField: '_id',
+                        as: '_file_id'
+                    }
+            })
+            arAggregate.push({
+                $lookup:
+                    {
+                        from: 'album',
+                        localField: 'album_ids',
+                        foreignField: '_id',
+                        as: '_album_ids'
+                    }
+            })
+
+            //нет группы, ищем только в бесплатных группах
+            if ((!fields.to_group_id) && (!fields.to_user_id)) {
+                arAggregate.push({
+                    $lookup:
+                        {
+                            from: 'group',
+                            localField: 'to_group_id',
+                            foreignField: '_id',
+                            as: '_to_group_id'
+                        }
+                })
+                arAggregate.push({
+                    $match:
                         {
                             $or: [
-                                {type: 'video/mp4'},
-                                {type: 'video/avi'},
+                                {'_to_group_id.price': null},
+                                {'_to_group_id.price': 0},
+                                //{'_to_group_id.price': { '$exists' : true }},
                             ]
                         }
-                },{ $lookup:
-                        {
-                            from: 'file',
-                            localField: 'file_id',
-                            foreignField: '_id',
-                            as: '_file_id'
-                        }
-                },{ $lookup:
-                        {
-                            from: 'album',
-                            localField: 'album_ids',
-                            foreignField: '_id',
-                            as: '_album_ids'
-                        }
-                },{ $unwind:
-                        {
-                            path: '$_file_id',
-                            preserveNullAndEmptyArrays: true
-                        }
-                }]
+                })
+            }
+
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_file_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = `${fields.q}`
@@ -196,12 +227,12 @@ export class CVideo {
                 fields.q = strSearchLike
             }
 
-            if (fields.to_group_id)
-                delete fields.to_user_id
-
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
+
+            //if (fields.to_group_id)
+                //delete fields.to_user_id
 
             let collection = DB.Client.collection('file');
 
@@ -213,6 +244,29 @@ export class CVideo {
                     ]
                 },
             }]
+
+            //нет группы, ищем только в бесплатных группах
+            if ((!fields.to_group_id) && (!fields.to_user_id)) {
+                arAggregate.push({
+                    $lookup:
+                        {
+                            from: 'group',
+                            localField: 'to_group_id',
+                            foreignField: '_id',
+                            as: '_to_group_id'
+                        }
+                })
+                arAggregate.push({
+                    $match:
+                        {
+                            $or: [
+                                {'_to_group_id.price': null},
+                                {'_to_group_id.price': 0},
+                                //{'_to_group_id.price': { '$exists' : true }},
+                            ]
+                        }
+                })
+            }
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = `${fields.q}`
