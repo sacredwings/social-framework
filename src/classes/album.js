@@ -116,7 +116,7 @@ export class CAlbum {
                 { $match:
                         {
                             module: fields.module,
-                            album_ids: fields.album_id //2 уровень при null не отображать
+                            album_id: fields.album_id //2 уровень при null не отображать
                         }
                 },{ $lookup:
                         {
@@ -196,7 +196,7 @@ export class CAlbum {
             let arAggregate = [{
                 $match: {
                     module: fields.module,
-                    album_ids: fields.album_id //2 уровень при null не отображать
+                    album_id: fields.album_id //2 уровень при null не отображать
                 },
             }]
 
