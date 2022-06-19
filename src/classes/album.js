@@ -115,7 +115,8 @@ export class CAlbum {
             let arAggregate = [
                 { $match:
                         {
-                            module: fields.module
+                            module: fields.module,
+                            album_ids: fields.album_id //2 уровень при null не отображать
                         }
                 },{ $lookup:
                         {
@@ -157,8 +158,6 @@ export class CAlbum {
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
-            if (fields.album_id)
-                arAggregate[0].$match.album_ids = fields.album_id
 
             if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
@@ -196,14 +195,13 @@ export class CAlbum {
 
             let arAggregate = [{
                 $match: {
-                    module: fields.module
+                    module: fields.module,
+                    album_ids: fields.album_id //2 уровень при null не отображать
                 },
             }]
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
-            if (fields.album_id)
-                arAggregate[0].$match.album_ids = fields.album_id
 
             if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
