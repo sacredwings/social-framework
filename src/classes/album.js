@@ -100,6 +100,9 @@ export class CAlbum {
 //загрузка
     static async Get(fields) {
         try {
+            if (fields.q)
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+
             if (fields.to_group_id)
                 delete fields.to_user_id
 
@@ -112,8 +115,7 @@ export class CAlbum {
             let arAggregate = [
                 { $match:
                         {
-                            module: fields.module,
-                            album_id: fields.album_id
+                            module: fields.module
                         }
                 },{ $lookup:
                         {
@@ -153,6 +155,11 @@ export class CAlbum {
                 },
             ]
 
+            if (fields.q) arAggregate[0].$match.$text = {}
+            if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
+            if (fields.album_id)
+                arAggregate[0].$match.album_ids = fields.album_id
+
             if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
             //if (fields.album_id) arAggregate[0].$match.album_id = fields.album_id
@@ -175,6 +182,9 @@ export class CAlbum {
 //количество
     static async Count(fields) {
         try {
+            if (fields.q)
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+
             if (fields.to_group_id)
                 delete fields.to_user_id
 
@@ -184,17 +194,28 @@ export class CAlbum {
 
             let collection = DB.Client.collection('album');
 
-            let count = {
-                module: fields.module,
-                album_id: fields.album_id
-            }
+            let arAggregate = [{
+                $match: {
+                    module: fields.module
+                },
+            }]
 
-            if (fields.to_user_id) count.to_user_id = fields.to_user_id
-            if (fields.to_group_id) count.to_group_id = fields.to_group_id
+            if (fields.q) arAggregate[0].$match.$text = {}
+            if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
+            if (fields.album_id)
+                arAggregate[0].$match.album_ids = fields.album_id
+
+            if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
             //if (fields.album_id) count.album_id = fields.album_id
 
-            let result = await collection.count(count)
-            return result
+            arAggregate.push({
+                $count: 'count'
+            })
+
+            let result = await collection.aggregate(arAggregate).toArray();
+            if (!result.length) return 0
+            return result[0].count
 
         } catch (err) {
             console.log(err)

@@ -71,6 +71,19 @@ export class CAdmin {
                 })
                 console.log(arIndexes)
 
+                console.log('album')
+                collection = DB.Client.collection('album')
+                arIndexes = await collection.indexes()
+                arIndexes.forEach((item)=>{
+                    if (item.name !== '_id_')
+                        collection.dropIndex(item.name)
+                })
+                indexUser = await collection.createIndex({
+                    "title":"text",
+                    "text":"text",
+                })
+                console.log(arIndexes)
+
             } catch (e) {
                 console.log(e)
             }
