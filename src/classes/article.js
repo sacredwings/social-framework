@@ -202,6 +202,8 @@ export class CArticle {
                     }
             })
 
+            arAggregate.push({ $project : { text : 0 } })
+
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
 
