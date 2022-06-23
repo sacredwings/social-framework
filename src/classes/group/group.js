@@ -1,4 +1,4 @@
-import { DB } from "./db";
+import { DB } from "../db";
 
 export class CGroup {
 
@@ -81,7 +81,7 @@ export class CGroup {
                         }
                 }
             ]
-            let result = await collection.aggregate(aggregate).toArray();
+            let result = await collection.aggregate(aggregate).toArray()
 
             return result
         } catch (err) {
@@ -349,95 +349,7 @@ export class CGroup {
             throw ({code: 4007000, msg: 'CGroup Delete'})
         }
     }
-/*
-    //поиск по группам
-    static async Search ( fields ) {
-        try {
-            let collection = DB.Client.collection('group');
 
-            let arAggregate = []
-
-            if (fields.q) arAggregate.push(
-                {
-                    $match:
-                        {
-                            $text: {
-                                $search: fields.q
-                            }
-                        },
-                }
-            )
-
-            arAggregate.push(
-                {
-                    $lookup:
-                        {
-                            from: 'file',
-                            localField: 'photo',
-                            foreignField: '_id',
-                            as: '_photo',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                }
-                            ]
-                        },
-                },
-                {
-                    $lookup:
-                        {
-                            from: 'user',
-                            localField: 'create_id',
-                            foreignField: '_id',
-                            as: '_create_id',
-                        },
-                },
-                {
-                    $unwind:
-                        {
-                            path: '$_photo',
-                            preserveNullAndEmptyArrays: true
-                        }
-                },
-                {
-                    $unwind:
-                        {
-                            path: '$_create_id',
-                            preserveNullAndEmptyArrays: true
-                        }
-                }
-            )
-
-            let result = await collection.aggregate(arAggregate).limit(fields.count).skip(fields.offset).toArray()
-            return result
-
-        } catch (err) {
-            console.log(err)
-            throw ({code: 7001000, msg: 'CGroup Search'})
-        }
-    }
-
-    //количество / поиск
-    static async SearchCount ( fields ) {
-        try {
-            let collection = DB.Client.collection('group');
-
-            let arSearch = {}
-            if (fields.q) arSearch = {$text: {$search: fields.q}}
-
-            let result = await collection.count(arSearch)
-            return result
-        } catch (err) {
-            console.log(err)
-            throw ({code: 7001000, msg: 'CGroup SearchCount'})
-        }
-    }
-*/
     //ТРАНЗАКЦИИ ПЛАТЕЖНОЙ СИСТЕМЫ YANDEX
     //добавить новую группу
     static async PayTransactionAdd ( fields ) {
