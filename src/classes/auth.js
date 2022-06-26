@@ -1,6 +1,6 @@
-import bcrypt from "bcrypt";
-import crypto from "crypto";
-import { DB } from "./db";
+import bcrypt from "bcrypt"
+import * as crypto from "crypto"
+import { DB } from "./db"
 import { CUser } from './user'
 
 export class CAuth {
@@ -47,7 +47,7 @@ export class CAuth {
 
     static async AddToken ( userId, ip, browser ) {
         try {
-            let collection = DB.Client.collection('auth');
+            let collection = DB.Client.collection('auth')
 
             //создаем hash /нужно поменять на дату
             let hash = new Date().toString()

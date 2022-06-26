@@ -1,8 +1,9 @@
 import { MongoClient, ObjectId } from 'mongodb'
 
+//type InterfaceClient = object | null
+
 export class DB {
-    constructor( ) {
-    }
+    //Client: InterfaceClient
 
     async Init(url, dbName) {
         try {
@@ -17,7 +18,7 @@ export class DB {
     ObjectID (value) {
         //строка 24 символа
         if ((value) && (typeof value === 'string') && (value.length === 24))
-            return ObjectId(value)
+            return new ObjectId(value)
 
         //уже объект
         if ((value) && (typeof value === 'object'))
@@ -34,24 +35,20 @@ export class DB {
 
         arValue.forEach(function(value, i, arr) {
             if ((value) && (typeof value === 'string') && (value.length === 24))
-                arResult.push(ObjectId(value))
+                arResult.push(new ObjectId(value))
 
             if ((value) && (typeof value === 'object'))
                 arResult.push(value)
 
             if (!value)
                 arResult.push(null)
-        });
+        })
 
         if (arResult.length) return arResult
 
         return arValue
     }
 }
-
-
-
-
 
 //import { Pool } from 'pg'
 
