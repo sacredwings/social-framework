@@ -315,6 +315,34 @@ export class CFriend {
         }
     }
 
+    //количество
+    static async CountNotViewed ( fields ) {
+        try {
+            fields.user_id = new DB().ObjectID(fields.user_id)
+
+            let collection = DB.Client.collection('friend')
+
+            let Aggregate = [
+                {
+                    $match: {
+                        friend_id: fields.user_id,
+                        viewed: null,
+                    },
+                },{
+                    $count: 'count'
+                }
+            ]
+
+            let result = await collection.aggregate(Aggregate).toArray();
+            if (!result.length) return 0
+            return result[0].count
+
+        } catch (err) {
+            console.log(err)
+            throw ({code: 6004000, msg: 'CFriend CountNotViewed'})
+        }
+    }
+
     /*
     static async Accept ( fields, where ) {
         try {
