@@ -1,18 +1,16 @@
 import { DB } from "./db";
-import { CFile } from "./file";
-import { CUser } from "./user";
 
 export class CFriend {
 
     static async Add ( fields ) {
         try {
-            fields.user_id = new DB().ObjectID(fields.user_id)
-            fields.friend_id = new DB().ObjectID(fields.friend_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
             let collection = DB.Client.collection('friend')
 
             let arFields = {
-                user_id: fields.user_id,
-                friend_id: fields.friend_id
+                from_id: fields.from_id,
+                to_id: fields.to_id
             }
             let selectFriend = await this.GetByUser(arFields)
             //нет, создаем
@@ -21,8 +19,8 @@ export class CFriend {
                 fields.create_date = new Date()
 
                 arFields = {
-                    user_id: fields.user_id,
-                    friend_id: fields.friend_id,
+                    from_id: fields.from_id,
+                    to_id: fields.to_id,
                     viewed: null,
                     allowed: null,
                     create_date: new Date()
@@ -33,14 +31,13 @@ export class CFriend {
             }
 
             //заявка входящая
-            if (selectFriend.friend_id.toString() === fields.user_id.toString()) {
+            if (selectFriend.to_id.toString() === fields.from_id.toString()) {
                 //просматриваем и принимаем
                 let newField = {
                     viewed: true,
                     allowed: true
                 }
 
-                console.log(selectFriend.friend_id)
                 await collection.updateOne({_id: selectFriend._id}, {$set: newField})
 
                 return true
@@ -55,13 +52,13 @@ export class CFriend {
 
     static async Delete ( fields ) {
         try {
-            fields.user_id = new DB().ObjectID(fields.user_id)
-            fields.friend_id = new DB().ObjectID(fields.friend_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
             let collection = DB.Client.collection('friend')
 
             let arFields = {
-                user_id: fields.user_id,
-                friend_id: fields.friend_id
+                from_id: fields.from_id,
+                to_id: fields.to_id
             }
             let selectFriend = await this.GetByUser(arFields)
 
@@ -69,7 +66,7 @@ export class CFriend {
             if (!selectFriend) return false
 
             //заявка входящая
-            if (selectFriend.friend_id.toString() === fields.user_id.toString()) {
+            if (selectFriend.to_id.toString() === fields.from_id.toString()) {
                 //просматриваем и принимаем
                 let newField = {
                     viewed: true,
@@ -85,24 +82,24 @@ export class CFriend {
             return true
         } catch (err) {
             console.log(err)
-            throw ({code: 4001000, msg: 'CFriend Add'})
+            throw ({code: 4001000, msg: 'CFriend Delete'})
         }
     }
 
     static async GetByUser ( fields ) {
         try {
-            fields.user_id = new DB().ObjectID(fields.user_id)
-            fields.friend_id = new DB().ObjectID(fields.friend_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
             let collection = DB.Client.collection('friend')
 
             let Aggregate = [{
                 $match: {
                     $or: [{
-                        user_id: fields.user_id,
-                        friend_id: fields.friend_id,
+                        from_id: fields.from_id,
+                        to_id: fields.to_id,
                     },{
-                        user_id: fields.friend_id,
-                        friend_id: fields.user_id,
+                        from_id: fields.to_id,
+                        to_id: fields.from_id,
                     }],
                 }
             }]
@@ -118,10 +115,10 @@ export class CFriend {
         }
     }
 
-    static async Status ( fields ) {
+    static async StatusByUser ( fields ) {
         try {
-            fields.user_id = new DB().ObjectID(fields.user_id)
-            fields.friend_id = new DB().ObjectID(fields.friend_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
             let selectFriend = await this.GetByUser(fields)
 
             //нет заявки
@@ -132,19 +129,19 @@ export class CFriend {
             if (selectFriend.allowed === true)
                 return 'friend'
 
-            selectFriend.user_id = selectFriend.user_id.toString()
-            selectFriend.friend_id = selectFriend.friend_id.toString()
+            selectFriend.from_id = selectFriend.from_id.toString()
+            selectFriend.to_id = selectFriend.to_id.toString()
 
             //заявка входящая
-            if ((selectFriend.friend_id.toString() === fields.user_id.toString()) && (selectFriend.viewed === true))
+            if ((selectFriend.to_id.toString() === fields.from_id.toString()) && (selectFriend.viewed === true))
                 return 'viewed'
 
             //заявка входящая
-            if (selectFriend.friend_id.toString() === fields.user_id.toString())
+            if (selectFriend.to_id.toString() === fields.from_id.toString())
                 return 'in'
 
             //заявка исходящая
-            if (selectFriend.user_id.toString() === fields.user_id.toString())
+            if (selectFriend.from_id.toString() === fields.from_id.toString())
                 return 'out'
 
             return false
@@ -159,23 +156,40 @@ export class CFriend {
         try {
             let collection = DB.Client.collection('friend')
             fields.user_id = new DB().ObjectID(fields.user_id)
+            let match = {
+                $or: [{
+                    from_id: fields.user_id,
+                    allowed: true,
+                },{
+                    to_id: fields.user_id,
+                    allowed: true,
+                }],
+            }
+            if (fields.status === 'in')
+                match = {
+                    to_id: fields.user_id,
+                    allowed: null,
+                }
+            if (fields.status === 'out')
+                match = {
+                    from_id: fields.user_id,
+                    allowed: null,
+                }
+            if (fields.status === 'not')
+                match = {
+                    to_id: fields.user_id,
+                    allowed: null,
+                    viewed: null
+                }
 
             let arAggregate = [{
-                $match: {
-                    $or: [{
-                        user_id: fields.user_id,
-                        allowed: true,
-                    },{
-                        friend_id: fields.user_id,
-                        allowed: true,
-                    }],
-                }
+                $match: match
             },{
                 $lookup: {
                     from: 'user',
-                    localField: 'user_id',
+                    localField: 'from_id',
                     foreignField: '_id',
-                    as: '_user_id',
+                    as: '_from_id',
                     pipeline: [{
                         $lookup: {
                             from: 'file',
@@ -193,9 +207,9 @@ export class CFriend {
             },{
                 $lookup: {
                     from: 'user',
-                    localField: 'friend_id',
+                    localField: 'to_id',
                     foreignField: '_id',
-                    as: '_friend_id',
+                    as: '_to_id',
                     pipeline: [{
                         $lookup: {
                             from: 'file',
@@ -212,12 +226,12 @@ export class CFriend {
                 }
             },{
                 $unwind: {
-                    path: '$_friend_id',
+                    path: '$_to_id',
                     preserveNullAndEmptyArrays: true
                 }
             },{
                 $unwind: {
-                    path: '$_user_id',
+                    path: '$_from_id',
                     preserveNullAndEmptyArrays: true
                 }
             },{
@@ -227,54 +241,6 @@ export class CFriend {
             }]
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
-
-            /*
-
-            let sql = `SELECT * FROM ${DB.Init.TablePrefix}friend WHERE (user_id=${fields.user_id} OR friend_id=${fields.user_id}) AND allowed=true ORDER BY id DESC`
-            sql += ` LIMIT $1 OFFSET $2 `
-
-            let result = await DB.Init.Query(sql, [fields.count, fields.offset])
-
-            //друзей нет, выходим
-            if (!result.length)
-                return []
-
-            let arUsers = []
-            //вытаскиваем id пользователей из массива / кроме своего
-            result = await Promise.all(result.map(async (item, i) => {
-
-                //сохраняем из одного поля в общий массив
-                if (Number (item.user_id) !== Number (fields.user_id))
-                    arUsers.push(item.user_id)
-
-                //сохраняем из другого поля в общий массив
-                if (Number (item.friend_id) !== Number (fields.user_id))
-                    arUsers.push(item.friend_id)
-
-                return item;
-            }));
-
-
-            arUsers = await CUser.GetById ( arUsers );
-
-            //фильтр
-            arUsers = await Promise.all(arUsers.map(async (item, i) => {
-
-                let newField = {
-                    id:             item.id,
-                    timestamp_x:    item.timestamp_x,
-                    login:          item.login,
-                    active:         item.active,
-
-                    first_name:     item.first_name,
-                    last_name:      item.last_name,
-                    second_name:    item.second_name,
-                    photo:          item.photo,
-                }
-                return newField;
-            }));
-
-            return arUsers*/
         } catch (err) {
             console.log(err)
             throw ({code: 6003000, msg: 'CFriend Get'})
@@ -284,15 +250,37 @@ export class CFriend {
     //количество
     static async GetCount ( fields ) {
         try {
-            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.user_id = new DB().ObjectID(fields.user_id)
 
             let collection = DB.Client.collection('friend')
+            let match = {
+                $or: [{
+                    from_id: fields.user_id,
+                    allowed: true,
+                },{
+                    to_id: fields.user_id,
+                    allowed: true,
+                }],
+            }
+            if (fields.status === 'in')
+                match = {
+                    to_id: fields.user_id,
+                    allowed: null,
+                }
+            if (fields.status === 'out')
+                match = {
+                    from_id: fields.user_id,
+                    allowed: null,
+                }
+            if (fields.status === 'not')
+                match = {
+                    to_id: fields.user_id,
+                    allowed: null,
+                    viewed: null
+                }
 
-            let Aggregate = [
-                {
-                    $match: {
-                        user_id: fields.user_id
-                    },
+            let Aggregate = [{
+                    $match: match
                 },{
                     $count: 'count'
                 }
@@ -301,14 +289,6 @@ export class CFriend {
             let result = await collection.aggregate(Aggregate).toArray();
             if (!result.length) return 0
             return result[0].count
-
-            /*
-            let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}friend WHERE (user_id=${fields.user_id} OR friend_id=${fields.user_id}) AND allowed=true`
-            //let sql = `SELECT COUNT(*) FROM ${DB.Init.TablePrefix}post WHERE owner_id=${fields.owner_id}`
-
-            let result = await DB.Init.Query(sql)
-
-            return Number (result[0].count)*/
         } catch (err) {
             console.log(err)
             throw ({code: 6004000, msg: 'CFriend GetCount'})
@@ -325,7 +305,7 @@ export class CFriend {
             let Aggregate = [
                 {
                     $match: {
-                        friend_id: fields.user_id,
+                        to_id: fields.user_id,
                         viewed: null,
                     },
                 },{
