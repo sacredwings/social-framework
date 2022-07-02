@@ -35,7 +35,7 @@ export class CMessage {
             let arFields = {
                 user_ids:
                     {
-                        $eq:
+                        $all:
                             [
                                 fields.to_id,
                                 fields.from_id,
@@ -43,19 +43,6 @@ export class CMessage {
                     }
             }
             let rsSearch = await collection.findOne(arFields)
-            if (!rsSearch) {
-                let arFields = {
-                    user_ids:
-                        {
-                            $eq:
-                                [
-                                    fields.from_id,
-                                    fields.to_id,
-                                ]
-                        }
-                }
-                let rsSearch = await collection.findOne(arFields)
-            }
 
             //чат существует / обновляем сообщение и дату
             if (rsSearch) {
