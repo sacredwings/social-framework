@@ -15,6 +15,7 @@ import { CTopic } from './classes/topic'
 import { CUser } from './classes/user'
 import { CVideo } from './classes/video'
 import { CView } from './classes/view'
+import { CNotify } from "./classes/notify"
 
 export {
     DB,
@@ -33,5 +34,6 @@ export {
     CTopic,
     CUser,
     CVideo,
-    CView
+    CView,
+    CNotify
 }
