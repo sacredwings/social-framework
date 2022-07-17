@@ -1,13 +1,13 @@
 {
   "name": "social-framework",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "",
   "main": "./build/index.js",
   "scripts": {
     "start": "babel-node src/index.js",
     "test": "NODE build/index.js",
     "build": "babel -d build src",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "keywords": [],
   "author": "stronggenius",
