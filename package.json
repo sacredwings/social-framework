@@ -1,13 +1,13 @@
 {
   "name": "social-framework",
-  "version": "0.0.33",
+  "version": "0.0.38",
   "description": "",
   "main": "./build/index.js",
   "scripts": {
     "start": "babel-node src/index.js",
     "test": "NODE build/index.js",
     "build": "babel -d build src",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "keywords": [],
   "author": "stronggenius",
@@ -16,7 +16,8 @@
     "bcrypt": "^5.0.1",
     "ffmpeg-extract-frame": "^1.0.2",
     "fs-extra": "^10.1.0",
-    "mongodb": "^4.8.0"
+    "mongodb": "^4.8.0",
+    "mongodb-client-encryption": "^2.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",
