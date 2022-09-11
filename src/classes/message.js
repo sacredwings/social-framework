@@ -17,7 +17,7 @@ export class CMessage {
             let arFieldsMessage = {
                 from_id: fields.from_id,
                 to_id: fields.to_id,
-                message: fields.message,
+                json: fields.json,
                 type: 'P',
                 file_ids: fields.file_ids,
                 read: null,
