@@ -21,16 +21,6 @@ export class CAdmin {
                 })
                 console.log(arIndexes)
 
-                /*
-                let arFields = {
-                    email: '',
-                    login: 'admin',
-                    password: '11111111',
-                    first_name: 'admin'
-                }
-                let arUser = await CUser.Add ( arFields )
-                */
-
                 console.log('group')
                 collection = DB.Client.collection('group')
                 arIndexes = await collection.indexes()
