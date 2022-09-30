@@ -172,6 +172,8 @@ export class CVideo {
 
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
+            else
+                arAggregate[0].$match.album_ids = null
 
             /*
             if (!fields.to_group_id) {
@@ -276,6 +278,8 @@ export class CVideo {
 
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
+            else
+                arAggregate[0].$match.album_ids = null
 
             /*
             if (!fields.to_group_id) {
