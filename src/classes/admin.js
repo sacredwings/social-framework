@@ -57,7 +57,7 @@ export class CAdmin {
                 })
                 indexUser = await collection.createIndex({
                     "title":"text",
-                    "text":"text",
+                    "json.text":"text",
                 })
                 console.log(arIndexes)
 
@@ -83,7 +83,7 @@ export class CAdmin {
                 })
                 indexUser = await collection.createIndex({
                     "title":"text",
-                    "text":"text",
+                    "json.text":"text",
                 })
                 console.log(arIndexes)
 
