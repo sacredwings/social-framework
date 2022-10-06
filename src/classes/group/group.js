@@ -29,6 +29,31 @@ export class CGroup {
                         {
                             _id: {$in: ids}
                         }
+                },{ $lookup:
+                        {
+                            from: 'user',
+                            localField: 'create_id',
+                            foreignField: '_id',
+                            as: '_create_id',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file',
+                                            localField: 'photo',
+                                            foreignField: '_id',
+                                            as: '_photo'
+                                        }
+                                },{
+                                    $unwind:
+                                        {
+                                            path: '$_photo',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+
+                        },
+
                 },
                 { $lookup:
                         {
@@ -43,6 +68,12 @@ export class CGroup {
                                             localField: 'file_id',
                                             foreignField: '_id',
                                             as: '_file_id'
+                                        }
+                                },{
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
                                         }
                                 }
                             ]
@@ -62,9 +93,22 @@ export class CGroup {
                                             foreignField: '_id',
                                             as: '_file_id'
                                         }
+                                },{
+                                    $unwind:
+                                        {
+                                            path: '$_file_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
                                 }
                             ]
                         },
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_create_id',
+                            preserveNullAndEmptyArrays: true
+                        }
                 },
                 {
                     $unwind:
