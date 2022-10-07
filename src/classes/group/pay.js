@@ -1,4 +1,5 @@
 import { DB } from "../db"
+import { CGroup } from "./group"
 
 export class CGroupPay {
 
@@ -260,28 +261,40 @@ export class CGroupPay {
             fields.user_id = new DB().ObjectID(fields.user_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
 
-            let group = await this.GetById ( [fields.group_id] );
+            let group = await CGroup.GetById ( [fields.group_id] );
             if (group.length)
                 group = group[0]
 
             //группа бесплатная
-            if (!group.price) return true
+            if (!group.price) return {
+                status: true
+            }
 
             //группа платная, а пользователя нет
-            if ((group.price) && (!fields.user_id)) return false
+            if (!fields.user_id) return {
+                status: false
+            }
 
             //получаем запись об оплате
             let result = await this.PayGet(fields)
 
             //платы нет
-            if (!result) return false
+            if (!result) return {
+                status: false
+            }
 
             //оплата закончилась
             let dateSystem = new Date();
             let datePay = new Date(result.pay_date);
-            if (dateSystem > datePay) return false
+            if (dateSystem > datePay) return ({
+                status: false,
+                ...result
+            })
 
-            return true
+            return ({
+                status: true,
+                ...result
+            })
         } catch (err) {
             console.log(err)
             throw ({code: 4001000, msg: 'CGroup PayStatus'})
