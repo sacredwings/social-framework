@@ -301,3 +301,10 @@ export class CGroupPay {
         }
     }
 }
+
+function Day(day, startDate=new Date()) {
+    let date = new Date(startDate); // Now
+    date.setDate(date.getDate() + day); // Set now + 30 days as the new date
+
+    return date
+}
