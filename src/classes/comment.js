@@ -23,7 +23,7 @@ export class CComment {
                 module: fields.module,
                 object_id: fields.object_id,
                 from_id: fields.from_id,
-                text: fields.text,
+                json: fields.json,
                 file_ids: fields.file_ids,
                 comment_id: fields.comment_id,
                 create_date: fields.create_date,
