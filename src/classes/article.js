@@ -188,7 +188,6 @@ export class CArticle {
                             $or: [
                                 {'_to_group_id.price': null},
                                 {'_to_group_id.price': 0},
-                                //{'_to_group_id.price': { '$exists' : true }},
                             ]
                         }
                 })
@@ -201,11 +200,16 @@ export class CArticle {
                         preserveNullAndEmptyArrays: true
                     }
             })
-
-            arAggregate.push({ $project : { text : 0 } })
+/*
+            arAggregate.push({
+                $project : {
+                    //text : 0,
+                    //score: { $meta: "searchScore" }
+                }
+            })*/
 
             if (fields.q) arAggregate[0].$match.$text = {}
-            if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
@@ -214,29 +218,6 @@ export class CArticle {
                 arAggregate[0].$match.album_ids = fields.album_id
             else
                 arAggregate[0].$match.album_ids = null
-
-            /*
-            if (!fields.to_group_id) {
-                arAggregate.push(
-                    { $lookup:
-                            {
-                                from: 'group',
-                                localField: 'to_group_id',
-                                foreignField: '_id',
-                                as: '_to_group_id',
-                            }
-                    }
-                )
-
-                arAggregate.push(
-                    { $match: {
-                            "_to_group_id.price": null,
-
-                        }
-                    }
-                )
-            }*/
-
 
             arAggregate.push({
                 $sort: {
@@ -247,7 +228,7 @@ export class CArticle {
                 }
             })
 
-            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
+            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
             return result
 
         } catch (err) {
@@ -293,14 +274,13 @@ export class CArticle {
                             $or: [
                                 {'_to_group_id.price': null},
                                 {'_to_group_id.price': 0},
-                                //{'_to_group_id.price': { '$exists' : true }},
                             ]
                         }
                 })
             }
 
             if (fields.q) arAggregate[0].$match.$text = {}
-            if (fields.q) arAggregate[0].$match.$text.$search = `\"${fields.q}\"`
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
@@ -309,29 +289,6 @@ export class CArticle {
                 arAggregate[0].$match.album_ids = fields.album_id
             else
                 arAggregate[0].$match.album_ids = null
-
-            /*
-            //альбома нет, поиск глобальный, показываем группы с price null
-            if (!fields.to_group_id) {
-                arAggregate.push(
-                    { $lookup:
-                            {
-                                from: 'group',
-                                localField: 'to_group_id',
-                                foreignField: '_id',
-                                as: '_to_group_id',
-                            }
-                    }
-                )
-
-                arAggregate.push(
-                    { $match: {
-                            "_to_group_id.price": null,
-
-                        }
-                    }
-                )
-            }*/
 
             arAggregate.push({
                 $count: 'count'

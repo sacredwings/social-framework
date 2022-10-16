@@ -83,6 +83,7 @@ export class CVideo {
     //загрузка
     static async Get ( fields ) {
         try {
+            /*
             if (fields.q) {
                 fields.q = fields.q.replace(/[^a-zа-яё\s]/gi, '')
                 fields.q = fields.q.replace(/ +/g, ' ').trim()
@@ -93,7 +94,7 @@ export class CVideo {
                     strSearchLike += `\"${searchLike}\" `
                 }
                 fields.q = strSearchLike
-            }
+            }*/
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -165,7 +166,7 @@ export class CVideo {
             })
 
             if (fields.q) arAggregate[0].$match.$text = {}
-            if (fields.q) arAggregate[0].$match.$text.$search = `${fields.q}`
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
@@ -217,6 +218,7 @@ export class CVideo {
     //количество
     static async GetCount ( fields ) {
         try {
+            /*
             if (fields.q) {
                 fields.q = fields.q.replace(/[^a-zа-яё\s]/gi, '')
                 fields.q = fields.q.replace(/ +/g, ' ').trim()
@@ -227,7 +229,7 @@ export class CVideo {
                     strSearchLike += `\"${searchLike}\" `
                 }
                 fields.q = strSearchLike
-            }
+            }*/
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -264,14 +266,13 @@ export class CVideo {
                             $or: [
                                 {'_to_group_id.price': null},
                                 {'_to_group_id.price': 0},
-                                //{'_to_group_id.price': { '$exists' : true }},
                             ]
                         }
                 })
             }
 
             if (fields.q) arAggregate[0].$match.$text = {}
-            if (fields.q) arAggregate[0].$match.$text.$search = `${fields.q}`
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
