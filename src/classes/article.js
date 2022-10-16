@@ -120,11 +120,10 @@ export class CArticle {
     //загрузка
     static async Get ( fields ) {
         try {
-            if (fields.q)
+            if (fields.q) {
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
-
-            //if (fields.to_group_id)
-                //delete fields.to_user_id
+                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
+            }
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -200,13 +199,6 @@ export class CArticle {
                         preserveNullAndEmptyArrays: true
                     }
             })
-/*
-            arAggregate.push({
-                $project : {
-                    //text : 0,
-                    //score: { $meta: "searchScore" }
-                }
-            })*/
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
@@ -217,16 +209,24 @@ export class CArticle {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
             else
-                arAggregate[0].$match.album_ids = null
+                if (!fields.q) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
 
-            arAggregate.push({
-                $sort: {
-                    comment: -1,
-                    like: -1,
-                    view: -1,
-                    _id: -1,
-                }
-            })
+            //сортировка, если поиска нет
+            if (fields.q)
+                arAggregate.push({
+                    $sort: {
+                        $score: {$meta:"textScore"}
+                    }
+                })
+            else
+                arAggregate.push({
+                    $sort: {
+                        comment: -1,
+                        like: -1,
+                        view: -1,
+                        _id: -1,
+                    }
+                })
 
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
             return result
@@ -241,11 +241,10 @@ export class CArticle {
     //количество
     static async GetCount ( fields ) {
         try {
-            if (fields.q)
+            if (fields.q) {
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
-
-            //if (fields.to_group_id)
-                //delete fields.to_user_id
+                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
+            }
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -288,7 +287,7 @@ export class CArticle {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
             else
-                arAggregate[0].$match.album_ids = null
+                if (!fields.q) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
 
             arAggregate.push({
                 $count: 'count'

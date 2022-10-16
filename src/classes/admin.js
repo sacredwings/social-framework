@@ -44,7 +44,7 @@ export class CAdmin {
                 indexUser = await collection.createIndex({
                         "title":"text",
                         "text":"text",
-                    }, {"default_language" : "none"}
+                    }, {"default_language" : "russian"}
                 )
                 console.log(arIndexes)
 

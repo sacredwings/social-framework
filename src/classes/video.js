@@ -1,5 +1,6 @@
 import { DB } from "./db";
 import { CFile } from "./file";
+import {re} from "@babel/core/lib/vendor/import-meta-resolve";
 
 export class CVideo {
 
@@ -83,18 +84,10 @@ export class CVideo {
     //загрузка
     static async Get ( fields ) {
         try {
-            /*
             if (fields.q) {
-                fields.q = fields.q.replace(/[^a-zа-яё\s]/gi, '')
-                fields.q = fields.q.replace(/ +/g, ' ').trim()
-
-                let arSearchLike = fields.q.split(' ')
-                let strSearchLike = ''
-                for (let searchLike of arSearchLike) {
-                    strSearchLike += `\"${searchLike}\" `
-                }
-                fields.q = strSearchLike
-            }*/
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
+            }
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -151,7 +144,6 @@ export class CVideo {
                             $or: [
                                 {'_to_group_id.price': null},
                                 {'_to_group_id.price': 0},
-                                //{'_to_group_id.price': { '$exists' : true }},
                             ]
                         }
                 })
@@ -174,38 +166,25 @@ export class CVideo {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
             else
-                arAggregate[0].$match.album_ids = null
+                if (!fields.q) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
 
-            /*
-            if (!fields.to_group_id) {
-                arAggregate.push(
-                    { $lookup:
-                            {
-                                from: 'group',
-                                localField: 'to_group_id',
-                                foreignField: '_id',
-                                as: '_to_group_id',
-                            }
+            //сортировка, если поиска нет
+            if (fields.q)
+                arAggregate.push({
+                    $sort: {
+                        $score: {$meta:"textScore"}
                     }
-                )
-
-                arAggregate.push(
-                    { $match: {
-                            "_to_group_id.price": null,
-
-                        }
+                })
+            else
+                arAggregate.push({
+                    $sort: {
+                        comment: -1,
+                        like: -1,
+                        view: -1,
+                        _id: -1,
                     }
-                )
-            }*/
+                })
 
-            arAggregate.push({
-                $sort: {
-                    comment: -1,
-                    like: -1,
-                    view: -1,
-                    _id: -1,
-                }
-            })
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
             return result
 
@@ -218,25 +197,14 @@ export class CVideo {
     //количество
     static async GetCount ( fields ) {
         try {
-            /*
             if (fields.q) {
-                fields.q = fields.q.replace(/[^a-zа-яё\s]/gi, '')
-                fields.q = fields.q.replace(/ +/g, ' ').trim()
-
-                let arSearchLike = fields.q.split(' ')
-                let strSearchLike = ''
-                for (let searchLike of arSearchLike) {
-                    strSearchLike += `\"${searchLike}\" `
-                }
-                fields.q = strSearchLike
-            }*/
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
+            }
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
-
-            //if (fields.to_group_id)
-                //delete fields.to_user_id
 
             let collection = DB.Client.collection('file');
 
@@ -280,29 +248,7 @@ export class CVideo {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
             else
-                arAggregate[0].$match.album_ids = null
-
-            /*
-            if (!fields.to_group_id) {
-                arAggregate.push(
-                    { $lookup:
-                            {
-                                from: 'group',
-                                localField: 'to_group_id',
-                                foreignField: '_id',
-                                as: '_to_group_id',
-                            }
-                    }
-                )
-
-                arAggregate.push(
-                    { $match: {
-                            "_to_group_id.price": null,
-
-                        }
-                    }
-                )
-            }*/
+                if (!fields.q) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
 
             arAggregate.push({
                 $count: 'count'

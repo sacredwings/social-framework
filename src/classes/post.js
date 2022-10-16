@@ -105,6 +105,10 @@ export class CPost {
     //загрузка
     static async Get ( fields ) {
         try {
+            if (fields.q) {
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
+            }
 
             let collection = DB.Client.collection('post')
 
@@ -167,12 +171,21 @@ export class CPost {
                         path: '$_from_id',
                         preserveNullAndEmptyArrays: true
                     }
-            },{
-                $sort: {
-                    _id: -1
-                }
-
             }]
+
+            //сортировка, если поиска нет
+            if (fields.q)
+                arAggregate.push({
+                    $sort: {
+                        $score: {$meta:"textScore"}
+                    }
+                })
+            else
+                arAggregate.push({
+                    $sort: {
+                        _id: -1
+                    }
+                })
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
