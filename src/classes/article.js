@@ -211,6 +211,10 @@ export class CArticle {
             else
                 if (!fields.q) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
 
+            arAggregate.push({
+                $unset: [ "text", "json"]
+            })
+
             //сортировка, если поиска нет
             if (fields.q)
                 arAggregate.push({
