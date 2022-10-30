@@ -265,12 +265,27 @@ export class CVideo {
         }
     }
 
-    static async Count ( fields ) {
+    static async Count () {
         try {
             let collection = DB.Client.collection('file');
 
-            let result = await collection.count()
-            return result
+            let arAggregate = [{
+                $match: {
+                    $or: [
+                        {type: 'video/mp4'},
+                        {type: 'video/avi'},
+                    ]
+                },
+            }]
+            arAggregate.push({
+                $count: 'count'
+            })
+            let result = await collection.aggregate(arAggregate).toArray()
+            if (!result.length) return 0
+            return result[0].count
+
+            //let result = await collection.count()
+            //return result
 
         } catch (err) {
             console.log(err)
