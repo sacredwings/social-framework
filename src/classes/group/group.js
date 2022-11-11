@@ -142,17 +142,10 @@ export class CGroup {
             let collection = DB.Client.collection('group');
 
             let arAggregate = []
-
-            if (fields.user_id || fields.q)
-                arAggregate.push({ $match: {}})
-
-            if (fields.user_id)
-                arAggregate[0].$match.create_id = fields.user_id
-            if (fields.q) {
-                arAggregate[0].$match.$text = {}
-                arAggregate[0].$match.$text.$search = fields.q
-            }
-
+            arAggregate.push({
+                $match:
+                    {}
+            })
             arAggregate.push(
                 { $lookup:
                         {
@@ -221,6 +214,14 @@ export class CGroup {
                             preserveNullAndEmptyArrays: true
                         }
                 })
+
+            if (fields.user_id)
+                arAggregate[0].$match.create_id = fields.user_id
+
+            if (fields.q) {
+                arAggregate[0].$match.$text = {}
+                arAggregate[0].$match.$text.$search = fields.q
+            }
 
             //return arAggregate
             //let result = await collection.find({_id: { $in: ids}}).toArray()
