@@ -166,7 +166,7 @@ export class CVideo {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
             else
-                if (!fields.q) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
+                if ((!fields.q) && (!fields.view)) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
 
             //сортировка, если поиска нет
             if (fields.q)
@@ -248,7 +248,7 @@ export class CVideo {
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
             else
-                if (!fields.q) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
+                if ((!fields.q) && (!fields.view)) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
 
             arAggregate.push({
                 $count: 'count'
