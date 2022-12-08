@@ -113,7 +113,7 @@ export class CFile {
             }
 
             let result = await collection.insertOne(arFields)
-            return {id: arFields._id}
+            return arFields
 
         } catch (err) {
             console.log(err)
@@ -191,9 +191,14 @@ export class CFile {
 }
 
 const ImageSave = async (pathVideo, pathImg) => {
-    return await extractFrames({
-        input: pathVideo,
-        output: pathImg,
-        offset: 3000 // seek offset in milliseconds
-    })
+    try {
+        return await extractFrames({
+            input: pathVideo,
+            output: pathImg,
+            offset: 3000 // seek offset in milliseconds
+        })
+    } catch (e) {
+        return false
+    }
+
 }

@@ -93,9 +93,6 @@ export class CVideo {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
-            //if (fields.to_group_id)
-                //delete fields.to_user_id
-
             let collection = DB.Client.collection('file');
 
             let arAggregate = []

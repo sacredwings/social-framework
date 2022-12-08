@@ -9,7 +9,10 @@ export class CMessage {
             //обработка полей
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_id = new DB().ObjectID(fields.to_id)
-            fields.file_ids = new DB().arObjectID(fields.file_ids)
+            fields.video_ids = new DB().arObjectID(fields.video_ids)
+            fields.img_ids = new DB().arObjectID(fields.img_ids)
+            fields.doc_ids = new DB().arObjectID(fields.doc_ids)
+            fields.audio_ids = new DB().arObjectID(fields.audio_ids)
             fields.date = new Date()
 
             //сначало само сообщение
@@ -17,9 +20,13 @@ export class CMessage {
             let arFieldsMessage = {
                 from_id: fields.from_id,
                 to_id: fields.to_id,
-                json: fields.json,
-                type: 'P',
-                file_ids: fields.file_ids,
+
+                text: fields.text,
+                video_ids: fields.video_ids,
+                img_ids: fields.img_ids,
+                doc_ids: fields.doc_ids,
+                audio_ids: fields.audio_ids,
+
                 read: null,
                 delete_from: null,
                 delete_to: null,
@@ -238,9 +245,9 @@ export class CMessage {
                 },{ $lookup:
                         {
                             from: 'file',
-                            localField: 'file_ids',
+                            localField: 'video_ids',
                             foreignField: '_id',
-                            as: '_file_ids',
+                            as: '_video_ids',
                             pipeline: [
                                 { $lookup:
                                         {
@@ -258,6 +265,27 @@ export class CMessage {
                                         }
                                 }
                             ]
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file',
+                            localField: 'img_ids',
+                            foreignField: '_id',
+                            as: '_img_ids'
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file',
+                            localField: 'doc_ids',
+                            foreignField: '_id',
+                            as: '_doc_ids'
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file',
+                            localField: 'audio_ids',
+                            foreignField: '_id',
+                            as: '_audio_ids'
                         },
                 },{
                     $unwind: {
@@ -433,9 +461,9 @@ export class CMessage {
                 },{ $lookup:
                         {
                             from: 'file',
-                            localField: 'file_ids',
+                            localField: 'video_ids',
                             foreignField: '_id',
-                            as: '_file_ids',
+                            as: '_video_ids',
                             pipeline: [
                                 { $lookup:
                                         {
@@ -453,6 +481,27 @@ export class CMessage {
                                         }
                                 }
                             ]
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file',
+                            localField: 'img_ids',
+                            foreignField: '_id',
+                            as: '_img_ids'
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file',
+                            localField: 'doc_ids',
+                            foreignField: '_id',
+                            as: '_doc_ids'
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file',
+                            localField: 'audio_ids',
+                            foreignField: '_id',
+                            as: '_audio_ids'
                         },
                 },{
                     $unwind: {
@@ -544,6 +593,11 @@ export class CMessage {
     static async Edit(id, fields) {
         try {
             id = new DB().ObjectID(id)
+            fields.video_ids = new DB().arObjectID(fields.video_ids)
+            fields.img_ids = new DB().arObjectID(fields.img_ids)
+            fields.doc_ids = new DB().arObjectID(fields.doc_ids)
+            fields.audio_ids = new DB().arObjectID(fields.audio_ids)
+            fields.change_date = new Date()
 
             let collection = DB.Client.collection('message');
             let arFields = {
