@@ -16,6 +16,8 @@ import { CUser } from './classes/user'
 import { CVideo } from './classes/video'
 import { CView } from './classes/view'
 import { CNotify } from "./classes/notify"
+import { CVisit } from "./classes/visit"
+
 
 export {
     DB,
@@ -35,5 +37,6 @@ export {
     CUser,
     CVideo,
     CView,
-    CNotify
+    CNotify,
+    CVisit
 }
