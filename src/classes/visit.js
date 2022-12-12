@@ -8,6 +8,9 @@ export class CVisit {
             to_id = new DB().ObjectID(to_id)
             let collection = DB.Client.collection('visit')
 
+            //зашел на свою страницу
+            if (from_id.toString() === to_id.toString()) return false
+
             //есть ли уже визит
             let arFields = {
                 from_id: from_id,
