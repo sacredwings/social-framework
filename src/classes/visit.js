@@ -2,17 +2,17 @@ import { DB } from "./db";
 
 export class CVisit {
 
-    static async Add ( fields ) {
+    static async Add ({from_id, to_id, minutes=60}) {
         try {
-            fields.from_id = new DB().ObjectID(fields.from_id)
-            fields.to_id = new DB().ObjectID(fields.to_id)
+            from_id = new DB().ObjectID(from_id)
+            to_id = new DB().ObjectID(to_id)
             let collection = DB.Client.collection('visit')
 
             //есть ли уже визит
             let arFields = {
-                from_id: fields.from_id,
-                to_id: fields.to_id,
-                min: 10
+                from_id: from_id,
+                to_id: to_id,
+                minutes: minutes
             }
             let selectVisit = await this.GetByUser(arFields)
 
@@ -20,8 +20,8 @@ export class CVisit {
             if (selectVisit) return false
 
             arFields = {
-                from_id: fields.from_id,
-                to_id: fields.to_id,
+                from_id: from_id,
+                to_id: to_id,
                 viewed: null,
                 create_date: new Date()
             }
