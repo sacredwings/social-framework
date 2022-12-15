@@ -16,7 +16,7 @@ import { CUser } from './classes/user'
 import { CVideo } from './classes/video'
 import { CView } from './classes/view'
 import { CNotify } from "./classes/notify"
-import { CVisit } from "./classes/visit"
+import { CVisitor } from "./classes/visitor"
 
 
 export {
@@ -38,5 +38,5 @@ export {
     CVideo,
     CView,
     CNotify,
-    CVisit
+    CVisitor
 }
