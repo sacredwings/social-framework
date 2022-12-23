@@ -11,13 +11,13 @@ import { CGroupPay } from './classes/group/pay'
 import { CLike } from './classes/like'
 import { CMessage } from './classes/message'
 import { CPost } from './classes/post'
-import { CTopic } from './classes/topic'
 import { CUser } from './classes/user'
 import { CVideo } from './classes/video'
 import { CView } from './classes/view'
 import { CNotify } from "./classes/notify"
 import { CVisitor } from "./classes/visitor"
-
+import { CForumTopic } from "./classes/forum/topic"
+import { CForum } from "./classes/forum/forum"
 
 export {
     DB,
@@ -33,10 +33,11 @@ export {
     CLike,
     CMessage,
     CPost,
-    CTopic,
     CUser,
     CVideo,
     CView,
     CNotify,
-    CVisitor
+    CVisitor,
+    CForum,
+    CForumTopic
 }
