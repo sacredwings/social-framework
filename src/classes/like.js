@@ -5,7 +5,7 @@ export class CLike {
     //новый комментарий
     static async Add ( fields ) {
         try {
-            let collection = DB.Client.collection('like')
+            let collection = DB.Client.collection(`like_${fields.module}`)
 
             let dislike = null //лайк
             if (fields.dislike)
@@ -14,22 +14,23 @@ export class CLike {
             //обработка полей
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
-            fields.create_date = new Date()
+            let date = new Date()
 
             //установленно мной
             let arFields = {
+                module: fields.module,
                 object_id: fields.object_id,
                 from_id: fields.from_id,
             }
             let rsLike = await this.GetByUser(arFields)
+
             if (!rsLike) {
                 //записи нет /создаем
                 arFields = {
                     object_id: fields.object_id,
-                    module: fields.module,
                     from_id: fields.from_id,
                     dislike: dislike,
-                    create_date: fields.create_date,
+                    create_date: date,
                 }
                 await collection.insertOne(arFields)
 
@@ -55,6 +56,7 @@ export class CLike {
 
             //СЧЕТЧИКИ
             arFields = {
+                module: fields.module,
                 object_id: fields.object_id,
             }
             let LikeCount = await this.Count ( arFields )
@@ -98,20 +100,21 @@ export class CLike {
             let dislike = null
             if (fields.dislike)
                 dislike = true
-            fields.object_id = new DB().ObjectID(fields.object_id)
-            //fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection('like')
+            fields.object_id = new DB().ObjectID(fields.object_id)
+
+            let collection = DB.Client.collection(`like_${fields.module}`)
             let arFields = {
                 object_id: fields.object_id,
                 dislike: dislike,
             }
+
             let result = await collection.count(arFields)
             return result
 
         } catch (err) {
             console.log(err)
-            throw ({code: 4003000, msg: 'CLike Get'})
+            throw ({code: 4003000, msg: 'CLike Count'})
         }
     }
 
@@ -120,7 +123,7 @@ export class CLike {
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection('like')
+            let collection = DB.Client.collection(`like_${fields.module}`)
             let arFields = {
                 from_id: fields.from_id,
                 object_id: fields.object_id,
