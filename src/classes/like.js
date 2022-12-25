@@ -34,8 +34,27 @@ export class CLike {
                 }
                 await collection.insertOne(arFields)
 
+                //СЧЕТЧИКИ
+                arFields = {
+                    module: fields.module,
+                    object_id: fields.object_id,
+                }
+                let LikeCount = await this.Count ( arFields )
+                arFields.dislike = true
+                let DisLikeCount = await this.Count ( arFields )
+
+                console.log(LikeCount)
+                console.log(DisLikeCount)
+
+                //выбираем коллекцию с объектом
+                collection = DB.Client.collection(fields.module)
+                //обновляем поля в объекте
+                await collection.updateOne({_id: fields.object_id}, {$set: {dislike: DisLikeCount, like: LikeCount}})
+
                 return true
             }
+
+            collection = DB.Client.collection(`like_${fields.module}`)
 
             //есть запись
             if (rsLike.dislike) { //стоит дизлайк
