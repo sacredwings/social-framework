@@ -6,6 +6,8 @@ export class CGroup {
     static async Add ( fields ) {
         try {
             fields.create_id = new DB().ObjectID(fields.create_id)
+            fields.forum = false
+            fields.create_date = new Date()
 
             let collection = DB.Client.collection('group')
 
