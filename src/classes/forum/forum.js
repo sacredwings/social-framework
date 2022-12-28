@@ -9,6 +9,10 @@ export class CForum {
             let collection = DB.Client.collection('group')
 
             let Aggregate = [{
+                $match: {
+                    forum: true
+                }
+            },{
                 $lookup: {
                     from: 'file',
                     localField: 'photo',

@@ -175,10 +175,10 @@ export class CVideo {
             else
                 arAggregate.push({
                     $sort: {
+                        _id: -1,
                         comment: -1,
                         like: -1,
                         view: -1,
-                        _id: -1,
                     }
                 })
 
