@@ -21,7 +21,8 @@ export class CForumTopic {
                 comment: 0,
                 change_user_id: fields.from_id,
                 change_date: date,
-                create_date: date
+                create_date: date,
+                delete: null
             }
 
             let result = await collection.insertOne(arFields)
