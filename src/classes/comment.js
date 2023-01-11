@@ -16,6 +16,8 @@ export class CComment {
 
             fields.from_id = new DB().ObjectID(fields.from_id)
 
+            fields.republish_id = new DB().ObjectID(fields.republish_id)
+
             fields.video_ids = new DB().arObjectID(fields.video_ids)
             fields.img_ids = new DB().arObjectID(fields.img_ids)
             fields.doc_ids = new DB().arObjectID(fields.doc_ids)
@@ -28,6 +30,7 @@ export class CComment {
             let arFieldsMessage = {
                 object_id: fields.object_id,
                 from_id: fields.from_id,
+                republish_id: fields.republish_id,
 
                 text: fields.text,
                 video_ids: fields.video_ids,
@@ -53,12 +56,24 @@ export class CComment {
             await collection.updateOne({_id: fields.object_id}, {
                 $set: {
                     comment: commentCount,
-                    change_user_id: fields.from_id,
-                    change_date: date,
+                    //change_user_id: fields.from_id,
+                    //change_date: date,
                 }
             })
 
+            //ОБНОВЛЕНИЕ СЧЕТЧИКА ОТВЕТОВ
+            if (fields.republish_id) {
+                collection = DB.Client.collection(`comment_${fields.module}`)
+                let republishCount = await collection.countDocuments({republish_id: fields.republish_id})
+                await collection.updateOne({_id: fields.republish_id}, {
+                    $set: {
+                        republish: republishCount,
+                    }
+                })
+            }
+
             //СОЗДАНИЕ УВЕДОМЛЕНИЯ ПОЛЬЗОВАТЕЛЮ
+            collection = DB.Client.collection(fields.module)
             let getObject = null
             //ОПОВЕЩЕНИЯ
             if (fields.module === 'video')
