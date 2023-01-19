@@ -7,6 +7,7 @@ export class CForumTopic {
         try {
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
+            fields.image_id = new DB().ObjectID(fields.image_id)
 
             let date = new Date()
 
@@ -16,6 +17,7 @@ export class CForumTopic {
                 from_id: fields.from_id,
                 group_id: fields.group_id,
 
+                image_id: fields.image_id,
                 title: fields.title,
 
                 comment: 0,
@@ -119,13 +121,13 @@ export class CForumTopic {
             },{
                 $lookup: {
                     from: 'file',
-                    localField: 'file_id',
+                    localField: 'image_id',
                     foreignField: '_id',
-                    as: '_file_id'
+                    as: '_image_id'
                 }
             },{
                 $unwind: {
-                    path: '$_file_id',
+                    path: '$_image_id',
                     preserveNullAndEmptyArrays: true
                 }
             },{
@@ -247,13 +249,13 @@ export class CForumTopic {
                 },{
                     $lookup: {
                         from: 'file',
-                        localField: 'file_id',
+                        localField: 'image_id',
                         foreignField: '_id',
-                        as: '_file_id'
+                        as: '_image_id'
                     }
                 },{
                     $unwind: {
-                        path: '$_file_id',
+                        path: '$_image_id',
                         preserveNullAndEmptyArrays: true
                     }
                 },{
@@ -327,6 +329,24 @@ export class CForumTopic {
         } catch (err) {
             console.log(err)
             throw ({code: 8001000, msg: 'CTopic Count'})
+        }
+    }
+
+    static async Edit(id, fields) {
+        try {
+            id = new DB().ObjectID(id)
+            fields.image_id = new DB().ObjectID(fields.image_id)
+
+            let collection = DB.Client.collection('topic');
+            let arFields = {
+                _id: id
+            }
+            let result = collection.updateOne(arFields, {$set: fields})
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({code: 8001000, msg: 'CTopic Edit'})
         }
     }
 }
