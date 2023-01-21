@@ -56,11 +56,12 @@ export class CComment {
             await collection.updateOne({_id: fields.object_id}, {
                 $set: {
                     comment: commentCount,
-                    //change_user_id: fields.from_id,
-                    //change_date: date,
+                    change_user_id: fields.from_id, //обновление последнего комментатора
+                    change_date: date,
                 }
             })
 
+            let republish = null
             //ОБНОВЛЕНИЕ СЧЕТЧИКА ОТВЕТОВ
             if (fields.republish_id) {
                 collection = DB.Client.collection(`comment_${fields.module}`)
@@ -70,10 +71,14 @@ export class CComment {
                         republish: republishCount,
                     }
                 })
+
+                //получаем объект которому отвечаем
+                republish = await this.GetById ( [fields.republish_id], fields.module )
+
             }
 
             //СОЗДАНИЕ УВЕДОМЛЕНИЯ ПОЛЬЗОВАТЕЛЮ
-            collection = DB.Client.collection(fields.module)
+            //collection = DB.Client.collection(fields.module)
             let getObject = null
             //ОПОВЕЩЕНИЯ
             if (fields.module === 'video')
@@ -88,6 +93,7 @@ export class CComment {
             if (fields.module === 'topic')
                 getObject = await CForumTopic.GetById ( [fields.object_id] )
 
+            //уведомление создателю темы форума
             arFields = {
                 from_id: fields.from_id,
                 to_id: getObject[0].from_id,
@@ -96,6 +102,14 @@ export class CComment {
                 object_id: fields.object_id,
             }
             let notify = await CNotify.Add ( arFields )
+
+            //не повторять если владелиц комментария и форума один человек
+            if (getObject[0].from_id !== republish[0].from_id) {
+                //уведомление комментария на который отвечает пользователь
+                arFields.to_id = republish[0].from_id
+                notify = await CNotify.Add ( arFields )
+            }
+
 
         } catch (err) {
             console.log(err)

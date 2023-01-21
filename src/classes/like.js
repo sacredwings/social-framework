@@ -1,6 +1,9 @@
 import { DB } from "./db"
 import { CVideo } from "./video"
 import { CPost } from "./post"
+import { CArticle } from "./article"
+import { CComment } from "./comment"
+import {CNotify} from "./notify";
 
 export class CLike {
 
@@ -77,6 +80,11 @@ export class CLike {
             let object = null
             if (fields.module === 'video') object = await CVideo.GetById([fields.object_id])
             if (fields.module === 'post') object = await CPost.GetById([fields.object_id])
+            if (fields.module === 'article') object = await CArticle.GetById([fields.object_id])
+            if (fields.module === 'comment_video') object = await CComment.GetById([fields.object_id], 'video')
+            if (fields.module === 'comment_post') object = await CComment.GetById([fields.object_id], 'post')
+            if (fields.module === 'comment_article') object = await CComment.GetById([fields.object_id], 'article')
+            if (fields.module === 'comment_topic') object = await CComment.GetById([fields.object_id], 'topic')
 
             let userLikeCount = 0 //при старте
             let userDisLikeCount = 0 //при старте
@@ -84,7 +92,7 @@ export class CLike {
             for (let item of arModules) {
                 arFields = {
                     module: item,
-                    from_id: object.from_id,
+                    from_id: object[0].from_id,
                 }
                 userLikeCount += await this.Count ( arFields )
                 arFields.dislike = true
@@ -94,6 +102,16 @@ export class CLike {
             collection = DB.Client.collection('user')
             //обновляем поля в объекте
             await collection.updateOne({_id: fields.from_id}, {$set: {dislike: userDisLikeCount, like: userLikeCount}})
+
+            //УВЕДОМЛЕНИЯ
+            arFields = {
+                from_id: fields.from_id,
+                to_id: object[0].from_id, //из объекта
+                module: fields.module,
+                action: 'like',
+                object_id: fields.object_id,
+            }
+            let notify = await CNotify.Add ( arFields )
 
             return true
         } catch (err) {

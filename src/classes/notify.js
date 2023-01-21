@@ -15,26 +15,31 @@ export class CNotify {
             let arFields = {
                 from_id: fields.from_id,
                 to_id: fields.to_id,
+                action: fields.action,
                 viewed: null,
                 create_date: fields.create_date
             }
 
-            if (fields.action === 'like')
-                arFields.like_id = fields.object_id
+            if (fields.module === 'video')
+                arFields.video_id = fields.object_id
 
-            if (fields.action === 'comment') {
-                if (fields.module === 'post')
-                    arFields.comment_post_id = fields.object_id
+            if (fields.module === 'post')
+                arFields.post_id = fields.object_id
 
-                if (fields.module === 'video')
-                    arFields.comment_post_id = fields.object_id
+            if (fields.module === 'article')
+                arFields.article_id = fields.object_id
 
-                if (fields.module === 'article')
-                    arFields.comment_post_id = fields.object_id
-            }
+            if (fields.module === 'topic')
+                arFields.topic_id = fields.object_id
 
-            if (fields.action === 'friend')
-                arFields.friend_id = fields.object_id
+            if (fields.module === 'comment_video')
+                arFields.comment_video_id = fields.object_id
+            if (fields.module === 'comment_post')
+                arFields.comment_post_id = fields.object_id
+            if (fields.module === 'comment_article')
+                arFields.comment_article_id = fields.object_id
+            if (fields.module === 'comment_topic')
+                arFields.comment_topic_id = fields.object_id
 
             let result = await collection.insertOne(arFields)
             return arFields
