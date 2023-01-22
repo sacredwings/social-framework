@@ -16,6 +16,8 @@ export class CLike {
             if (fields.dislike)
                 dislike = true //дизлайк
 
+            let newLike = null //для уведоблений, по умолчанию,  лайк не установлен
+
             //обработка полей
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
@@ -39,6 +41,8 @@ export class CLike {
                     create_date: date,
                 }
                 await collection.insertOne(arFields)
+
+                newLike = true //лайк установлен
 
             } else {
 
@@ -104,14 +108,18 @@ export class CLike {
             await collection.updateOne({_id: fields.from_id}, {$set: {dislike: userDisLikeCount, like: userLikeCount}})
 
             //УВЕДОМЛЕНИЯ
-            arFields = {
-                from_id: fields.from_id,
-                to_id: object[0].from_id, //из объекта
-                module: fields.module,
-                action: 'like',
-                object_id: fields.object_id,
+            //если лайк будет установлен с нуля
+            if (newLike) {
+                arFields = {
+                    from_id: fields.from_id,
+                    to_id: object[0].from_id, //из объекта
+                    module: fields.module,
+                    action: fields.dislike ? 'dislike' : 'like',
+                    object_id: fields.object_id,
+                }
+                let notify = await CNotify.Add ( arFields )
             }
-            let notify = await CNotify.Add ( arFields )
+
 
             return true
         } catch (err) {

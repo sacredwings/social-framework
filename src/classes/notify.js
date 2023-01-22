@@ -11,6 +11,9 @@ export class CNotify {
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.create_date = new Date()
 
+            if (fields.from_id.toString() === fields.to_id.toString())
+                return false
+
             //установленно мной
             let arFields = {
                 from_id: fields.from_id,
@@ -108,7 +111,71 @@ export class CNotify {
                     ]
                 }
             })
-
+            //объекты
+            arAggregate.push({
+                $lookup: {
+                    from: 'video',
+                    localField: 'video_id',
+                    foreignField: '_id',
+                    as: '_video_id',
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'post',
+                    localField: 'post_id',
+                    foreignField: '_id',
+                    as: '_post_id',
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'article',
+                    localField: 'article_id',
+                    foreignField: '_id',
+                    as: '_article_id',
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'topic',
+                    localField: 'topic_id',
+                    foreignField: '_id',
+                    as: '_topic_id',
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'comment_video',
+                    localField: 'comment_video_id',
+                    foreignField: '_id',
+                    as: '_comment_video_id',
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'comment_post',
+                    localField: 'comment_post_id',
+                    foreignField: '_id',
+                    as: '_comment_post_id',
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'comment_article',
+                    localField: 'comment_article_id',
+                    foreignField: '_id',
+                    as: '_comment_article_id',
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'comment_topic',
+                    localField: 'comment_topic_id',
+                    foreignField: '_id',
+                    as: '_comment_topic_id',
+                }
+            })
             arAggregate.push({
                 $unwind:
                     {
@@ -120,6 +187,63 @@ export class CNotify {
                 $unwind:
                     {
                         path: '$_to_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
+            //объекты
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_video_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_post_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_article_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_topic_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_comment_video_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_comment_post_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_comment_article_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+            })
+            arAggregate.push({
+                $unwind:
+                    {
+                        path: '$_comment_topic_id',
                         preserveNullAndEmptyArrays: true
                     }
             })
