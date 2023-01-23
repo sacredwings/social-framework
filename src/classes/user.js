@@ -38,6 +38,7 @@ export class CUser {
                 email: fields.email,
                 password: fields.password,
                 first_name: fields.first_name,
+                last_name: fields.last_name,
                 date_reg: new Date(),
             }
 
@@ -296,6 +297,32 @@ export class CUser {
             throw ({code: 7001000, msg: 'CUser GetByLogin'})
         }
     }
+
+    //поиск по login
+    static async GetUserByVk ( {vk_id, email } ) {
+        try {
+            let collection = DB.Client.collection('user');
+
+            let result = await collection.aggregate([{
+                $match: {
+                    $or: [{
+                        vk_id: vk_id
+                    },{
+                        email: email
+                    }]
+                }
+            }
+            ]).toArray();
+
+            if (!result.length) return false
+            return result[0]
+
+        } catch (err) {
+            console.log(err)
+            throw ({code: 7001000, msg: 'CUser GetByLogin'})
+        }
+    }
+
 
     static async Edit ( id, fields ) {
         try {
