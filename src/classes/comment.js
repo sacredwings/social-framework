@@ -103,8 +103,9 @@ export class CComment {
             }
             let notify = await CNotify.Add ( arFields )
 
+            //если это ответ
             //не повторять если владелиц комментария и форума один человек
-            if (getObject[0].from_id !== republish[0].from_id) {
+            if ((republish) && (getObject[0].from_id !== republish[0].from_id)) {
                 //уведомление комментария на который отвечает пользователь
                 arFields.to_id = republish[0].from_id
                 notify = await CNotify.Add ( arFields )
