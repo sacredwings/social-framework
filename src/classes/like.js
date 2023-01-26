@@ -119,7 +119,7 @@ export class CLike {
             //выбираем коллекцию с объектом
             collection = DB.Client.collection('user')
             //обновляем поля в объекте
-            await collection.updateOne({_id: fields.from_id}, {$set: {dislike: userDisLikeCount, like: userLikeCount}})
+            await collection.updateOne({_id: object.from_id}, {$set: {dislike: userDisLikeCount, like: userLikeCount}})
 
             //УВЕДОМЛЕНИЯ
             //если лайк будет установлен с нуля
