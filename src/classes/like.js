@@ -89,7 +89,7 @@ export class CLike {
             //ОБЪЕКТ
             arFields = {
                 module: fields.module,
-                to_user_id: object.from_id,
+                object_id: fields.object_id,
             }
             let LikeCount = await this.Count ( arFields )
             arFields.dislike = true
@@ -109,12 +109,13 @@ export class CLike {
                     module: item,
                     to_user_id: object.from_id,
                 }
-
+                console.log(arFields)
                 userLikeCount += await this.Count ( arFields )
                 arFields.dislike = true
                 userDisLikeCount += await this.Count ( arFields )
             }
-
+            console.log(userLikeCount)
+            console.log(userDisLikeCount)
             //выбираем коллекцию с объектом
             collection = DB.Client.collection('user')
             //обновляем поля в объекте
@@ -132,6 +133,7 @@ export class CLike {
                 }
                 let notify = await CNotify.Add ( arFields )
             }
+
 
             return true
         } catch (err) {
