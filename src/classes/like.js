@@ -101,25 +101,87 @@ export class CLike {
             await collection.updateOne({_id: fields.object_id}, {$set: {dislike: DisLikeCount, like: LikeCount}})
 
             //ПОЛЬЗОВАТЕЛЬ
-            let userLikeCount = 0 //при старте
-            let userDisLikeCount = 0 //при старте
+            let arUser = [{}, {}]
+            let fieldsDefault = {
+                all: 0,
+                video: 0,
+                post: 0,
+                article: 0,
+                //topic: 0
+                comment_video: 0,
+                comment_post: 0,
+                comment_article: 0,
+                comment_topic: 0
+            }
+
+            arUser[0].count_like_in = {}
+            arUser[0].count_dislike_in = {}
+            arUser[1].count_like_out = {}
+            arUser[1].count_dislike_out = {}
+
+            for (let key in fieldsDefault)
+                arUser[0].count_like_in[key] = fieldsDefault[key]
+
+            for (let key in fieldsDefault)
+                arUser[0].count_dislike_in[key] = fieldsDefault[key]
+
+            for (let key in fieldsDefault)
+                arUser[1].count_like_out[key] = fieldsDefault[key]
+
+            for (let key in fieldsDefault)
+                arUser[1].count_dislike_out[key] = fieldsDefault[key]
+
+            //кого лайкнули / создатель объекта
+            //arUser[0].count_like_in = fieldsDefault
+            //arUser[0].count_dislike_in = fieldsDefault
+
+            //кто лайкнул
+            //arUser[1].count_like_out = fieldsDefault
+            //arUser[1].count_dislike_out = fieldsDefault
+            //console.log(arUser)
+            //let userLikeCount = 0 //при старте
+            //let userDisLikeCount = 0 //при старте
             let arModules = ['video', 'post', 'article', 'comment_video', 'comment_post', 'comment_article', 'comment_topic']
+
             for (let item of arModules) {
+
+                //кого лайкнули / создатель объекта
                 arFields = {
                     module: item,
                     to_user_id: object.from_id,
                 }
-                console.log(arFields)
-                userLikeCount += await this.Count ( arFields )
+
+                arUser[0].count_like_in[item] = await this.Count ( arFields )
+                arUser[0].count_like_in.all += arUser[0].count_like_in[item]
+
                 arFields.dislike = true
-                userDisLikeCount += await this.Count ( arFields )
+                arUser[0].count_dislike_in[item] = await this.Count ( arFields )
+                arUser[0].count_dislike_in.all += arUser[0].count_dislike_in[item]
+
+                //кто лайкнул
+                arFields = {
+                    module: item,
+                    from_id: fields.from_id
+                }
+                arUser[1].count_like_out[item] = await this.Count ( arFields )
+                arUser[1].count_like_out.all += arUser[1].count_like_out[item]
+
+                arFields.dislike = true
+                arUser[1].count_dislike_out[item] = await this.Count ( arFields )
+                arUser[1].count_dislike_out.all += arUser[1].count_dislike_out[item]
+
             }
-            console.log(userLikeCount)
-            console.log(userDisLikeCount)
+
             //выбираем коллекцию с объектом
             collection = DB.Client.collection('user')
-            //обновляем поля в объекте
-            await collection.updateOne({_id: object.from_id}, {$set: {dislike: userDisLikeCount, like: userLikeCount}})
+
+            await collection.updateOne({_id: object.from_id}, {$set: {
+                    count_like_in: arUser[0].count_like_in,
+                }})
+
+            await collection.updateOne({_id: fields.from_id}, {$set: {
+                    count_like_out: arUser[1].count_like_out,
+                }})
 
             //УВЕДОМЛЕНИЯ
             //если лайк будет установлен с нуля
@@ -133,7 +195,6 @@ export class CLike {
                 }
                 let notify = await CNotify.Add ( arFields )
             }
-
 
             return true
         } catch (err) {
@@ -164,21 +225,17 @@ export class CLike {
 
     static async Count ( fields ) {
         try {
-            let dislike = null
-            if (fields.dislike)
-                dislike = true
+            let arFields = {
+                dislike: null,
+            }
+            if (fields.dislike) arFields.dislike = true
 
-            fields.object_id = new DB().ObjectID(fields.object_id)
-            fields.from_id = new DB().ObjectID(fields.from_id)
+            if (fields.object_id) arFields.object_id = new DB().ObjectID(fields.object_id)
+            if (fields.to_user_id) arFields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            if (fields.to_group_id) arFields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            if (fields.from_id) arFields.from_id = new DB().ObjectID(fields.from_id)
 
             let collection = DB.Client.collection(`like_${fields.module}`)
-            let arFields = {
-                dislike: dislike,
-            }
-            if (fields.object_id) arFields.object_id = fields.object_id
-            if (fields.to_user_id) arFields.to_user_id = fields.to_user_id
-            if (fields.to_group_id) arFields.to_group_id = fields.to_group_id
-            if (fields.from_id) arFields.from_id = fields.from_id
 
             let result = await collection.count(arFields)
             return result
