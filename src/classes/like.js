@@ -177,10 +177,12 @@ export class CLike {
 
             await collection.updateOne({_id: object.from_id}, {$set: {
                     count_like_in: arUser[0].count_like_in,
+                    count_dislike_in: arUser[0].count_dislike_in,
                 }})
 
             await collection.updateOne({_id: fields.from_id}, {$set: {
                     count_like_out: arUser[1].count_like_out,
+                    count_dislike_out: arUser[1].count_dislike_out,
                 }})
 
             //УВЕДОМЛЕНИЯ
