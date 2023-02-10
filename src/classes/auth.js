@@ -114,11 +114,11 @@ export class CAuth {
                     url: url,
                     headers: {'User-Agent': browser}
                 });
+
             } catch (err) {
+                console.log(err.response.data)
                 throw ({...{err: 30080001, msg: 'VK возвращает ошибку'}});
             }
-
-            console.log(infoVk);
 
             if ((!infoVk.data) || (!infoVk.data.user_id) || (!infoVk.data.email) || (!infoVk.data.access_token))
                 throw ({err: 30080002, msg: 'Не полный ответ от VK'});
@@ -126,14 +126,14 @@ export class CAuth {
             //почта ВК в нижний регистр
             infoVk.data.email = infoVk.data.email.toLowerCase();
 
-            //поиск профиля в боте
-            let arProfile = await CUser.GetUserByVk({
+            //поиск профиля в боте / или по id вк или по email
+            let arVkProfile = await CUser.GetUserByVk({
                 vk_id: infoVk.data.user_id,
                 email: infoVk.data.email
-            }, );
+            }, )
 
             //профиля нет /нужно создать
-            if (!arProfile) {
+            if (!arVkProfile) {
                 console.log('профиля нет /нужно создать');
 
                 //генерация пароля
@@ -163,7 +163,7 @@ export class CAuth {
                 //список
                 let arFields = {
                     email: infoVk.data.email,
-                    login: infoVk.data.user_id,
+                    login: infoVk.data.email,
                     password: password,
                     first_name: vkUser.data.response[0].first_name,
                     last_name: vkUser.data.response[0].last_name
@@ -172,13 +172,20 @@ export class CAuth {
             }
 
             //профиль не привязан /нужно привязать по почте
-            if ((arProfile) && (!arProfile.vk_id) && (arProfile.email)) {
+            if ((arVkProfile) && (!arVkProfile.vk_id) && (arVkProfile.email)) {
                 console.log('профиль есть /нужно привязать id')
 
-                await CUser.Edit(arProfile._id, {vk_id: infoVk.data.user_id})
+                await CUser.Edit(arVkProfile._id, {vk_id: infoVk.data.user_id})
             }
 
-            if (!profile) profile = arProfile
+            if (!profile) profile = arVkProfile
+
+            //создаем авторизацию
+            let token = await this.AddToken(profile._id, null, browser);
+            if (!token)
+                throw ({code: 1001003, msg: 'Токен не создан'});
+
+            return {tid: token._id, token: token.token, _id: profile._id, login: profile.login}
 
             //профиль привязан /нужна авторизация
             /*if ((arProfile) && (arProfile.vk_id)) {
@@ -193,7 +200,7 @@ export class CAuth {
 
             return {...token, ...{login: infoVk.data.email}};*/
 
-            return profile
+            //return profile
 
         } catch (err) {
             throw ({...{err: 30080000, msg: 'Создание запроса на регистрацию нового пользователя'}, ...err});
