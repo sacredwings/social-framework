@@ -1,12 +1,12 @@
-import { DB } from "../db";
+import { Store } from "../../store"
 
 export class CForum {
-
 
     //загрузка
     static async Get ( fields ) {
         try {
-            let collection = DB.Client.collection('group')
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('group')
 
             let Aggregate = [{
                 $match: {
@@ -87,7 +87,8 @@ export class CForum {
     //количество
     static async GetCount ( fields ) {
         try {
-            let collection = DB.Client.collection('group')
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('group')
 
             let Aggregate = [{
                 $count: 'count'

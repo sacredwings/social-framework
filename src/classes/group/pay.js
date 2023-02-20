@@ -1,15 +1,17 @@
 import { DB } from "../db"
+import { Store } from "../../store"
 import { CGroup } from "./group"
 
 export class CGroupPay {
 
     static async GetUserList (fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.q)
                 fields.q = fields.q.replace(/ +/g, ' ').trim()
 
             fields.group_id = new DB().ObjectID(fields.group_id)
-            let collection = DB.Client.collection('user')
+            let collection = mongoClient.collection('user')
             let date = new Date()
 
             let aggregate = []
@@ -59,11 +61,12 @@ export class CGroupPay {
     }
     static async GetUserListCount (fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.q)
                 fields.q = fields.q.replace(/ +/g, ' ').trim()
 
             fields.group_id = new DB().ObjectID(fields.group_id)
-            let collection = DB.Client.collection('user')
+            let collection = mongoClient.collection('user')
             let date = new Date()
 
             let aggregate = []
@@ -106,6 +109,7 @@ export class CGroupPay {
     //добавить новую группу
     static async PayTransactionAdd ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
 
@@ -119,7 +123,7 @@ export class CGroupPay {
                 date_create: new Date()
             }
 
-            let collection = DB.Client.collection('pay_transaction_group');
+            let collection = mongoClient.collection('pay_transaction_group');
 
             let result = await collection.insertOne(arFields)
             return fields
@@ -132,7 +136,8 @@ export class CGroupPay {
     //добавить новую группу
     static async PayTransactionGet ( fields ) {
         try {
-            let collection = DB.Client.collection('pay_transaction_group');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('pay_transaction_group');
 
             let result = await collection.findOne(fields)
             return result
@@ -143,7 +148,8 @@ export class CGroupPay {
     }
     static async PayTransactionUpdate ( fields ) {
         try {
-            let collection = DB.Client.collection('pay_transaction_group');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('pay_transaction_group');
 
             let result = collection.updateOne({pay_id: fields.pay_id}, {$set: {status: fields.status}}, {upsert: true})
             return result
@@ -157,11 +163,12 @@ export class CGroupPay {
     //добавить новую группу
     static async PayAdd ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
             fields.transaction_id = new DB().ObjectID(fields.transaction_id)
 
-            let collection = DB.Client.collection('pay_group');
+            let collection = mongoClient.collection('pay_group');
 
             let arFields = {
                 user_id: fields.user_id,
@@ -227,10 +234,11 @@ export class CGroupPay {
     //добавить новую группу
     static async PayGet ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
 
-            let collection = DB.Client.collection('pay_group');
+            let collection = mongoClient.collection('pay_group');
             let arFields = {
                 user_id: fields.user_id,
                 group_id: fields.group_id,

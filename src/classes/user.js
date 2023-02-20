@@ -1,12 +1,15 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { DB } from "./db";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CUser {
 
     //добавить пользователя
     static async Add ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.email)
                 fields.email = fields.email.toLowerCase()
 
@@ -30,7 +33,7 @@ export class CUser {
             if (arUsers)
                 throw ({code: 30020001, msg: 'Такой login уже зарегистрирован'});
 
-            let collection = DB.Client.collection('user');
+            let collection = mongoClient.collection('user');
 
             //список
             let arFields = {
@@ -54,9 +57,10 @@ export class CUser {
     //поиск по id
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('user');
+            let collection = mongoClient.collection('user');
             //let result = await collection.find({_id: { $in: ids}}).toArray()
             let result = await collection.aggregate([
                 { $match:
@@ -131,10 +135,11 @@ export class CUser {
     //поиск по email
     static async GetByEmail ( email ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             //в нижний регистр
             email = email.toLowerCase()
 
-            let collection = DB.Client.collection('user');
+            let collection = mongoClient.collection('user');
             //let result = await collection.findOne({login})
 
             let result = await collection.aggregate([
@@ -207,10 +212,11 @@ export class CUser {
     //поиск по login
     static async GetByLogin ( login ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             //в нижний регистр
             login = login.toLowerCase()
 
-            let collection = DB.Client.collection('user');
+            let collection = mongoClient.collection('user');
             //let result = await collection.findOne({login})
 
             let result = await collection.aggregate([
@@ -301,7 +307,8 @@ export class CUser {
     //поиск по login
     static async GetUserByVk ( {vk_id, email } ) {
         try {
-            let collection = DB.Client.collection('user');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('user');
 
             let result = await collection.aggregate([{
                 $match: {
@@ -326,6 +333,7 @@ export class CUser {
 
     static async Edit ( id, fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
 
             if (fields.password) {
@@ -333,7 +341,7 @@ export class CUser {
                 fields.password = await bcrypt.hash(fields.password, salt);
             }
 
-            let collection = DB.Client.collection('user');
+            let collection = mongoClient.collection('user');
             let result = collection.updateOne({_id: id}, {$set: fields}, {upsert: true})
 
             //let result = await DB.Init.Update (`${DB.Init.TablePrefix}user`, fields, {id: id},`id`)
@@ -347,7 +355,8 @@ export class CUser {
     //поиск по пользователям
     static async Get ( fields ) {
         try {
-            let collection = DB.Client.collection('user');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('user');
 
             let arAggregate = []
 
@@ -404,7 +413,8 @@ export class CUser {
     //количество / поиск по пользователям
     static async GetCount ( fields ) {
         try {
-            let collection = DB.Client.collection('user');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('user');
 
             let arSearch = {}
             if (fields.q) arSearch = {$text: {$search: fields.q}}
@@ -419,7 +429,8 @@ export class CUser {
 
     static async Count ( fields ) {
         try {
-            let collection = DB.Client.collection('user');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('user');
 
             let result = await collection.count()
             return result

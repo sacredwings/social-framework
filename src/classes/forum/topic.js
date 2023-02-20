@@ -1,17 +1,19 @@
-import { DB } from "../db";
+import { DB } from "../db"
+import { Store } from "../../store"
 
 export class CForumTopic {
 
     //новая тема для обсуждений
     static async Add ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
             fields.image_id = new DB().ObjectID(fields.image_id)
 
             let date = new Date()
 
-            let collection = DB.Client.collection('topic');
+            let collection = mongoClient.collection('topic');
 
             let arFields = {
                 from_id: fields.from_id,
@@ -39,9 +41,10 @@ export class CForumTopic {
     //загрузка по id
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('topic');
+            let collection = mongoClient.collection('topic');
             let result = await collection.aggregate([{
                 $match: {
                     _id: {$in: ids}
@@ -186,10 +189,11 @@ export class CForumTopic {
     //загрузка
     static async Get ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
 
-            let collection = DB.Client.collection('topic')
+            let collection = mongoClient.collection('topic')
 
             let match = {}
             if (fields.user_id) match.user_id = fields.user_id //темы созданные пользователем
@@ -293,10 +297,11 @@ export class CForumTopic {
     //количество
     static async GetCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
 
-            let collection = DB.Client.collection('topic')
+            let collection = mongoClient.collection('topic')
 
             let match = {}
             if (fields.from_id) match.from_id = fields.from_id //темы созданные пользователем
@@ -321,7 +326,8 @@ export class CForumTopic {
 
     static async Count () {
         try {
-            let collection = DB.Client.collection('topic');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('topic');
 
             let result = await collection.count()
             return result
@@ -334,10 +340,11 @@ export class CForumTopic {
 
     static async Edit(id, fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
             fields.image_id = new DB().ObjectID(fields.image_id)
 
-            let collection = DB.Client.collection('topic');
+            let collection = mongoClient.collection('topic');
             let arFields = {
                 _id: id
             }

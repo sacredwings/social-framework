@@ -4,13 +4,16 @@ import {CVideo} from "./video"
 import {CPost} from "./post"
 import {CArticle} from "./article"
 import {CForumTopic} from "./forum/topic"
+import { Store } from "../store"
+
 
 export class CComment {
 
     //новый комментарий
     static async Add ( fields ) {
         try {
-            let collection = DB.Client.collection(`comment_${fields.module}`)
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection(`comment_${fields.module}`)
 
             //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
 
@@ -82,7 +85,7 @@ export class CComment {
             let objectCountComment = await this.Count ( arFields )
 
             //выбираем коллекцию с объектом
-            collection = DB.Client.collection(fields.module)
+            collection = mongoClient.collection(fields.module)
             //обновляем поле в объекте
             await collection.updateOne({_id: fields.object_id}, {
                 $set: {
@@ -97,7 +100,7 @@ export class CComment {
             //ОБНОВЛЕНИЕ СЧЕТЧИКА ОТВЕТОВ
             //подсчет у объекта на который отвечаем
             if (fields.republish_id) {
-                collection = DB.Client.collection(`comment_${fields.module}`)
+                collection = mongoClient.collection(`comment_${fields.module}`)
                 let republishCount = await collection.countDocuments({republish_id: fields.republish_id})
                 await collection.updateOne({_id: fields.republish_id}, {
                     $set: {
@@ -204,7 +207,7 @@ export class CComment {
                 }*/
 
             //обновление полей у пользователя
-            collection = DB.Client.collection('user')
+            collection = mongoClient.collection('user')
 
             await collection.updateOne({_id: object.from_id}, {$set: {
                     count_comment_in: arUser[0].count_comment_in
@@ -246,9 +249,10 @@ export class CComment {
     //загрузка по id
     static async GetById ( ids, module ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection(`comment_${module}`);
+            let collection = mongoClient.collection(`comment_${module}`);
             let result = await collection.aggregate([
                 { $match:
                         {
@@ -341,10 +345,11 @@ export class CComment {
     }
     static async Get ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.comment_id = new DB().ObjectID(fields.comment_id)
 
-            let collection = DB.Client.collection(`comment_${fields.module}`)
+            let collection = mongoClient.collection(`comment_${fields.module}`)
 
             let Aggregate = [
                 {
@@ -441,9 +446,10 @@ export class CComment {
 
     static async GetCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.object_id = new DB().ObjectID(fields.object_id)
 
-            let collection = DB.Client.collection(`comment_${fields.module}`)
+            let collection = mongoClient.collection(`comment_${fields.module}`)
 
             let Aggregate = [
                 {
@@ -467,12 +473,13 @@ export class CComment {
 
     static async Count ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
 
-            let collection = DB.Client.collection(`comment_${fields.module}`)
+            let collection = mongoClient.collection(`comment_${fields.module}`)
 
             let arFields = {}
             if (fields.object_id) arFields.object_id = fields.object_id
@@ -490,6 +497,7 @@ export class CComment {
     }
     static async Edit(id, fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
             fields.video_ids = new DB().arObjectID(fields.video_ids)
             fields.img_ids = new DB().arObjectID(fields.img_ids)
@@ -497,7 +505,7 @@ export class CComment {
             fields.audio_ids = new DB().arObjectID(fields.audio_ids)
             fields.change_date = new Date()
 
-            let collection = DB.Client.collection(`comment_${fields.module}`);
+            let collection = mongoClient.collection(`comment_${fields.module}`);
             let arFields = {
                 _id: id
             }
@@ -514,9 +522,10 @@ export class CComment {
     }
     static async Delete ( id ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
 
-            let collection = DB.Client.collection('comment');
+            let collection = mongoClient.collection('comment');
 
             let result = collection.deleteOne({_id: id})
 

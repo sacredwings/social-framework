@@ -4,13 +4,16 @@ import { CPost } from "./post"
 import { CArticle } from "./article"
 import { CComment } from "./comment"
 import {CNotify} from "./notify";
+import { Store } from "../store"
+
 
 export class CLike {
 
     //новый комментарий
     static async Add ( fields ) {
         try {
-            let collection = DB.Client.collection(`like_${fields.module}`)
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection(`like_${fields.module}`)
 
             //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
 
@@ -96,7 +99,7 @@ export class CLike {
             let DisLikeCount = await this.Count ( arFields )
 
             //выбираем коллекцию с объектом
-            collection = DB.Client.collection(fields.module)
+            collection = mongoClient.collection(fields.module)
             //обновляем поля в объекте
             await collection.updateOne({_id: fields.object_id}, {$set: {dislike: DisLikeCount, like: LikeCount}})
 
@@ -173,7 +176,7 @@ export class CLike {
             }
 
             //выбираем коллекцию с объектом
-            collection = DB.Client.collection('user')
+            collection = mongoClient.collection('user')
 
             await collection.updateOne({_id: object.from_id}, {$set: {
                     count_like_in: arUser[0].count_like_in,
@@ -227,6 +230,7 @@ export class CLike {
 
     static async Count ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             let arFields = {
                 dislike: null,
             }
@@ -237,7 +241,7 @@ export class CLike {
             if (fields.to_group_id) arFields.to_group_id = new DB().ObjectID(fields.to_group_id)
             if (fields.from_id) arFields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection(`like_${fields.module}`)
+            let collection = mongoClient.collection(`like_${fields.module}`)
 
             let result = await collection.count(arFields)
             return result
@@ -250,10 +254,11 @@ export class CLike {
 
     static async GetByUser ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection(`like_${fields.module}`)
+            let collection = mongoClient.collection(`like_${fields.module}`)
             let arFields = {
                 from_id: fields.from_id,
                 object_id: fields.object_id,

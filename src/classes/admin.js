@@ -1,5 +1,6 @@
 import { DB } from "./db"
 import { CUser } from "./user"
+import { Store } from "../store"
 
 export class CAdmin {
 
@@ -7,8 +8,10 @@ export class CAdmin {
     static async DdIndex() {
         try {
             try {
+                const mongoClient = Store.GetMongoClient()
+
                 console.log('user')
-                let collection = DB.Client.collection('user')
+                let collection = mongoClient.collection('user')
                 let arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')
@@ -22,7 +25,7 @@ export class CAdmin {
                 console.log(arIndexes)
 
                 console.log('group')
-                collection = DB.Client.collection('group')
+                collection = mongoClient.collection('group')
                 arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')
@@ -35,7 +38,7 @@ export class CAdmin {
                 console.log(arIndexes)
 
                 console.log('file')
-                collection = DB.Client.collection('file')
+                collection = mongoClient.collection('file')
                 arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')
@@ -49,7 +52,7 @@ export class CAdmin {
                 console.log(arIndexes)
 
                 console.log('article')
-                collection = DB.Client.collection('article')
+                collection = mongoClient.collection('article')
                 arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')
@@ -62,7 +65,7 @@ export class CAdmin {
                 console.log(arIndexes)
 
                 console.log('album')
-                collection = DB.Client.collection('album')
+                collection = mongoClient.collection('album')
                 arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')
@@ -75,7 +78,7 @@ export class CAdmin {
                 console.log(arIndexes)
 
                 console.log('post')
-                collection = DB.Client.collection('post')
+                collection = mongoClient.collection('post')
                 arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')

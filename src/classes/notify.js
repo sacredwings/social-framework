@@ -1,11 +1,14 @@
-import { DB } from "./db";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CNotify {
 
     //новый комментарий
     static async Add(fields) {
         try {
-            let collection = DB.Client.collection('notify')
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('notify')
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_id = new DB().ObjectID(fields.to_id)
             fields.object_id = new DB().ObjectID(fields.object_id)
@@ -56,8 +59,9 @@ export class CNotify {
     //загрузка
     static async Get ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
-            let collection = DB.Client.collection('notify')
+            let collection = mongoClient.collection('notify')
 
             let arAggregate = []
             arAggregate.push({
@@ -266,8 +270,9 @@ export class CNotify {
     //загрузка
     static async GetCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
-            let collection = DB.Client.collection('notify')
+            let collection = mongoClient.collection('notify')
 
             let arAggregate = []
             arAggregate.push({
@@ -293,8 +298,9 @@ export class CNotify {
 
     static async NoViewedCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
-            let collection = DB.Client.collection('notify')
+            let collection = mongoClient.collection('notify')
 
             let arAggregate = []
             arAggregate.push({

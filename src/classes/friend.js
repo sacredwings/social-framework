@@ -1,12 +1,15 @@
-import { DB } from "./db";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CFriend {
 
     static async Add ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_id = new DB().ObjectID(fields.to_id)
-            let collection = DB.Client.collection('friend')
+            let collection = mongoClient.collection('friend')
 
             let arFields = {
                 from_id: fields.from_id,
@@ -52,9 +55,10 @@ export class CFriend {
 
     static async Delete ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_id = new DB().ObjectID(fields.to_id)
-            let collection = DB.Client.collection('friend')
+            let collection = mongoClient.collection('friend')
 
             let arFields = {
                 from_id: fields.from_id,
@@ -88,9 +92,10 @@ export class CFriend {
 
     static async GetByUser ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_id = new DB().ObjectID(fields.to_id)
-            let collection = DB.Client.collection('friend')
+            let collection = mongoClient.collection('friend')
 
             let Aggregate = [{
                 $match: {
@@ -154,7 +159,8 @@ export class CFriend {
     //загрузка
     static async Get ( fields ) {
         try {
-            let collection = DB.Client.collection('friend')
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('friend')
             fields.user_id = new DB().ObjectID(fields.user_id)
             let match = {
                 $or: [{
@@ -250,9 +256,10 @@ export class CFriend {
     //количество
     static async GetCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
 
-            let collection = DB.Client.collection('friend')
+            let collection = mongoClient.collection('friend')
             let match = {
                 $or: [{
                     from_id: fields.user_id,
@@ -298,9 +305,10 @@ export class CFriend {
     //количество
     static async CountNotViewed ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
 
-            let collection = DB.Client.collection('friend')
+            let collection = mongoClient.collection('friend')
 
             let Aggregate = [
                 {

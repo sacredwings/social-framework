@@ -1,15 +1,17 @@
-import { DB } from "../db";
+import { DB } from "../db"
+import { Store } from "../../store"
 
 export class CGroup {
 
     //добавить новую группу
     static async Add ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.create_id = new DB().ObjectID(fields.create_id)
             fields.forum = false
             fields.create_date = new Date()
 
-            let collection = DB.Client.collection('group')
+            let collection = mongoClient.collection('group')
 
             let result = await collection.insertOne(fields)
             return fields
@@ -22,9 +24,10 @@ export class CGroup {
     //загрузка по id
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('group')
+            let collection = mongoClient.collection('group')
             //let result = await collection.find({_id: { $in: ids}}).toArray()
             let aggregate = [
                 { $match:
@@ -139,9 +142,10 @@ export class CGroup {
     //загрузка
     static async Get ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
 
-            let collection = DB.Client.collection('group');
+            let collection = mongoClient.collection('group');
 
             let arAggregate = []
             arAggregate.push({
@@ -239,8 +243,9 @@ export class CGroup {
     //количество
     static async GetCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
-            let collection = DB.Client.collection('group');
+            let collection = mongoClient.collection('group');
 
             let arFields = {}
             if (fields.user_id)
@@ -283,7 +288,8 @@ export class CGroup {
 
     static async Count ( fields ) {
         try {
-            let collection = DB.Client.collection('group');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('group');
 
             let result = await collection.count()
             return result
@@ -372,9 +378,10 @@ export class CGroup {
 */
     static async Update ( id, fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
 
-            let collection = DB.Client.collection('group');
+            let collection = mongoClient.collection('group');
             let result = collection.updateOne({_id: id}, {$set: fields}, {upsert: true})
             return result
         } catch (err) {
@@ -386,9 +393,10 @@ export class CGroup {
     //удаление группы
     static async Delete ( id ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
 
-            let collection = DB.Client.collection('group');
+            let collection = mongoClient.collection('group');
             let result = collection.updateOne({_id: id}, {$set: {delete: true}}, {upsert: true})
             return result
         } catch (err) {
@@ -400,6 +408,7 @@ export class CGroup {
     //Права доступа / сначало созданеля, после права
     static async StatusAccess ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             //параметров нет, доступа
             if ((!fields.user_id) || (!fields.group_id)) return false
             //группы нет, проверять нечего
@@ -408,7 +417,7 @@ export class CGroup {
             fields.user_id = new DB().ObjectID(fields.user_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
 
-            let collection = DB.Client.collection('group');
+            let collection = mongoClient.collection('group');
             let arFields = {
                 _id: fields.group_id,
                 create_id: fields.user_id,

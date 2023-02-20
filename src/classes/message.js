@@ -1,11 +1,13 @@
-import { DB } from "./db";
-import { CFile } from "./file";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CMessage {
 
     //добавить новое видео
     static async Add( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             //обработка полей
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_id = new DB().ObjectID(fields.to_id)
@@ -16,7 +18,7 @@ export class CMessage {
             fields.date = new Date()
 
             //сначало само сообщение
-            let collection = DB.Client.collection('message')
+            let collection = mongoClient.collection('message')
             let arFieldsMessage = {
                 from_id: fields.from_id,
                 to_id: fields.to_id,
@@ -36,7 +38,7 @@ export class CMessage {
             await collection.insertOne(arFieldsMessage)
 
             //чат
-            collection = DB.Client.collection('chat')
+            collection = mongoClient.collection('chat')
 
             //поиск чата с этим пользователем
             let arFields = {
@@ -87,9 +89,10 @@ export class CMessage {
 
     static async GetChat ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection('chat')
+            let collection = mongoClient.collection('chat')
 
             let Aggregate = [
                 {
@@ -150,9 +153,10 @@ export class CMessage {
 
     static async GetChatCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection('chat')
+            let collection = mongoClient.collection('chat')
 
             let Aggregate = [
                 {
@@ -176,10 +180,11 @@ export class CMessage {
 
     static async GetByUser ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.to_id = new DB().ObjectID(fields.to_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection('message')
+            let collection = mongoClient.collection('message')
 
             let Aggregate = [
                 {
@@ -315,10 +320,11 @@ export class CMessage {
 
     static async GetByUserCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.to_id = new DB().ObjectID(fields.to_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection('message')
+            let collection = mongoClient.collection('message')
 
             let Aggregate = [
                 {
@@ -350,10 +356,11 @@ export class CMessage {
 
     static async CountNoRead ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_id = new DB().ObjectID(fields.to_id)
 
-            let collection = DB.Client.collection('message')
+            let collection = mongoClient.collection('message')
 
             let Aggregate = []
             if (!fields.from_id)
@@ -401,9 +408,10 @@ export class CMessage {
     //загрузка по id
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('message')
+            let collection = mongoClient.collection('message')
 
             let Aggregate = [
                 {
@@ -531,6 +539,7 @@ export class CMessage {
 
     static async Delete ( id, myUserId ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
 
             let arResult = await this.GetById([id])
@@ -539,7 +548,7 @@ export class CMessage {
 
             arResult = arResult[0]
 
-            let collection = DB.Client.collection('message')
+            let collection = mongoClient.collection('message')
 
             let arQuery = {
                 _id: id
@@ -563,10 +572,11 @@ export class CMessage {
     //прочитать все сообщения с пользователем
     static async ReadAll( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.to_id = new DB().ObjectID(fields.to_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection('message')
+            let collection = mongoClient.collection('message')
 
             let arQuery = {
                 to_id: fields.from_id,
@@ -592,6 +602,7 @@ export class CMessage {
 
     static async Edit(id, fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
             fields.video_ids = new DB().arObjectID(fields.video_ids)
             fields.img_ids = new DB().arObjectID(fields.img_ids)
@@ -599,7 +610,7 @@ export class CMessage {
             fields.audio_ids = new DB().arObjectID(fields.audio_ids)
             fields.change_date = new Date()
 
-            let collection = DB.Client.collection('message');
+            let collection = mongoClient.collection('message');
             let arFields = {
                 _id: id
             }

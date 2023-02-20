@@ -1,11 +1,13 @@
-import { DB } from "./db";
-import { CFile } from "./file";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CArticle {
 
     //новая тема для обсуждений
     static async Add ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             if (fields.to_group_id)
@@ -14,7 +16,7 @@ export class CArticle {
             if (fields.album_ids)
                 fields.album_ids = new DB().arObjectID(fields.album_ids)
 
-            let collection = DB.Client.collection('article');
+            let collection = mongoClient.collection('article');
 
             let result = await collection.insertOne(fields)
             return fields
@@ -28,9 +30,10 @@ export class CArticle {
     //загрузка по id
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('article');
+            let collection = mongoClient.collection('article');
             let result = await collection.aggregate([
                 { $match:
                         {
@@ -98,12 +101,13 @@ export class CArticle {
 
     static async Edit(id, fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
 
             if (fields.album_ids)
                 fields.album_ids = new DB().arObjectID(fields.album_ids)
 
-            let collection = DB.Client.collection('article');
+            let collection = mongoClient.collection('article');
             let arFields = {
                 _id: id
             }
@@ -120,6 +124,7 @@ export class CArticle {
     //загрузка
     static async Get ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.q) {
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
                 fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
@@ -129,7 +134,7 @@ export class CArticle {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
-            let collection = DB.Client.collection('article');
+            let collection = mongoClient.collection('article');
 
             let arAggregate = []
             arAggregate.push({
@@ -245,6 +250,7 @@ export class CArticle {
     //количество
     static async GetCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.q) {
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
                 fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
@@ -254,7 +260,7 @@ export class CArticle {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
-            let collection = DB.Client.collection('article');
+            let collection = mongoClient.collection('article');
 
             let arAggregate = [{
                 $match: {},
@@ -311,7 +317,8 @@ export class CArticle {
 
     static async Count ( fields ) {
         try {
-            let collection = DB.Client.collection('article');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('article');
 
             let result = await collection.count()
             return result

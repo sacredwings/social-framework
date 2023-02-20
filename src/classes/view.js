@@ -1,13 +1,16 @@
-import { DB } from "./db";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CView {
 
     //новый комментарий
     static async Add ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (!fields.from_id) return false
 
-            let collection = DB.Client.collection('view')
+            let collection = mongoClient.collection('view')
 
             //обработка полей
             fields.object_id = new DB().ObjectID(fields.object_id)
@@ -40,7 +43,7 @@ export class CView {
             let viewCount = await CView.Count ( arFields )
 
             //выбираем коллекцию с объектом
-            collection = DB.Client.collection(fields.module)
+            collection = mongoClient.collection(fields.module)
             //обновляем поля в объекте
             await collection.updateOne({_id: fields.object_id}, {$set: {view: viewCount}})
 
@@ -53,12 +56,13 @@ export class CView {
 
     static async GetByUser ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (!fields.from_id) return false
 
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection('view')
+            let collection = mongoClient.collection('view')
             let arFields = {
                 from_id: fields.from_id,
                 object_id: fields.object_id,
@@ -74,9 +78,10 @@ export class CView {
 
     static async Count ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.object_id = new DB().ObjectID(fields.object_id)
 
-            let collection = DB.Client.collection('view')
+            let collection = mongoClient.collection('view')
             let arFields = {
                 object_id: fields.object_id,
             }

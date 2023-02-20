@@ -3,12 +3,24 @@ import crypto from "crypto"
 import extractFrames from "ffmpeg-extract-frame"
 
 import { DB } from "./db"
+import { Store } from "../store"
 
 export class CFile {
 
     //Сохраняем новый вайл в таблицу файлов и сам файл
+    static async Add ( fields, savePath, preview = true ) {
+        try {
+            console.log(Store.GetMongoClient())
+        } catch (err) {
+            console.log(err)
+            throw ({code: 3001000, msg: 'CFile SaveFile'})
+        }
+    }
+
+    //Сохраняем новый вайл в таблицу файлов и сам файл
     static async SaveFile ( fields, savePath, preview = true ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             if (fields.to_group_id)
@@ -20,7 +32,7 @@ export class CFile {
             //id вложенного файла
             fields.file_id = new DB().ObjectID(fields.file_id)
 
-            let collection = DB.Client.collection('file')
+            let collection = mongoClient.collection('file')
 
             //удаление файла с диска и базы
             //if (fields.old_file)
@@ -125,9 +137,10 @@ export class CFile {
 //загрузка по id
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('file');
+            let collection = mongoClient.collection('file');
             //let result = await collection.find({_id: { $in: ids}}).toArray()
             let result = await collection.aggregate([
                 { $match:
@@ -166,6 +179,7 @@ export class CFile {
         }
     }
 
+    /*
     //удаление информации о файле из базы и сам файл
     static async Delete ( id, deleteFile ) {
         try {
@@ -187,7 +201,7 @@ export class CFile {
             throw ({code: 3003000, msg: 'CFile Delete'})
         }
 
-    }
+    }*/
 }
 
 const ImageSave = async (pathVideo, pathImg) => {

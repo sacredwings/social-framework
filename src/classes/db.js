@@ -5,6 +5,7 @@ import { MongoClient, ObjectId } from 'mongodb'
 export class DB {
     //Client: InterfaceClient
 
+    /*
     async Init(url, dbName) {
         try {
             const client = new MongoClient(url)
@@ -13,7 +14,7 @@ export class DB {
         } catch (e) {
             return false
         }
-    }
+    }*/
 
     ObjectID (value) {
         //строка 24 символа

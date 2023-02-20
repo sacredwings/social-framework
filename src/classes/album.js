@@ -1,18 +1,20 @@
-import { DB } from "./db";
-import { CFile } from "./file";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CAlbum {
 
 //добавить новый видео альбом
     static async Add (fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
             if (fields.to_group_id)
                 delete fields.to_user_id
 
-            let collection = DB.Client.collection('album');
+            let collection = mongoClient.collection('album');
 
             let result = await collection.insertOne(fields)
             return fields
@@ -26,9 +28,10 @@ export class CAlbum {
     //загрузка по id
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('album');
+            let collection = mongoClient.collection('album');
             let result = await collection.aggregate([
                 { $match:
                         {
@@ -82,9 +85,10 @@ export class CAlbum {
 
     static async Edit(id, fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
 
-            let collection = DB.Client.collection('album');
+            let collection = mongoClient.collection('album');
             let arFields = {
                 _id: id
             }
@@ -100,6 +104,7 @@ export class CAlbum {
 //загрузка
     static async Get(fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.q)
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
 
@@ -110,7 +115,7 @@ export class CAlbum {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
-            let collection = DB.Client.collection('album');
+            let collection = mongoClient.collection('album');
 
             let arAggregate = [
                 { $match:
@@ -181,6 +186,7 @@ export class CAlbum {
 //количество
     static async Count(fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.q)
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
 
@@ -191,7 +197,7 @@ export class CAlbum {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
-            let collection = DB.Client.collection('album');
+            let collection = mongoClient.collection('album');
 
             let arAggregate = [{
                 $match: {

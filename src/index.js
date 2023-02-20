@@ -18,6 +18,7 @@ import { CNotify } from "./classes/notify"
 import { CVisitor } from "./classes/visitor"
 import { CForumTopic } from "./classes/forum/topic"
 import { CForum } from "./classes/forum/forum"
+import { Store } from "./store"
 
 export {
     DB,
@@ -39,5 +40,6 @@ export {
     CNotify,
     CVisitor,
     CForum,
-    CForumTopic
+    CForumTopic,
+    Store
 }

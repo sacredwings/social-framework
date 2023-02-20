@@ -1,12 +1,15 @@
-import { DB } from "./db";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CVisitor {
 
     static async Add ({from_id, to_id, minutes=60}) {
         try {
+            const mongoClient = Store.GetMongoClient()
             from_id = new DB().ObjectID(from_id)
             to_id = new DB().ObjectID(to_id)
-            let collection = DB.Client.collection('visitor')
+            let collection = mongoClient.collection('visitor')
 
             //зашел на свою страницу
             if (from_id.toString() === to_id.toString()) return false
@@ -39,9 +42,10 @@ export class CVisitor {
 
     static async GetByUser ({from_id, to_id, minutes=60}) {
         try {
+            const mongoClient = Store.GetMongoClient()
             from_id = new DB().ObjectID(from_id)
             to_id = new DB().ObjectID(to_id)
-            let collection = DB.Client.collection('visitor')
+            let collection = mongoClient.collection('visitor')
 
             let date = new Date() - new Date(minutes*60*1000)
 
@@ -67,8 +71,9 @@ export class CVisitor {
     //загрузка
     static async Get ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
-            let collection = DB.Client.collection('user')
+            let collection = mongoClient.collection('user')
 
             let arAggregate = [{
                 $lookup: {
@@ -132,7 +137,7 @@ export class CVisitor {
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
 
             //делаем прочитаными после загрузки
-            collection = DB.Client.collection('visitor')
+            collection = mongoClient.collection('visitor')
             collection.update({to_id: fields.user_id}, {$set: {viewed: true}})
 
             return result
@@ -145,7 +150,8 @@ export class CVisitor {
     //количество
     static async GetCount ( fields ) {
         try {
-            let collection = DB.Client.collection('visitor')
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('visitor')
             fields.user_id = new DB().ObjectID(fields.user_id)
 
             let arAggregate = [{

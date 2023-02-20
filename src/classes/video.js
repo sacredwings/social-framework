@@ -1,12 +1,13 @@
-import { DB } from "./db";
-import { CFile } from "./file";
-import {re} from "@babel/core/lib/vendor/import-meta-resolve";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CVideo {
 
     //добавить новое видео
     static async Edit ( id, fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             // сделать проверку, что файл и альбом твои
 /*
             let arFields = {
@@ -20,7 +21,7 @@ export class CVideo {
             if (fields.album_ids)
                 fields.album_ids = new DB().arObjectID(fields.album_ids)
 
-            let collection = DB.Client.collection('file');
+            let collection = mongoClient.collection('file');
             let arFields = {
                 _id: id
             }
@@ -37,9 +38,10 @@ export class CVideo {
     //загрузка по id
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('file');
+            let collection = mongoClient.collection('file');
             //let result = await collection.find({_id: { $in: ids}}).toArray()
             let result = await collection.aggregate([
                 { $match:
@@ -84,6 +86,7 @@ export class CVideo {
     //загрузка
     static async Get ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.q) {
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
                 fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
@@ -93,7 +96,7 @@ export class CVideo {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
-            let collection = DB.Client.collection('file');
+            let collection = mongoClient.collection('file');
 
             let arAggregate = []
             arAggregate.push({
@@ -194,6 +197,7 @@ export class CVideo {
     //количество
     static async GetCount ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.q) {
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
                 fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
@@ -203,7 +207,7 @@ export class CVideo {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
-            let collection = DB.Client.collection('file');
+            let collection = mongoClient.collection('file');
 
             let arAggregate = [{
                 $match: {
@@ -264,7 +268,8 @@ export class CVideo {
 
     static async Count () {
         try {
-            let collection = DB.Client.collection('file');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('file');
 
             let arAggregate = [{
                 $match: {
@@ -292,9 +297,10 @@ export class CVideo {
 
     static async Delete ( id ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
 
-            let collection = DB.Client.collection('file');
+            let collection = mongoClient.collection('file');
 
             let result = collection.deleteOne({_id: id})
 

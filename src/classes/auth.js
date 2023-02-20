@@ -3,11 +3,13 @@ import * as crypto from "crypto"
 import { DB } from "./db"
 import { CUser } from './user'
 import axios from "axios"
+import { Store } from "../store"
 
 export class CAuth {
 
     static async Login ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             //поиск пользователя по логину
             let user = await CUser.GetByLogin(fields.login);
             if (!user)
@@ -31,9 +33,10 @@ export class CAuth {
 
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('auth');
+            let collection = mongoClient.collection('auth');
             let result = await collection.find({_id: { $in: ids}}).toArray()
 
             if (result)
@@ -48,7 +51,8 @@ export class CAuth {
 
     static async AddToken ( userId, ip, browser ) {
         try {
-            let collection = DB.Client.collection('auth')
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('auth')
 
             //создаем hash /нужно поменять на дату
             let hash = new Date().toString()

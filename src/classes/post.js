@@ -1,11 +1,13 @@
-import { DB } from "./db";
-import { CFile } from "./file";
+import { DB } from "./db"
+import { Store } from "../store"
+
 
 export class CPost {
 
     //новая тема для обсуждений
     static async Add ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             fields.file_ids = new DB().arObjectID(fields.file_ids)
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -14,7 +16,7 @@ export class CPost {
 
             fields.create_date = new Date()
 
-            let collection = DB.Client.collection('post');
+            let collection = mongoClient.collection('post');
 
             let result = await collection.insertOne(fields)
             return fields
@@ -28,9 +30,10 @@ export class CPost {
     //загрузка по id
     static async GetById ( ids ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = DB.Client.collection('post');
+            let collection = mongoClient.collection('post');
             let result = await collection.aggregate([
                 { $match:
                         {
@@ -105,12 +108,13 @@ export class CPost {
     //загрузка
     static async Get ( fields ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             if (fields.q) {
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
                 fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
             }
 
-            let collection = DB.Client.collection('post')
+            let collection = mongoClient.collection('post')
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -205,7 +209,8 @@ export class CPost {
     //количество
     static async GetCount ( fields ) {
         try {
-            let collection = DB.Client.collection('post')
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('post')
 
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
@@ -236,7 +241,8 @@ export class CPost {
 
     static async Count ( fields ) {
         try {
-            let collection = DB.Client.collection('post');
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('post');
 
             let result = await collection.count()
             return result
@@ -249,11 +255,12 @@ export class CPost {
 
     static async Edit(id, fields) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
             if (fields.file_ids)
                 fields.file_ids = new DB().arObjectID(fields.file_ids)
 
-            let collection = DB.Client.collection('post');
+            let collection = mongoClient.collection('post');
             let arFields = {
                 _id: id
             }
@@ -269,9 +276,10 @@ export class CPost {
 
     static async Delete ( id ) {
         try {
+            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
 
-            let collection = DB.Client.collection('post');
+            let collection = mongoClient.collection('post');
 
             let result = collection.deleteOne({_id: id})
 
