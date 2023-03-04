@@ -1,6 +1,7 @@
 import fs from "fs-extra"
 import crypto from "crypto"
 import extractFrames from "ffmpeg-extract-frame"
+import {getType, getExtension} from 'mime';
 
 import { DB } from "./db"
 import { Store } from "../store"
@@ -8,12 +9,177 @@ import { Store } from "../store"
 export class CFile {
 
     //Сохраняем новый вайл в таблицу файлов и сам файл
-    static async Add ( fields, savePath, preview = true ) {
+    static async Add ({module, file, from_id, to_group_id}) {
         try {
-            console.log(Store.GetMongoClient())
+            const mongoClient = Store.GetMongoClient()
+            const minioClient = Store.GetMinioClient()
+            let collection = mongoClient.collection('file')
+            from_id = new DB().ObjectID(from_id)
+            to_group_id = new DB().ObjectID(to_group_id)
+
+            file.name = file.name.replace(/\.[^/\\.]+$/, "")
+            //file.name = file.name.replace(/[^\w\s!?]/g,'')
+            // x.replace(/\.[^/.]+$/, "")
+
+            //ИМЯ И ТИПЫ
+
+            //содержимое файла в буфере
+            let file_buffer = fs.createReadStream(file.path)
+            file_buffer = await new Promise(function(resolve,reject){
+                file_buffer.on('data', (data) => resolve(data))
+            })
+
+            //хеш содержимого
+            let hash = crypto.createHash('md5').update(file_buffer).digest("hex")
+
+            //поиск файла по хэшу
+            let getFile = await this.GetByHash(hash)
+            if (getFile) {
+                //файл уже был загружен этим пользователем
+                if (getFile.from_id.toString() === from_id.toString()) return getFile
+
+                //создаем запись с теме же полями, меняем владельца
+                let arFields = {
+                    ...getFile, ...{from_id: from_id}
+                }
+                let result = await collection.insertOne(arFields)
+                return arFields
+            }
+
+            //перепроверка mime типа
+            let mimeType = await getType(file.path)
+            let mimeExtension = await getExtension(mimeType)
+
+            let bucketName = null
+            let objectName = null
+
+            //ПОДГОТОВКА К ЗАГРУЗКЕ ФАЙЛА
+
+            //ВИДЕО
+            if (mimeType === 'video/mp4') {
+                bucketName = 'video'
+                objectName = `${hash}/original.${mimeExtension}`
+
+                //СОЗДАНИЕ SNAPSHOT
+                await extractFrames({
+                    input: file.path,
+                    output: `${file.path}.jpeg`,
+                    offset: 3000 // seek offset in milliseconds
+                })
+
+                //для minio
+                let metaData = {
+                    'Content-Type': 'image/jpeg',
+                    'User-Id': from_id,
+                    //'Title': file.name
+                }
+
+                //загрузка
+                minioClient.fPutObject('video', `${hash}/snapshot.jpeg`, `${file.path}.jpeg`, metaData, async function(err, objInfo) {
+
+                    if(err) {
+                        let result = collection.updateOne({_id: objectId}, {$set: {status_snapshot: 'err'}}, {upsert: true})
+                        return console.log(err)
+                    }
+
+                    //файл
+                    let arStatus = {
+                        snapshot_status: 'ok',
+                        snapshot_mime: 'image/jpeg',
+                        snapshot_ext: 'jpeg'
+                    }
+                    let result = collection.updateOne({_id: objectId}, {$set: arStatus}, {upsert: true})
+                })
+            }
+
+            //ИЗОБРАЖЕНИЕ
+            if ((mimeType === 'image/gif') ||
+                (mimeType === 'image/png') ||
+                (mimeType === 'image/jpeg')) {
+
+                bucketName = 'image'
+                objectName = `${hash}.${mimeExtension}`
+            }
+
+            //АУДИО
+            if ((mimeType === 'audio/mp4') ||
+                (mimeType === 'audio/mpeg')) {
+
+                bucketName = 'audio'
+                objectName = `${hash}.${mimeExtension}`
+            }
+
+            //ДОКУМЕНТ
+            if ((mimeType === 'application/msword') ||
+                (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
+                (mimeType === 'application/vnd.ms-excel') ||
+                (mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+                (mimeType === 'application/pdf') ||
+                (mimeType === 'text/plain')) {
+
+                bucketName = 'doc'
+                objectName = `${hash}.${mimeExtension}`
+            }
+
+            //ЗАГРУЗКА ФАЙЛА
+            let metaData = {
+                'Content-Type': mimeType,
+                'User-Id': from_id,
+                //'Title': file.name
+            }
+
+            //id объекта который быдет создан в базе
+            let objectId = null
+
+            minioClient.fPutObject(bucketName, objectName, file.path, metaData, async function(err, objInfo) {
+
+                if(err) {
+                    let result = collection.updateOne({_id: objectId}, {$set: {status: 'err'}}, {upsert: true})
+                    return console.log(err)
+                }
+
+                //файл
+                let arStatus = {
+                    status: 'ok',
+                    minio_etag: objInfo.etag,
+                    minio_version_id: objInfo.versionId
+                }
+                let result = collection.updateOne({_id: objectId}, {$set: arStatus}, {upsert: true})
+
+            })
+
+            //добавление записи о файле в таблицу
+            let arFields = {
+                module: module,
+                status: 'upload',
+
+                size: file.size,
+                type: mimeType,
+                ext: mimeExtension,
+
+                bucket_name: bucketName,
+                object_name: hash,
+
+                from_id: from_id,
+                to_group_id: to_group_id,
+
+                //не нужно, превью будет именем замого файла / оно обязательно
+                //file_id: (fields.file_id) ? fields.file_id : newIdImg,
+
+                title: file.name,
+                text: null,
+                //album_ids: album_ids,
+            }
+
+            let result = await collection.insertOne(arFields)
+            //для обновления статуса загрузки файла
+            objectId = arFields._id
+
+            return arFields
+
         } catch (err) {
             console.log(err)
-            throw ({code: 3001000, msg: 'CFile SaveFile'})
+            throw ({code: 3001000, msg: 'CFile Add'})
         }
     }
 
@@ -171,6 +337,23 @@ export class CFile {
 
                 return item;
             }));
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({code: 8001000, msg: 'CFile GetById'})
+        }
+    }
+
+
+//загрузка по id
+    static async GetByHash ( hash ) {
+        try {
+            const mongoClient = Store.GetMongoClient()
+
+            let collection = mongoClient.collection('file');
+            //let result = await collection.find({_id: { $in: ids}}).toArray()
+            let result = await collection.findOne({object_name: hash})
 
             return result
         } catch (err) {

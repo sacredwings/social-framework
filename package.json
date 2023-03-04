@@ -16,7 +16,9 @@
     "axios": "^1.2.3",
     "bcrypt": "^5.0.1",
     "ffmpeg-extract-frame": "^1.0.2",
+    "file-type": "^18.2.1",
     "fs-extra": "^10.1.0",
+    "mime": "^3.0.0",
     "minio": "^7.0.32",
     "mongodb": "^4.10.0",
     "mongodb-client-encryption": "^2.3.0"
