@@ -41,7 +41,7 @@ export class CVideo {
             const mongoClient = Store.GetMongoClient()
             ids = new DB().arObjectID(ids)
 
-            let collection = mongoClient.collection('file');
+            let collection = mongoClient.collection('file_video');
             //let result = await collection.find({_id: { $in: ids}}).toArray()
             let result = await collection.aggregate([
                 { $match:
@@ -50,22 +50,10 @@ export class CVideo {
                         }
                 },{ $lookup:
                         {
-                            from: 'file',
-                            localField: 'file_id',
-                            foreignField: '_id',
-                            as: '_file_id',
-                        }
-                },{ $lookup:
-                        {
                             from: 'album',
                             localField: 'album_ids',
                             foreignField: '_id',
                             as: '_album_ids'
-                        }
-                },{ $unwind:
-                        {
-                            path: '$_file_id',
-                            preserveNullAndEmptyArrays: true
                         }
                 }
             ]).toArray()
@@ -111,15 +99,6 @@ export class CVideo {
             arAggregate.push({
                 $lookup:
                     {
-                        from: 'file',
-                        localField: 'file_id',
-                        foreignField: '_id',
-                        as: '_file_id'
-                    }
-            })
-            arAggregate.push({
-                $lookup:
-                    {
                         from: 'album',
                         localField: 'album_ids',
                         foreignField: '_id',
@@ -148,14 +127,6 @@ export class CVideo {
                         }
                 })
             }
-
-            arAggregate.push({
-                $unwind:
-                    {
-                        path: '$_file_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-            })
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q

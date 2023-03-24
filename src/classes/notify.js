@@ -78,14 +78,14 @@ export class CNotify {
                     pipeline: [
                         {
                             $lookup: {
-                                from: 'file',
-                                localField: 'photo',
+                                from: 'file_image',
+                                localField: 'photo_id',
                                 foreignField: '_id',
-                                as: '_photo'
+                                as: '_photo_id'
                             }
                         },{
                             $unwind: {
-                                path: '$_photo',
+                                path: '$_photo_id',
                                 preserveNullAndEmptyArrays: true
                             }
                         }
@@ -101,14 +101,14 @@ export class CNotify {
                     pipeline: [
                         {
                             $lookup: {
-                                from: 'file',
-                                localField: 'photo',
+                                from: 'file_image',
+                                localField: 'photo_id',
                                 foreignField: '_id',
-                                as: '_photo'
+                                as: '_photo_id'
                             }
                         },{
                             $unwind: {
-                                path: '$_photo',
+                                path: '$_photo_id',
                                 preserveNullAndEmptyArrays: true
                             }
                         }

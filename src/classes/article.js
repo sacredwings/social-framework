@@ -42,27 +42,10 @@ export class CArticle {
                 },
                 { $lookup:
                         {
-                            from: 'file',
+                            from: 'file_image',
                             localField: 'image_id',
                             foreignField: '_id',
                             as: '_image_id',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },
-                                {
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
                         },
                 },{ $lookup:
                         {
@@ -144,25 +127,10 @@ export class CArticle {
             arAggregate.push({
                 $lookup:
                     {
-                        from: 'file',
+                        from: 'file_image',
                         localField: 'image_id',
                         foreignField: '_id',
-                        as: '_image_id',
-                        pipeline: [
-                            { $lookup:
-                                    {
-                                        from: 'file',
-                                        localField: 'file_id',
-                                        foreignField: '_id',
-                                        as: '_file_id'
-                                    }
-                            },{ $unwind:
-                                    {
-                                        path: '$_file_id',
-                                        preserveNullAndEmptyArrays: true
-                                    }
-                            }
-                        ]
+                        as: '_image_id'
                     }
             })
             arAggregate.push({

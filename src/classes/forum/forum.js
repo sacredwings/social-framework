@@ -14,10 +14,10 @@ export class CForum {
                 }
             },{
                 $lookup: {
-                    from: 'file',
-                    localField: 'photo',
+                    from: 'file_image',
+                    localField: 'photo_id',
                     foreignField: '_id',
-                    as: '_photo'
+                    as: '_photo_id'
                 }
             },{
                 $lookup: {
@@ -33,21 +33,21 @@ export class CForum {
                             as: '_change_user_id',
                             pipeline: [{
                                 $lookup: {
-                                    from: 'file',
-                                    localField: 'photo',
+                                    from: 'file_image',
+                                    localField: 'photo_id',
                                     foreignField: '_id',
-                                    as: '_photo'
+                                    as: '_photo_id'
                                 }
                             },{
                                 $unwind: {
-                                    path: '$_photo',
+                                    path: '$_photo_id',
                                     preserveNullAndEmptyArrays: true
                                 }
                             }]
                         }
                     },{
                         $lookup: {
-                            from: 'file',
+                            from: 'file_image',
                             localField: 'file_id',
                             foreignField: '_id',
                             as: '_file_id'
@@ -66,7 +66,7 @@ export class CForum {
                 }
             },{
                 $unwind: {
-                    path: '$_photo',
+                    path: '$_photo_id',
                     preserveNullAndEmptyArrays: true
                 }
             },{

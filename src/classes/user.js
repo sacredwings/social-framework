@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { DB } from "./db"
 import { Store } from "../store"
+import { CFile } from "../classes/file"
+
 
 
 export class CUser {
@@ -69,56 +71,38 @@ export class CUser {
                         }
                 },{ $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo',
+                            from: 'file_image',
+                            localField: 'photo_id',
                             foreignField: '_id',
-                            as: '_photo',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },{ $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
+                            as: '_photo_id',
                         },
                 },{ $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo_big',
+                            from: 'file_image',
+                            localField: 'cover_id',
                             foreignField: '_id',
-                            as: '_photo_big',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },{ $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
+                            as: '_cover_image_id',
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file_video',
+                            localField: 'cover_id',
+                            foreignField: '_id',
+                            as: '_cover_video_id',
                         },
                 },{ $unwind:
                         {
-                            path: '$_photo',
+                            path: '$_photo_id',
                             preserveNullAndEmptyArrays: true
                         }
                 },{ $unwind:
                         {
-                            path: '$_photo_big',
+                            path: '$_cover_image_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },{ $unwind:
+                        {
+                            path: '$_cover_video_id',
                             preserveNullAndEmptyArrays: true
                         }
                 }
@@ -147,54 +131,40 @@ export class CUser {
                         {
                             email: email
                         }
-                },
-                { $lookup:
+                },{ $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo',
+                            from: 'file_image',
+                            localField: 'photo_id',
                             foreignField: '_id',
-                            as: '_photo',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                }
-                            ]
+                            as: '_photo_id',
                         },
-                },
-                { $lookup:
+                },{ $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo_big',
+                            from: 'file_image',
+                            localField: 'cover_id',
                             foreignField: '_id',
-                            as: '_photo_big',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                }
-                            ]
+                            as: '_cover_image_id',
                         },
-                },
-                {
-                    $unwind:
+                },{ $lookup:
                         {
-                            path: '$_photo',
+                            from: 'file_video',
+                            localField: 'cover_id',
+                            foreignField: '_id',
+                            as: '_cover_video_id',
+                        },
+                },{ $unwind:
+                        {
+                            path: '$_photo_id',
                             preserveNullAndEmptyArrays: true
                         }
-                },
-                {
-                    $unwind:
+                },{ $unwind:
                         {
-                            path: '$_photo_big',
+                            path: '$_cover_image_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },{ $unwind:
+                        {
+                            path: '$_cover_video_id',
                             preserveNullAndEmptyArrays: true
                         }
                 }
@@ -224,54 +194,40 @@ export class CUser {
                         {
                             login: login
                         }
-                },
-                { $lookup:
+                },{ $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo',
+                            from: 'file_image',
+                            localField: 'photo_id',
                             foreignField: '_id',
-                            as: '_photo',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                }
-                            ]
+                            as: '_photo_id',
                         },
-                },
-                { $lookup:
+                },{ $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo_big',
+                            from: 'file_image',
+                            localField: 'cover_id',
                             foreignField: '_id',
-                            as: '_photo_big',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                }
-                            ]
+                            as: '_cover_image_id',
                         },
-                },
-                {
-                    $unwind:
+                },{ $lookup:
                         {
-                            path: '$_photo',
+                            from: 'file_video',
+                            localField: 'cover_id',
+                            foreignField: '_id',
+                            as: '_cover_video_id',
+                        },
+                },{ $unwind:
+                        {
+                            path: '$_photo_id',
                             preserveNullAndEmptyArrays: true
                         }
-                },
-                {
-                    $unwind:
+                },{ $unwind:
                         {
-                            path: '$_photo_big',
+                            path: '$_cover_image_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },{ $unwind:
+                        {
+                            path: '$_cover_video_id',
                             preserveNullAndEmptyArrays: true
                         }
                 }
@@ -341,6 +297,17 @@ export class CUser {
                 fields.password = await bcrypt.hash(fields.password, salt);
             }
 
+            if (fields.cover_id) {
+                fields.cover_id = new DB().ObjectID(fields.cover_id)
+
+                if (
+                    (!await CFile.GetById([fields.cover_id], 'file_video')) &&
+                    (!await CFile.GetById([fields.cover_id], 'file_image'))
+                ) fields.cover_id = null
+            }
+
+            if (fields.photo_id) fields.photo_id = new DB().ObjectID(fields.photo_id)
+
             let collection = mongoClient.collection('user');
             let result = collection.updateOne({_id: id}, {$set: fields}, {upsert: true})
 
@@ -373,27 +340,41 @@ export class CUser {
             arAggregate.push(
                 { $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo',
+                            from: 'file_image',
+                            localField: 'photo_id',
                             foreignField: '_id',
-                            as: '_photo',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                }
-                            ]
+                            as: '_photo_id',
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file_image',
+                            localField: 'cover_id',
+                            foreignField: '_id',
+                            as: '_cover_image_id',
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file_video',
+                            localField: 'cover_id',
+                            foreignField: '_id',
+                            as: '_cover_video_id',
                         },
                 },{ $unwind:
                         {
-                            path: '$_photo',
+                            path: '$_photo_id',
                             preserveNullAndEmptyArrays: true
                         }
-                },
+                },{ $unwind:
+                        {
+                            path: '$_cover_image_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },{ $unwind:
+                        {
+                            path: '$_cover_video_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                }
             )
 
             arAggregate.push({

@@ -43,15 +43,15 @@ export class CGroup {
                             pipeline: [
                                 { $lookup:
                                         {
-                                            from: 'file',
-                                            localField: 'photo',
+                                            from: 'file_image',
+                                            localField: 'photo_id',
                                             foreignField: '_id',
-                                            as: '_photo'
+                                            as: '_photo_id'
                                         }
                                 },{
                                     $unwind:
                                         {
-                                            path: '$_photo',
+                                            path: '$_photo_id',
                                             preserveNullAndEmptyArrays: true
                                         }
                                 }
@@ -62,50 +62,26 @@ export class CGroup {
                 },
                 { $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo',
+                            from: 'file_image',
+                            localField: 'photo_id',
                             foreignField: '_id',
-                            as: '_photo',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },{
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
+                            as: '_photo_id'
                         },
                 },
                 { $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo_big',
+                            from: 'file_image',
+                            localField: 'cover_id',
                             foreignField: '_id',
-                            as: '_photo_big',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },{
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
+                            as: '_cover_image_id'
+                        },
+                },
+                { $lookup:
+                        {
+                            from: 'file_video',
+                            localField: 'cover_id',
+                            foreignField: '_id',
+                            as: '_cover_video_id'
                         },
                 },
                 {
@@ -118,14 +94,21 @@ export class CGroup {
                 {
                     $unwind:
                         {
-                            path: '$_photo',
+                            path: '$_photo_id',
                             preserveNullAndEmptyArrays: true
                         }
                 },
                 {
                     $unwind:
                         {
-                            path: '$_photo_big',
+                            path: '$_cover_image_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },
+                {
+                    $unwind:
+                        {
+                            path: '$_cover_video_id',
                             preserveNullAndEmptyArrays: true
                         }
                 }
@@ -155,60 +138,35 @@ export class CGroup {
             arAggregate.push(
                 { $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo',
+                            from: 'file_image',
+                            localField: 'photo_id',
                             foreignField: '_id',
-                            as: '_photo',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },
-                                {
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
+                            as: '_photo_id',
                         },
                 })
             arAggregate.push(
                 { $lookup:
                         {
-                            from: 'file',
-                            localField: 'photo_big',
+                            from: 'file_image',
+                            localField: 'cover_id',
                             foreignField: '_id',
-                            as: '_photo_big',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },
-                                {
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
+                            as: '_cover_image_id',
+                        },
+                })
+            arAggregate.push(
+                { $lookup:
+                        {
+                            from: 'file_video',
+                            localField: 'cover_id',
+                            foreignField: '_id',
+                            as: '_cover_video_id',
                         },
                 })
             arAggregate.push(
                 {
                     $unwind:
                         {
-                            path: '$_photo',
+                            path: '$_photo_id',
                             preserveNullAndEmptyArrays: true
                         }
                 })
@@ -216,7 +174,15 @@ export class CGroup {
                 {
                     $unwind:
                         {
-                            path: '$_photo_big',
+                            path: '$_cover_image_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                })
+            arAggregate.push(
+                {
+                    $unwind:
+                        {
+                            path: '$_cover_video_id',
                             preserveNullAndEmptyArrays: true
                         }
                 })

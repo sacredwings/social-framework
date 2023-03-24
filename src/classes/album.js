@@ -46,34 +46,29 @@ export class CAlbum {
                         }
                 },{ $lookup:
                         {
-                            from: 'file',
-                            localField: 'image_id',
+                            from: 'file_image',
+                            localField: 'file_id',
                             foreignField: '_id',
-                            as: '_image_id',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },
-                                {
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
+                            as: '_file_image_id',
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file_video',
+                            localField: 'file_id',
+                            foreignField: '_id',
+                            as: '_file_video_id',
                         },
                 },{ $unwind:
                         {
-                            path: '$_image_id',
+                            path: '$_file_image_id',
                             preserveNullAndEmptyArrays: true
                         }
-                }
+                },{ $unwind:
+                        {
+                            path: '$_file_video_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },
             ]).toArray();
             return result
 
@@ -132,30 +127,26 @@ export class CAlbum {
                         }
                 },{ $lookup:
                         {
-                            from: 'file',
-                            localField: 'image_id',
+                            from: 'file_image',
+                            localField: 'file_id',
                             foreignField: '_id',
-                            as: '_image_id',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },{
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
+                            as: '_file_image_id',
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file_video',
+                            localField: 'file_id',
+                            foreignField: '_id',
+                            as: '_file_video_id',
                         },
                 },{ $unwind:
                         {
-                            path: '$_image_id',
+                            path: '$_file_image_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                },{ $unwind:
+                        {
+                            path: '$_file_video_id',
                             preserveNullAndEmptyArrays: true
                         }
                 },

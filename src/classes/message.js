@@ -115,16 +115,16 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file',
-                                        localField: 'photo',
+                                        from: 'file_image',
+                                        localField: 'photo_id',
                                         foreignField: '_id',
-                                        as: '_photo'
+                                        as: '_photo_id'
                                     }
                             },
                             {
                                 $unwind:
                                     {
-                                        path: '$_photo',
+                                        path: '$_photo_id',
                                         preserveNullAndEmptyArrays: true
                                     }
                             }
@@ -208,16 +208,16 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file',
-                                        localField: 'photo',
+                                        from: 'file_image',
+                                        localField: 'photo_id',
                                         foreignField: '_id',
-                                        as: '_photo'
+                                        as: '_photo_id'
                                     }
                             },
                             {
                                 $unwind:
                                     {
-                                        path: '$_photo',
+                                        path: '$_photo_id',
                                         preserveNullAndEmptyArrays: true
                                     }
                             }
@@ -232,16 +232,16 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file',
-                                        localField: 'photo',
+                                        from: 'file_image',
+                                        localField: 'photo_id',
                                         foreignField: '_id',
-                                        as: '_photo'
+                                        as: '_photo_id'
                                     }
                             },
                             {
                                 $unwind:
                                     {
-                                        path: '$_photo',
+                                        path: '$_photo_id',
                                         preserveNullAndEmptyArrays: true
                                     }
                             }
@@ -249,45 +249,28 @@ export class CMessage {
                     },
                 },{ $lookup:
                         {
-                            from: 'file',
+                            from: 'file_video',
                             localField: 'video_ids',
                             foreignField: '_id',
                             as: '_video_ids',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },
-                                {
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
                         },
                 },{ $lookup:
                         {
-                            from: 'file',
+                            from: 'file_image',
                             localField: 'img_ids',
                             foreignField: '_id',
                             as: '_img_ids'
                         },
                 },{ $lookup:
                         {
-                            from: 'file',
+                            from: 'file_doc',
                             localField: 'doc_ids',
                             foreignField: '_id',
                             as: '_doc_ids'
                         },
                 },{ $lookup:
                         {
-                            from: 'file',
+                            from: 'file_audio',
                             localField: 'audio_ids',
                             foreignField: '_id',
                             as: '_audio_ids'
@@ -427,16 +410,16 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file',
-                                        localField: 'photo',
+                                        from: 'file_image',
+                                        localField: 'photo_id',
                                         foreignField: '_id',
-                                        as: '_photo'
+                                        as: '_photo_id'
                                     }
                             },
                             {
                                 $unwind:
                                     {
-                                        path: '$_photo',
+                                        path: '$_photo_id',
                                         preserveNullAndEmptyArrays: true
                                     }
                             }
@@ -451,16 +434,16 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file',
-                                        localField: 'photo',
+                                        from: 'file_image',
+                                        localField: 'photo_id',
                                         foreignField: '_id',
-                                        as: '_photo'
+                                        as: '_photo_id'
                                     }
                             },
                             {
                                 $unwind:
                                     {
-                                        path: '$_photo',
+                                        path: '$_photo_id',
                                         preserveNullAndEmptyArrays: true
                                     }
                             }
@@ -468,45 +451,28 @@ export class CMessage {
                     },
                 },{ $lookup:
                         {
-                            from: 'file',
+                            from: 'file_video',
                             localField: 'video_ids',
                             foreignField: '_id',
                             as: '_video_ids',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },
-                                {
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
                         },
                 },{ $lookup:
                         {
-                            from: 'file',
+                            from: 'file_image',
                             localField: 'img_ids',
                             foreignField: '_id',
                             as: '_img_ids'
                         },
                 },{ $lookup:
                         {
-                            from: 'file',
+                            from: 'file_doc',
                             localField: 'doc_ids',
                             foreignField: '_id',
                             as: '_doc_ids'
                         },
                 },{ $lookup:
                         {
-                            from: 'file',
+                            from: 'file_audio',
                             localField: 'audio_ids',
                             foreignField: '_id',
                             as: '_audio_ids'

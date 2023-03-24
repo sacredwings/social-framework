@@ -58,16 +58,16 @@ export class CForumTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file',
-                                    localField: 'photo',
+                                    from: 'file_image',
+                                    localField: 'photo_id',
                                     foreignField: '_id',
-                                    as: '_photo'
+                                    as: '_photo_id'
                                 }
                         },
                         {
                             $unwind:
                                 {
-                                    path: '$_photo',
+                                    path: '$_photo_id',
                                     preserveNullAndEmptyArrays: true
                                 }
                         }
@@ -82,16 +82,16 @@ export class CForumTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file',
-                                    localField: 'photo',
+                                    from: 'file_image',
+                                    localField: 'photo_id',
                                     foreignField: '_id',
-                                    as: '_photo'
+                                    as: '_photo_id'
                                 }
                         },
                         {
                             $unwind:
                                 {
-                                    path: '$_photo',
+                                    path: '$_photo_id',
                                     preserveNullAndEmptyArrays: true
                                 }
                         }
@@ -106,16 +106,16 @@ export class CForumTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file',
-                                    localField: 'photo',
+                                    from: 'file_image',
+                                    localField: 'photo_id',
                                     foreignField: '_id',
-                                    as: '_photo'
+                                    as: '_photo_id'
                                 }
                         },
                         {
                             $unwind:
                                 {
-                                    path: '$_photo',
+                                    path: '$_photo_id',
                                     preserveNullAndEmptyArrays: true
                                 }
                         }
@@ -123,7 +123,7 @@ export class CForumTopic {
                 }
             },{
                 $lookup: {
-                    from: 'file',
+                    from: 'file_image',
                     localField: 'image_id',
                     foreignField: '_id',
                     as: '_image_id'
@@ -211,16 +211,16 @@ export class CForumTopic {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file',
-                                        localField: 'photo',
+                                        from: 'file_image',
+                                        localField: 'photo_id',
                                         foreignField: '_id',
-                                        as: '_photo'
+                                        as: '_photo_id'
                                     }
                             },
                             {
                                 $unwind:
                                     {
-                                        path: '$_photo',
+                                        path: '$_photo_id',
                                         preserveNullAndEmptyArrays: true
                                     }
                             }
@@ -235,16 +235,16 @@ export class CForumTopic {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file',
-                                        localField: 'photo',
+                                        from: 'file_image',
+                                        localField: 'photo_id',
                                         foreignField: '_id',
-                                        as: '_photo'
+                                        as: '_photo_id'
                                     }
                             },
                             {
                                 $unwind:
                                     {
-                                        path: '$_photo',
+                                        path: '$_photo_id',
                                         preserveNullAndEmptyArrays: true
                                     }
                             }
@@ -252,7 +252,7 @@ export class CForumTopic {
                     }
                 },{
                     $lookup: {
-                        from: 'file',
+                        from: 'file_image',
                         localField: 'image_id',
                         foreignField: '_id',
                         as: '_image_id'

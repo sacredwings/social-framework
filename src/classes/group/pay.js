@@ -38,15 +38,15 @@ export class CGroupPay {
             aggregate.push({
                 $lookup:
                     {
-                        from: 'file',
-                        localField: 'photo',
+                        from: 'file_image',
+                        localField: 'photo_id',
                         foreignField: '_id',
-                        as: '_photo'
+                        as: '_photo_id'
                     },
             })
             aggregate.push({ $unwind:
                     {
-                        path: '$_photo',
+                        path: '$_photo_id',
                         preserveNullAndEmptyArrays: true
                     }
             })

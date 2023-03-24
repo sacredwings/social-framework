@@ -97,16 +97,16 @@ export class CVisitor {
                 }
             },{
                 $lookup: {
-                    from: 'file',
-                    localField: 'photo',
+                    from: 'file_image',
+                    localField: 'photo_id',
                     foreignField: '_id',
-                    as: '_photo'
+                    as: '_photo_id'
                 }
             },{
                 $unwind: '$_visitor'
             },{
                 $unwind: {
-                    path: '$_photo',
+                    path: '$_photo_id',
                     preserveNullAndEmptyArrays: true
                 }
             },{
