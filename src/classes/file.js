@@ -42,7 +42,8 @@ export class CFile {
             let tableName = null
 
             //ВИДЕО
-            if (mimeType === 'video/mp4') {
+            if ((mimeType === 'video/mp4') ||
+                (mimeType === 'video/mpeg')) {
 
                 bucketName = 'video'
                 objectName = `${hash}/original.${mimeExtension}`
@@ -80,6 +81,10 @@ export class CFile {
                 objectName = `${hash}.${mimeExtension}`
                 tableName = 'file_doc'
             }
+
+            //mime тип не прошел проверку
+            if (!mimeType) return false
+            if (!tableName) return false
 
             //ПРОВЕРКИ для превью видео
 
