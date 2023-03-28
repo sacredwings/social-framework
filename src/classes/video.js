@@ -21,7 +21,7 @@ export class CVideo {
             if (fields.album_ids)
                 fields.album_ids = new DB().arObjectID(fields.album_ids)
 
-            let collection = mongoClient.collection('file');
+            let collection = mongoClient.collection('file_video');
             let arFields = {
                 _id: id
             }
@@ -84,17 +84,11 @@ export class CVideo {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
-            let collection = mongoClient.collection('file');
+            let collection = mongoClient.collection('file_video');
 
             let arAggregate = []
             arAggregate.push({
-                $match:
-                    {
-                        $or: [
-                            {type: 'video/mp4'},
-                            {type: 'video/avi'},
-                        ]
-                    }
+                $match: {}
             })
             arAggregate.push({
                 $lookup:
@@ -139,6 +133,7 @@ export class CVideo {
             else
                 if ((!fields.q) && (!fields.view)) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
 
+            console.log(arAggregate[0].$match)
             //сортировка, если поиска нет
             if (fields.q)
                 arAggregate.push({
@@ -178,16 +173,12 @@ export class CVideo {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
-            let collection = mongoClient.collection('file');
+            let collection = mongoClient.collection('file_video');
 
-            let arAggregate = [{
-                $match: {
-                    $or: [
-                        {type: 'video/mp4'},
-                        {type: 'video/avi'},
-                    ]
-                },
-            }]
+            let arAggregate = []
+            arAggregate.push({
+                $match: {}
+            })
 
             //нет группы, ищем только в бесплатных группах
             if ((!fields.to_group_id) && (!fields.to_user_id)) {
@@ -240,16 +231,9 @@ export class CVideo {
     static async Count () {
         try {
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('file');
+            let collection = mongoClient.collection('file_video');
 
-            let arAggregate = [{
-                $match: {
-                    $or: [
-                        {type: 'video/mp4'},
-                        {type: 'video/avi'},
-                    ]
-                },
-            }]
+            let arAggregate = []
             arAggregate.push({
                 $count: 'count'
             })
