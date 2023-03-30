@@ -9,7 +9,7 @@ import { Store } from "../store"
 export class CFile {
 
     //Сохраняем новый вайл в таблицу файлов и сам файл
-    static async Add ({id=null, module, file, from_id, to_group_id, object_id=null}) {
+    static async Add ({_id=null, module, file, from_id, to_group_id, object_id=null}) {
         try {
             const mongoClient = Store.GetMongoClient()
             const minioClient = Store.GetMinioClient()
@@ -185,7 +185,7 @@ export class CFile {
             }
 
             //если явно указан id
-            if (id) arFields._id = id
+            if (_id) arFields._id = _id
 
             await collection.insertOne(arFields)
 
