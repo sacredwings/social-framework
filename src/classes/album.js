@@ -82,6 +82,7 @@ export class CAlbum {
         try {
             const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
+            fields.file_id = new DB().ObjectID(fields.file_id)
 
             let collection = mongoClient.collection('album');
             let arFields = {
