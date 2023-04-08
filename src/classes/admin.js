@@ -37,8 +37,36 @@ export class CAdmin {
                 })
                 console.log(arIndexes)
 
-                console.log('file')
-                collection = mongoClient.collection('file')
+                console.log('file_image')
+                collection = mongoClient.collection('file_image')
+                arIndexes = await collection.indexes()
+                arIndexes.forEach((item)=>{
+                    if (item.name !== '_id_')
+                        collection.dropIndex(item.name)
+                })
+                indexUser = await collection.createIndex({
+                        "title":"text",
+                        "text":"text",
+                    }, {"default_language" : "russian"}
+                )
+                console.log(arIndexes)
+
+                console.log('file_video')
+                collection = mongoClient.collection('file_video')
+                arIndexes = await collection.indexes()
+                arIndexes.forEach((item)=>{
+                    if (item.name !== '_id_')
+                        collection.dropIndex(item.name)
+                })
+                indexUser = await collection.createIndex({
+                        "title":"text",
+                        "text":"text",
+                    }, {"default_language" : "russian"}
+                )
+                console.log(arIndexes)
+
+                console.log('file_doc')
+                collection = mongoClient.collection('file_doc')
                 arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')
