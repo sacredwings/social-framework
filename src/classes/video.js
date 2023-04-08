@@ -100,6 +100,7 @@ export class CVideo {
                     }
             })
 
+            /* Доступ к каналу открываем
             //нет группы, ищем только в бесплатных группах
             if ((!fields.to_group_id) && (!fields.from_id)) {
                 arAggregate.push({
@@ -121,6 +122,7 @@ export class CVideo {
                         }
                 })
             }
+            */
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
@@ -179,6 +181,7 @@ export class CVideo {
                 $match: {}
             })
 
+            /* Доступ к каналу открываем
             //нет группы, ищем только в бесплатных группах
             if ((!fields.to_group_id) && (!fields.from_id)) {
                 arAggregate.push({
@@ -200,6 +203,8 @@ export class CVideo {
                         }
                 })
             }
+
+             */
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
