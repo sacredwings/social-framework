@@ -179,10 +179,12 @@ export class CArticle {
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
 
+            /*
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
             else
                 if ((!fields.q) && (!fields.view)) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
+            */
 
             arAggregate.push({
                 $unset: [ "text", "json"]
@@ -262,11 +264,13 @@ export class CArticle {
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
 
+            /*
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
             else
                 if ((!fields.q) && (!fields.view)) arAggregate[0].$match.album_ids = null //если не выбран альбом и мы не ищем
 
+             */
             arAggregate.push({
                 $count: 'count'
             })
