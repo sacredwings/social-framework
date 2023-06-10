@@ -8,7 +8,8 @@ export class CForumTopic {
         try {
             const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
-            fields.group_id = new DB().ObjectID(fields.group_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.image_id = new DB().ObjectID(fields.image_id)
 
             let date = new Date()
@@ -17,7 +18,8 @@ export class CForumTopic {
 
             let arFields = {
                 from_id: fields.from_id,
-                group_id: fields.group_id,
+                to_group_id: fields.to_group_id,
+                to_user_id: fields.to_user_id,
 
                 image_id: fields.image_id,
                 title: fields.title,
@@ -76,9 +78,33 @@ export class CForumTopic {
             },{
                 $lookup: {
                     from: 'group',
-                    localField: 'group_id',
+                    localField: 'to_group_id',
                     foreignField: '_id',
-                    as: '_group_id',
+                    as: '_to_group_id',
+                    pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'file_image',
+                                    localField: 'photo_id',
+                                    foreignField: '_id',
+                                    as: '_photo_id'
+                                }
+                        },
+                        {
+                            $unwind:
+                                {
+                                    path: '$_photo_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
+                        }
+                    ]
+                }
+            },{
+                $lookup: {
+                    from: 'user',
+                    localField: 'to_user_id',
+                    foreignField: '_id',
+                    as: '_to_user_id',
                     pipeline: [
                         { $lookup:
                                 {
@@ -140,7 +166,12 @@ export class CForumTopic {
                 }
             },{
                 $unwind: {
-                    path: '$_group_id',
+                    path: '$_to_group_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            },{
+                $unwind: {
+                    path: '$_to_user_id',
                     preserveNullAndEmptyArrays: true
                 }
             },{
@@ -191,13 +222,14 @@ export class CForumTopic {
         try {
             const mongoClient = Store.GetMongoClient()
             fields.from_id = new DB().ObjectID(fields.from_id)
-            fields.group_id = new DB().ObjectID(fields.group_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
 
             let collection = mongoClient.collection('topic')
 
             let match = {}
-            if (fields.user_id) match.user_id = fields.user_id //темы созданные пользователем
-            if (fields.group_id) match.group_id = fields.group_id //темы форума
+            if (fields.to_user_id) match.to_user_id = fields.to_user_id //темы созданные пользователем
+            if (fields.to_group_id) match.to_group_id = fields.to_group_id //темы форума
 
             let Aggregate = [
                 {
@@ -269,7 +301,7 @@ export class CForumTopic {
                     }
                 },{
                     $unwind: {
-                        path: '$_group_id',
+                        path: '$_to_group_id',
                         preserveNullAndEmptyArrays: true
                     }
                 },{
