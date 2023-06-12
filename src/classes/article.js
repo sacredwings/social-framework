@@ -178,7 +178,7 @@ export class CArticle {
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
-
+            if (fields.album_id) arAggregate[0].$match.album_ids = fields.album_id
             /*
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
@@ -263,7 +263,7 @@ export class CArticle {
 
             if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
-
+            if (fields.album_id) arAggregate[0].$match.album_ids = fields.album_id
             /*
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id
