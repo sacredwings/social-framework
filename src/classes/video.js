@@ -81,6 +81,7 @@ export class CVideo {
             }
 
             fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
@@ -176,6 +177,7 @@ export class CVideo {
             }
 
             fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
 
@@ -214,12 +216,17 @@ export class CVideo {
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
+            if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+            if (fields.album_id) arAggregate[0].$match.album_ids = fields.album_id
+
+            /*
             if ((fields.from_id) && (!fields.to_group_id)) {
                 arAggregate[0].$match.from_id = fields.from_id
                 arAggregate[0].$match.to_group_id = null
             }
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
-            if (fields.album_id) arAggregate[0].$match.album_ids = fields.album_id
+            if (fields.album_id) arAggregate[0].$match.album_ids = fields.album_id*/
             /*
             if (fields.album_id)
                 arAggregate[0].$match.album_ids = fields.album_id

@@ -113,6 +113,7 @@ export class CArticle {
                 fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
             }
 
+            fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
@@ -226,6 +227,7 @@ export class CArticle {
                 fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
             }
 
+            fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
