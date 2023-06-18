@@ -1,7 +1,7 @@
-import { DB } from "../db"
-import { Store } from "../../store"
+import { DB } from "./db"
+import { Store } from "../store"
 
-export class CForumTopic {
+export class CTopic {
 
     //новая тема для обсуждений
     static async Add ( fields ) {
@@ -221,102 +221,129 @@ export class CForumTopic {
     static async Get ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
+
             fields.from_id = new DB().ObjectID(fields.from_id)
-            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            fields.album_id = new DB().ObjectID(fields.album_id)
 
             let collection = mongoClient.collection('topic')
 
-            let match = {}
-            if (fields.to_user_id) match.to_user_id = fields.to_user_id //темы созданные пользователем
-            if (fields.to_group_id) match.to_group_id = fields.to_group_id //темы форума
-
-            let Aggregate = [
-                {
-                    $match: match
-                },{
-                    $lookup: {
-                        from: 'user',
-                        localField: 'from_id',
-                        foreignField: '_id',
-                        as: '_from_id',
-                        pipeline: [
-                            { $lookup:
-                                    {
-                                        from: 'file_image',
-                                        localField: 'photo_id',
-                                        foreignField: '_id',
-                                        as: '_photo_id'
-                                    }
-                            },
-                            {
-                                $unwind:
-                                    {
-                                        path: '$_photo_id',
-                                        preserveNullAndEmptyArrays: true
-                                    }
-                            }
-                        ]
-                    },
-                },{
-                    $lookup: {
-                        from: 'user',
-                        localField: 'change_user_id',
-                        foreignField: '_id',
-                        as: '_change_user_id',
-                        pipeline: [
-                            { $lookup:
-                                    {
-                                        from: 'file_image',
-                                        localField: 'photo_id',
-                                        foreignField: '_id',
-                                        as: '_photo_id'
-                                    }
-                            },
-                            {
-                                $unwind:
-                                    {
-                                        path: '$_photo_id',
-                                        preserveNullAndEmptyArrays: true
-                                    }
-                            }
-                        ]
-                    }
-                },{
-                    $lookup: {
-                        from: 'file_image',
-                        localField: 'image_id',
-                        foreignField: '_id',
-                        as: '_image_id'
-                    }
-                },{
-                    $unwind: {
-                        path: '$_image_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },{
-                    $unwind: {
-                        path: '$_from_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },{
-                    $unwind: {
-                        path: '$_to_group_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },{
-                    $unwind: {
-                        path: '$_change_user_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },{
-                    $sort: {
-                        _id: -1
-                    }
+            let arAggregate = []
+            arAggregate.push({
+                $match:
+                    {}
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'user',
+                    localField: 'from_id',
+                    foreignField: '_id',
+                    as: '_from_id',
+                    pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'file_image',
+                                    localField: 'photo_id',
+                                    foreignField: '_id',
+                                    as: '_photo_id'
+                                }
+                        },
+                        {
+                            $unwind:
+                                {
+                                    path: '$_photo_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
+                        }
+                    ]
+                },
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'user',
+                    localField: 'change_user_id',
+                    foreignField: '_id',
+                    as: '_change_user_id',
+                    pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'file_image',
+                                    localField: 'photo_id',
+                                    foreignField: '_id',
+                                    as: '_photo_id'
+                                }
+                        },
+                        {
+                            $unwind:
+                                {
+                                    path: '$_photo_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
+                        }
+                    ]
                 }
-            ]
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_image',
+                    localField: 'image_id',
+                    foreignField: '_id',
+                    as: '_image_id'
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_image_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_from_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_to_user_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_to_group_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_change_user_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $sort: {
+                    _id: -1
+                }
+            })
 
-            let result = await collection.aggregate(Aggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
+            if (fields.q) arAggregate[0].$match.$text = {}
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
+
+            if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+            if (fields.album_id) arAggregate[0].$match.album_ids = fields.album_id
+
+            //сортировка, если поиска нет
+            if (fields.q)
+                arAggregate.push({
+                    $sort: {
+                        $score: {$meta:"textScore"}
+                    }
+                })
+
+            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
             return result
 
         } catch (err) {
@@ -330,23 +357,31 @@ export class CForumTopic {
     static async GetCount ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
+
             fields.from_id = new DB().ObjectID(fields.from_id)
-            fields.group_id = new DB().ObjectID(fields.group_id)
+            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            fields.album_id = new DB().ObjectID(fields.album_id)
 
             let collection = mongoClient.collection('topic')
 
-            let match = {}
-            if (fields.from_id) match.from_id = fields.from_id //темы созданные пользователем
-            if (fields.group_id) match.group_id = fields.group_id //темы форума
+            let arAggregate = [{
+                $match: {},
+            }]
 
-            let Aggregate = [{
-                $match: match
-            },{
+            if (fields.q) arAggregate[0].$match.$text = {}
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
+
+            if ((fields.to_user_id) && (!fields.to_group_id)) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+            if (fields.album_id) arAggregate[0].$match.album_ids = fields.album_id
+
+            arAggregate.push({
                 $count: 'count'
-            }
-            ]
+            })
 
-            let result = await collection.aggregate(Aggregate).toArray();
+            let result = await collection.aggregate(arAggregate).toArray();
+
             if (!result.length) return 0
             return result[0].count
 

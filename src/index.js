@@ -16,8 +16,7 @@ import { CVideo } from './classes/video'
 import { CView } from './classes/view'
 import { CNotify } from "./classes/notify"
 import { CVisitor } from "./classes/visitor"
-import { CForumTopic } from "./classes/forum/topic"
-import { CForum } from "./classes/forum/forum"
+import { CTopic } from "./classes/topic"
 import { Store } from "./store"
 
 export {
@@ -39,7 +38,6 @@ export {
     CView,
     CNotify,
     CVisitor,
-    CForum,
-    CForumTopic,
+    CTopic,
     Store
 }

@@ -10,6 +10,7 @@ export class CAlbum {
             const mongoClient = Store.GetMongoClient()
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            fields.file_id = new DB().ObjectID(fields.file_id)
             fields.album_id = new DB().ObjectID(fields.album_id)
             if (fields.to_group_id)
                 delete fields.to_user_id
