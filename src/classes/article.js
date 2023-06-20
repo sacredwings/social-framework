@@ -201,9 +201,6 @@ export class CArticle {
             else
                 arAggregate.push({
                     $sort: {
-                        comment: -1,
-                        like: -1,
-                        view: -1,
                         _id: -1,
                     }
                 })
