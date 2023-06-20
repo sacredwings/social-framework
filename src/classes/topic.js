@@ -11,6 +11,7 @@ export class CTopic {
             fields.to_group_id = new DB().ObjectID(fields.to_group_id)
             fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             fields.image_id = new DB().ObjectID(fields.image_id)
+            fields.album_ids = new DB().arObjectID(fields.album_ids)
 
             let date = new Date()
 
@@ -410,6 +411,7 @@ export class CTopic {
             const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
             fields.image_id = new DB().ObjectID(fields.image_id)
+            fields.album_ids = new DB().arObjectID(fields.album_ids)
 
             let collection = mongoClient.collection('topic');
             let arFields = {
