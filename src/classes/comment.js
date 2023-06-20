@@ -398,6 +398,10 @@ export class CComment {
                         path: '$_from_id',
                         preserveNullAndEmptyArrays: true
                     }
+                },{
+                    $sort: {
+                        _id: -1,
+                    }
                 }
             ]
 
