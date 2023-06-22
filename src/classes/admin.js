@@ -92,6 +92,19 @@ export class CAdmin {
                 })
                 console.log(arIndexes)
 
+                console.log('topic')
+                collection = mongoClient.collection('topic')
+                arIndexes = await collection.indexes()
+                arIndexes.forEach((item)=>{
+                    if (item.name !== '_id_')
+                        collection.dropIndex(item.name)
+                })
+                indexUser = await collection.createIndex({
+                    "title":"text",
+                    "json.text":"text",
+                })
+                console.log(arIndexes)
+
                 console.log('album')
                 collection = mongoClient.collection('album')
                 arIndexes = await collection.indexes()
