@@ -13,9 +13,11 @@
   "author": "stronggenius",
   "license": "ISC",
   "dependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "axios": "^1.2.3",
     "bcrypt": "^5.0.1",
-    "ffmpeg-extract-frame": "^1.0.2",
+    "bcryptjs": "^2.4.3",
+    "ffmpeg-extract-frames-ver-2.0.2": "^0.0.1",
     "file-type": "^18.2.1",
     "fs-extra": "^10.1.0",
     "mime": "^3.0.0",

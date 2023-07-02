@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import * as crypto from "crypto"
 import { DB } from "./db"
 import { CUser } from './user'
