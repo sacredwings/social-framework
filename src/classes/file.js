@@ -1,6 +1,6 @@
 import fs from "fs-extra"
 import crypto from "crypto"
-import extractFrames from "ffmpeg-extract-frame"
+import extractFrames from "ffmpeg-extract-frames"
 import {getType, getExtension} from 'mime';
 
 import { DB } from "./db"
@@ -233,6 +233,7 @@ export class CFile {
 
             if (mimeType === 'video/mp4') {
                 try {
+
                     //извлечение кадра
                     await extractFrames({
                         input: file.path,
@@ -258,6 +259,7 @@ export class CFile {
                     }
                     await collection.updateOne({_id: arFields._id}, {$set: arStatus}, {upsert: true})
                 } catch (e) {
+                    console.log(e)
                     await collection.updateOne({_id: arFields._id}, {$set: {status_snapshot: 'err'}}, {upsert: true})
                 }
 

@@ -3,7 +3,7 @@ import {CNotify} from "./notify"
 import {CVideo} from "./video"
 import {CPost} from "./post"
 import {CArticle} from "./article"
-import {CForumTopic} from "./forum/topic"
+import {CTopic} from "./topic"
 import { Store } from "../store"
 
 
@@ -34,7 +34,7 @@ export class CComment {
             if (fields.module === 'video') object = await CVideo.GetById ( [fields.object_id] )
             if (fields.module === 'post') object = await CPost.GetById ( [fields.object_id] )
             if (fields.module === 'article') object = await CArticle.GetById ( [fields.object_id] )
-            if (fields.module === 'topic') object = await CForumTopic.GetById ( [fields.object_id] )
+            if (fields.module === 'topic') object = await CTopic.GetById ( [fields.object_id] )
 
             //узнаем создателя репоста
             let objectRepublish = null
