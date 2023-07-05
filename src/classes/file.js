@@ -1,6 +1,6 @@
 import fs from "fs-extra"
 import crypto from "crypto"
-import extractFrames from "ffmpeg-extract-frames"
+import extractFrames from "ffmpeg-extract-frame-ver-1-0-2"
 import {getType, getExtension} from 'mime';
 
 import { DB } from "./db"
