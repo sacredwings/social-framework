@@ -90,6 +90,9 @@ export class CArticle {
             if (fields.album_ids)
                 fields.album_ids = new DB().arObjectID(fields.album_ids)
 
+            if (fields.image_id)
+                fields.image_id = new DB().ObjectID(fields.image_id)
+
             let collection = mongoClient.collection('article');
             let arFields = {
                 _id: id
