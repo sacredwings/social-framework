@@ -365,28 +365,31 @@ export class CComment {
                         ]
                     },
                 },{
-                $lookup:
+                    $lookup:
                         {
                             from: 'file_video',
                             localField: 'video_ids',
                             foreignField: '_id',
                             as: '_video_ids'
                         },
-                },{ $lookup:
+                },{
+                    $lookup:
                         {
                             from: 'file_image',
                             localField: 'img_ids',
                             foreignField: '_id',
                             as: '_img_ids'
                         },
-                },{ $lookup:
+                },{
+                    $lookup:
                         {
                             from: 'file_doc',
                             localField: 'doc_ids',
                             foreignField: '_id',
                             as: '_doc_ids'
                         },
-                },{ $lookup:
+                },{
+                    $lookup:
                         {
                             from: 'file_audio',
                             localField: 'audio_ids',

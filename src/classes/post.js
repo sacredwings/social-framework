@@ -39,31 +39,6 @@ export class CPost {
                         {
                             _id: {$in: ids}
                         }
-                },
-                { $lookup:
-                        {
-                            from: 'file',
-                            localField: 'file_ids',
-                            foreignField: '_id',
-                            as: '_file_ids',
-                            pipeline: [
-                                { $lookup:
-                                        {
-                                            from: 'file',
-                                            localField: 'file_id',
-                                            foreignField: '_id',
-                                            as: '_file_id'
-                                        }
-                                },
-                                {
-                                    $unwind:
-                                        {
-                                            path: '$_file_id',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                }
-                            ]
-                        },
                 },{
                     $lookup:
                         {
@@ -74,26 +49,55 @@ export class CPost {
                             pipeline: [
                                 { $lookup:
                                         {
-                                            from: 'file',
-                                            localField: 'photo',
+                                            from: 'file_image',
+                                            localField: 'photo_id',
                                             foreignField: '_id',
-                                            as: '_photo'
+                                            as: '_photo_id'
                                         }
-                                },{
+                                },
+                                {
                                     $unwind:
                                         {
-                                            path: '$_photo',
+                                            path: '$_photo_id',
                                             preserveNullAndEmptyArrays: true
                                         }
                                 }
                             ]
                         },
                 },{
-                    $unwind:
+                    $lookup:
                         {
-                            path: '$_from_id',
-                            preserveNullAndEmptyArrays: true
-                        }
+                            from: 'file_video',
+                            localField: 'video_ids',
+                            foreignField: '_id',
+                            as: '_video_ids'
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file_image',
+                            localField: 'img_ids',
+                            foreignField: '_id',
+                            as: '_img_ids'
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file_doc',
+                            localField: 'doc_ids',
+                            foreignField: '_id',
+                            as: '_doc_ids'
+                        },
+                },{ $lookup:
+                        {
+                            from: 'file_audio',
+                            localField: 'audio_ids',
+                            foreignField: '_id',
+                            as: '_audio_ids'
+                        },
+                },{
+                    $unwind: {
+                        path: '$_from_id',
+                        preserveNullAndEmptyArrays: true
+                    }
                 }
             ]).toArray();
 
@@ -124,22 +128,23 @@ export class CPost {
             },{
                 $lookup:
                     {
-                        from: 'file',
-                        localField: 'file_ids',
+                        from: 'user',
+                        localField: 'from_id',
                         foreignField: '_id',
-                        as: '_file_ids',
+                        as: '_from_id',
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file',
-                                        localField: 'file_id',
+                                        from: 'file_image',
+                                        localField: 'photo_id',
                                         foreignField: '_id',
-                                        as: '_file_id'
+                                        as: '_photo_id'
                                     }
-                            },{
+                            },
+                            {
                                 $unwind:
                                     {
-                                        path: '$_file_id',
+                                        path: '$_photo_id',
                                         preserveNullAndEmptyArrays: true
                                     }
                             }
@@ -148,26 +153,34 @@ export class CPost {
             },{
                 $lookup:
                     {
-                        from: 'user',
-                        localField: 'from_id',
+                        from: 'file_video',
+                        localField: 'video_ids',
                         foreignField: '_id',
-                        as: '_from_id',
-                        pipeline: [
-                            { $lookup:
-                                    {
-                                        from: 'file',
-                                        localField: 'photo',
-                                        foreignField: '_id',
-                                        as: '_photo'
-                                    }
-                            },{
-                                $unwind:
-                                    {
-                                        path: '$_photo',
-                                        preserveNullAndEmptyArrays: true
-                                    }
-                            }
-                        ]
+                        as: '_video_ids'
+                    },
+            },{
+                $lookup:
+                    {
+                        from: 'file_image',
+                        localField: 'img_ids',
+                        foreignField: '_id',
+                        as: '_img_ids'
+                    },
+            },{
+                $lookup:
+                    {
+                        from: 'file_doc',
+                        localField: 'doc_ids',
+                        foreignField: '_id',
+                        as: '_doc_ids'
+                    },
+            },{
+                $lookup:
+                    {
+                        from: 'file_audio',
+                        localField: 'audio_ids',
+                        foreignField: '_id',
+                        as: '_audio_ids'
                     },
             },{
                 $unwind:
