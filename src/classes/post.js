@@ -14,6 +14,10 @@ export class CPost {
             if (fields.to_group_id)
                 delete fields.to_user_id
 
+            fields.video_ids = new DB().arObjectID(fields.video_ids)
+            fields.img_ids = new DB().arObjectID(fields.img_ids)
+            fields.doc_ids = new DB().arObjectID(fields.doc_ids)
+            fields.audio_ids = new DB().arObjectID(fields.audio_ids)
             fields.create_date = new Date()
 
             let collection = mongoClient.collection('post');
@@ -200,7 +204,7 @@ export class CPost {
             else
                 arAggregate.push({
                     $sort: {
-                        _id: -1
+                        create_date: -1
                     }
                 })
 
