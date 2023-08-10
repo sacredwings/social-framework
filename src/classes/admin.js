@@ -126,8 +126,8 @@ export class CAdmin {
                         collection.dropIndex(item.name)
                 })
                 indexUser = await collection.createIndex({
-                    "title":"text",
-                    "json.text":"text",
+                    "text":"text",
+                    //"json.text":"text",
                 })
                 console.log(arIndexes)
 
