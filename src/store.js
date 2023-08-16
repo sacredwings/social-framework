@@ -4,10 +4,14 @@ import { MongoClient } from "mongodb"
 //СОСТОЯНИЕ
 let minioClient = null
 let mongoClient = null
-let xxx = null
+let test = null
 
 //MINIO
-const SetMinioClient = (config) => {
+const SetMinioClient = (config, compulsion=false) => {
+    //конект уже существует
+    if (mongoClient && !compulsion) return mongoClient
+
+    //новый конект
     minioClient = new Client({
         endPoint: config.endPoint,
         port: config.port,
@@ -15,6 +19,9 @@ const SetMinioClient = (config) => {
         accessKey: config.accessKey,
         secretKey: config.secretKey
     })
+
+    //вывод конекта
+    return minioClient
 }
 const GetMinioClient = (config) => {
     return minioClient
@@ -24,19 +31,25 @@ const GetMinioClient = (config) => {
 const GetMongoClient = () => {
     return mongoClient
 }
-const SetMongoClient = (config) => {
+const SetMongoClient = (config, compulsion=false) => {
+    //конект уже существует
+    if (mongoClient && !compulsion) return mongoClient
+
+    //новый конект
     const client = new MongoClient(config.url)
-    client.connect().then(()=>{
-        mongoClient = client.db(config.dbName)
-    })
+    client.connect()
+    mongoClient = client.db(config.dbName)
+
+    //вывод конекта
+    return mongoClient
 }
 
-//MONGO
-const GetX = () => {
-    return xxx
+//Test
+const GetTest = () => {
+    return test
 }
-const SetX = (config) => {
-    xxx = config
+const SetTest = (config) => {
+    test = config
 }
 
 export const Store = {
@@ -46,6 +59,6 @@ export const Store = {
     GetMongoClient,
     SetMongoClient,
 
-    GetX,
-    SetX
+    GetTest,
+    SetTest
 }
