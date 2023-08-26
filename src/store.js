@@ -7,12 +7,12 @@ let mongoClient = null
 let test = null
 
 //MINIO
-const SetMinioClient = (config, compulsion=false) => {
+const SetMinioClient = async (config, compulsion=false) => {
     //конект уже существует
     if (minioClient && !compulsion) return minioClient
 
     //новый конект
-    minioClient = new Client({
+    minioClient = await new Client({
         endPoint: config.endPoint,
         port: config.port,
         useSSL: config.useSSL,
@@ -31,13 +31,13 @@ const GetMinioClient = (config) => {
 const GetMongoClient = () => {
     return mongoClient
 }
-const SetMongoClient = (config, compulsion=false) => {
+const SetMongoClient = async (config, compulsion=false) => {
     //конект уже существует
     if (mongoClient && !compulsion) return mongoClient
 
     //новый конект
-    const client = new MongoClient(config.url)
-    client.connect()
+    const client = await new MongoClient(config.url)
+    await client.connect()
     mongoClient = client.db(config.dbName)
 
     //вывод конекта
