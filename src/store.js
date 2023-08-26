@@ -9,7 +9,7 @@ let test = null
 //MINIO
 const SetMinioClient = (config, compulsion=false) => {
     //конект уже существует
-    if (mongoClient && !compulsion) return mongoClient
+    if (minioClient && !compulsion) return minioClient
 
     //новый конект
     minioClient = new Client({
