@@ -17,50 +17,54 @@ export class CComment {
 
             //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
 
-            //обработка полей
+            //где
             fields.object_id = new DB().ObjectID(fields.object_id) //чему адресован комментарий
-            fields.from_id = new DB().ObjectID(fields.from_id)
 
+            //кто и кому
+            fields.from_id = new DB().ObjectID(fields.from_id)
             fields.republish_id = new DB().ObjectID(fields.republish_id)
 
+            //что
             fields.video_ids = new DB().arObjectID(fields.video_ids)
             fields.img_ids = new DB().arObjectID(fields.img_ids)
             fields.doc_ids = new DB().arObjectID(fields.doc_ids)
             fields.audio_ids = new DB().arObjectID(fields.audio_ids)
             let date = new Date()
 
-            //узнаем создателя объекта
-            let object = null
+            //ПОЛУЧАЕМ ОБЪЕКТ / узнаем создателя объекта
+            let object = await DB.GetById ({
+                tableName: fields.module,
+                ids: [fields.object_id]
+            })
+            if (!object.length) return false
+            object = object[0]
+
+            /*
             if (fields.module === 'video') object = await CVideo.GetById ( [fields.object_id] )
             if (fields.module === 'post') object = await CPost.GetById ( [fields.object_id] )
             if (fields.module === 'article') object = await CArticle.GetById ( [fields.object_id] )
             if (fields.module === 'topic') object = await CTopic.GetById ( [fields.object_id] )
+            */
 
-            //узнаем создателя репоста
+            //ПОЛУЧАЕМ РЕПОСТ / узнаем создателя репоста
             let objectRepublish = null
             if (fields.republish_id) {
-                objectRepublish = await CComment.GetById ( [fields.republish_id], fields.module )
+                objectRepublish = await this.GetById ( [fields.republish_id], fields.module )
 
                 if (!objectRepublish.length) return false
                 objectRepublish = objectRepublish[0]
             }
 
-
-            if (!object.length) return false
-            object = object[0]
-
             //ДОБАВЛЕНИЕ КОММЕНТАРИЯ
             let arFieldsMessage = {
                 object_id: fields.object_id,
-                from_id: fields.from_id,
 
+                from_id: fields.from_id,
                 republish_id: fields.republish_id,
                 republish_user_id: objectRepublish ? objectRepublish.from_id : null,
 
                 to_user_id: object.from_id,
                 to_group_id: object.to_group_id,
-
-
 
                 text: fields.text,
                 video_ids: fields.video_ids,
@@ -76,42 +80,45 @@ export class CComment {
 
             //ОБЪЕКТ
 
-            //КОЛИЧЕСТВО КОММЕНТАРИЙ
+            //СЧЕТЧИК КОММЕНТАРИЙ у объекта
             //получаем количество комментарий
             let arFields = {
                 module: fields.module,
                 object_id: fields.object_id,
             }
-            let objectCountComment = await this.Count ( arFields )
+            //let objectCountComment = await this.Count ( arFields )
 
             //выбираем коллекцию с объектом
             collection = mongoClient.collection(fields.module)
+            let objectCountComment = await collection.countDocuments(arFields)
+
             //обновляем поле в объекте
             await collection.updateOne({_id: fields.object_id}, {
                 $set: {
-                    comment: objectCountComment,
-                    change_user_id: fields.from_id, //обновление последнего комментатора
-                    change_date: date,
+                    comment_count: objectCountComment,
+                    comment_last_user_id: fields.from_id, //обновление последнего комментатора
+                    change_last_date: date,
                 }
             })
 
-            //КОЛИЧЕСТВО ОТВЕТОВ
-            let republish = null
+            //СЧЕТЧИК КОММЕНТАРИЙ у ответа
+            //let republish = null
             //ОБНОВЛЕНИЕ СЧЕТЧИКА ОТВЕТОВ
             //подсчет у объекта на который отвечаем
             if (fields.republish_id) {
                 collection = mongoClient.collection(`comment_${fields.module}`)
-                let republishCount = await collection.countDocuments({republish_id: fields.republish_id})
+                let republishCountComment = await collection.countDocuments({republish_id: fields.republish_id})
                 await collection.updateOne({_id: fields.republish_id}, {
                     $set: {
-                        republish: republishCount,
+                        comment_count: republishCountComment,
                     }
                 })
 
                 //получаем объект которому отвечаем
-                republish = await this.GetById ( [fields.republish_id], fields.module )
+                //republish = await this.GetById ( [fields.republish_id], fields.module )
             }
 
+            /*
             //ПОЛЬЗОВАТЕЛЬ
             let arUser = [{}, {}, {}]
             let fieldsDefault = {
@@ -135,28 +142,8 @@ export class CComment {
             for (let key in fieldsDefault)
                 arUser[2].count_comment_in[key] = fieldsDefault[key]
 
-            /*
-            //кому оставили коммент / создатель объекта
-            arUser[0].count_comment_in = 0
-            arUser[0].count_comment_video_in = 0
-            arUser[0].count_comment_post_in = 0
-            arUser[0].count_comment_article_in = 0
-            arUser[0].count_comment_topic_in = 0
-
-            //кто оставил коммент
-            arUser[1].count_comment_out = 0
-            arUser[1].count_comment_video_out = 0
-            arUser[1].count_comment_post_out = 0
-            arUser[1].count_comment_article_out = 0
-            arUser[1].count_comment_topic_out = 0
 
             //кому оставили коммент / создатель объекта
-            arUser[2].count_comment_in = 0
-            arUser[2].count_comment_video_in = 0
-            arUser[2].count_comment_post_in = 0
-            arUser[2].count_comment_article_in = 0
-            arUser[2].count_comment_topic_in = 0*/
-
             let arModules = ['video', 'post', 'article', 'topic']
 
             //кому оставили коммент
@@ -186,25 +173,6 @@ export class CComment {
                 }
             }
 
-            /*
-            for (let item of arModules) {
-                arFields = {
-                    module: item,
-                    from_id: fields.from_id
-                }
-                arUser[1][`count_comment_${item}_out`] = await this.Count ( arFields ) //по каждому модулю
-                arUser[1].count_comment_out += arUser[1][`count_comment_${item}_out`] //общие входящие
-            }
-
-            if (fields.republish_id)
-                for (let item of arModules) {
-                    arFields = {
-                        module: item,
-                        republish_user_id: objectRepublish.from_id
-                    }
-                    arUser[2][`count_comment_${item}_in`] = await this.Count ( arFields ) //по каждому модулю
-                    arUser[2].count_comment_in += arUser[2][`count_comment_${item}_in`] //общие входящие
-                }*/
 
             //обновление полей у пользователя
             collection = mongoClient.collection('user')
@@ -240,7 +208,7 @@ export class CComment {
                 arFields.to_id = object.from_id
                 notify = await CNotify.Add ( arFields )
             }
-
+*/
         } catch (err) {
             console.log(err)
             throw ({code: 2001000, msg: 'CComment Add'})
