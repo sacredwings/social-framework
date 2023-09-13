@@ -13,7 +13,8 @@ export class CComment {
     static async Add ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection(`comment_${fields.module}`)
+            let collectionComment = mongoClient.collection(`comment_${fields.module}`)
+            let collectionObject = mongoClient.collection(fields.module)
 
             //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
 
@@ -31,9 +32,9 @@ export class CComment {
             fields.audio_ids = new DB().arObjectID(fields.audio_ids)
             let date = new Date()
 
+
             //ПОЛУЧАЕМ ОБЪЕКТ / узнаем создателя объекта
-            let object = await DB.GetById ({
-                tableName: fields.module,
+            let object = await collectionObject.findOne({
                 ids: [fields.object_id]
             })
             if (!object.length) return false
@@ -46,7 +47,7 @@ export class CComment {
             if (fields.module === 'topic') object = await CTopic.GetById ( [fields.object_id] )
             */
 
-            //ПОЛУЧАЕМ РЕПОСТ / узнаем создателя репоста
+            //ПОЛУЧАЕМ РЕПОСТ КОММЕНТА / узнаем создателя репоста
             let objectRepublish = null
             if (fields.republish_id) {
                 objectRepublish = await this.GetById ( [fields.republish_id], fields.module )
@@ -74,7 +75,7 @@ export class CComment {
 
                 create_date: date,
             }
-            await collection.insertOne(arFieldsMessage)
+            await collectionComment.insertOne(arFieldsMessage)
 
             //ОБНОВЛЕНИЕ СЧЕТЧИКОВ
 
@@ -83,21 +84,20 @@ export class CComment {
             //СЧЕТЧИК КОММЕНТАРИЙ у объекта
             //получаем количество комментарий
             let arFields = {
-                module: fields.module,
-                object_id: fields.object_id,
+                object_id: fields.object_id
             }
             //let objectCountComment = await this.Count ( arFields )
 
             //выбираем коллекцию с объектом
-            collection = mongoClient.collection(fields.module)
-            let objectCountComment = await collection.countDocuments(arFields)
+            //collection = mongoClient.collection(fields.module)
+            let objectCountComment = await collectionComment.countDocuments(arFields)
 
             //обновляем поле в объекте
-            await collection.updateOne({_id: fields.object_id}, {
+            await collectionObject.updateOne({_id: fields.object_id}, {
                 $set: {
                     comment_count: objectCountComment,
                     comment_last_user_id: fields.from_id, //обновление последнего комментатора
-                    change_last_date: date,
+                    comment_last_date: date,
                 }
             })
 
@@ -106,9 +106,8 @@ export class CComment {
             //ОБНОВЛЕНИЕ СЧЕТЧИКА ОТВЕТОВ
             //подсчет у объекта на который отвечаем
             if (fields.republish_id) {
-                collection = mongoClient.collection(`comment_${fields.module}`)
-                let republishCountComment = await collection.countDocuments({republish_id: fields.republish_id})
-                await collection.updateOne({_id: fields.republish_id}, {
+                let republishCountComment = await collectionComment.countDocuments({republish_id: fields.republish_id})
+                await collectionComment.updateOne({_id: fields.republish_id}, {
                     $set: {
                         comment_count: republishCountComment,
                     }
