@@ -35,10 +35,9 @@ export class CComment {
 
             //ПОЛУЧАЕМ ОБЪЕКТ / узнаем создателя объекта
             let object = await collectionObject.findOne({
-                ids: [fields.object_id]
+                _id: fields.object_id
             })
-            if (!object.length) return false
-            object = object[0]
+            if (!object) return false
 
             /*
             if (fields.module === 'video') object = await CVideo.GetById ( [fields.object_id] )
