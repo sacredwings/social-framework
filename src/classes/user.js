@@ -7,9 +7,12 @@ export class CUser {
     //добавить пользователя
     static async Add(fields) {
         try {
-            fields.photo_id = new DB().ObjectID(fields.photo_id)
-            fields.cover_img_id = new DB().ObjectID(fields.cover_img_id)
-            fields.cover_video_id = new DB().ObjectID(fields.cover_video_id)
+            if (fields.photo_id)
+                fields.photo_id = new DB().ObjectID(fields.photo_id)
+            if (fields.cover_img_id)
+                fields.cover_img_id = new DB().ObjectID(fields.cover_img_id)
+            if (fields.cover_video_id)
+                fields.cover_video_id = new DB().ObjectID(fields.cover_video_id)
 
             if (fields.email)
                 fields.email = fields.email.toLowerCase()
@@ -43,13 +46,72 @@ export class CUser {
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('user')
 
-            let arFields = {...fields, date_reg: new Date()}
+            let arFields = {...fields, reg_date: new Date()}
             await collection.insertOne(arFields)
 
             return arFields
         } catch (err) {
             console.log(err)
             throw ({...{code: 7001000, msg: 'CUser Add'}, ...err})
+        }
+    }
+
+    //поиск по id
+    static async GetById ( ids ) {
+        try {
+            const mongoClient = Store.GetMongoClient()
+            ids = new DB().arObjectID(ids)
+
+            let collection = mongoClient.collection('user');
+            let result = await collection.aggregate([
+                { $match:
+                        {
+                            _id: {$in: ids}
+                        }
+                }, {
+                    $lookup: {
+                        from: 'file_img',
+                        localField: 'photo_id',
+                        foreignField: '_id',
+                        as: '_photo_id',
+                    },
+                }, {
+                    $lookup: {
+                        from: 'file_img',
+                        localField: 'cover_img_id',
+                        foreignField: '_id',
+                        as: '_cover_img_id',
+                    },
+                }, {
+                    $lookup: {
+                        from: 'file_video',
+                        localField: 'cover_video_id',
+                        foreignField: '_id',
+                        as: '_cover_video_id',
+                    },
+                }, {
+                    $unwind: {
+                        path: '$_photo_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }, {
+                    $unwind: {
+                        path: '$_cover_img_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }, {
+                    $unwind: {
+                        path: '$_cover_video_id',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ]).toArray()
+
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({code: 7001000, msg: 'CUser GetById'})
         }
     }
 
@@ -119,13 +181,15 @@ export class CUser {
     static async Edit(id, fields) {
         try {
             id = new DB().ObjectID(id)
-            fields.photo_id = new DB().ObjectID(fields.photo_id)
-            fields.cover_img_id = new DB().ObjectID(fields.cover_img_id)
-            fields.cover_video_id = new DB().ObjectID(fields.cover_video_id)
 
+            if (fields.photo_id)
+                fields.photo_id = new DB().ObjectID(fields.photo_id)
+            if (fields.cover_img_id)
+                fields.cover_img_id = new DB().ObjectID(fields.cover_img_id)
+            if (fields.cover_video_id)
+                fields.cover_video_id = new DB().ObjectID(fields.cover_video_id)
             if (fields.email)
                 fields.email = fields.email.toLowerCase()
-
             if (fields.login)
                 fields.login = fields.login.toLowerCase()
 
