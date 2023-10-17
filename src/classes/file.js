@@ -2,437 +2,287 @@ import fs from "fs-extra"
 import crypto from "crypto"
 import extractFrames from "ffmpeg-extract-frame-ver-1-0-2"
 import {getType, getExtension} from 'mime';
-
+import axios from "axios";
 import { DB } from "./db"
 import { Store } from "../store"
+import path from "path";
 
 export class CFile {
 
-    //Сохраняем новый вайл в таблицу файлов и сам файл
-    static async Add ({_id=null, module, file, from_id, to_group_id, object_id=null}) {
-        try {
-            const mongoClient = Store.GetMongoClient()
-            const minioClient = Store.GetMinioClient()
+    static async Upload ({module, fileForm, fileUrl, object_id=null, fromId, bucketName}) {
 
-            from_id = new DB().ObjectID(from_id)
-            to_group_id = new DB().ObjectID(to_group_id)
-            object_id = new DB().ObjectID(object_id)
+        //КОНЕКТЫ
+        let mongoClient = Store.GetMongoClient()
+        let minioClient = Store.GetMinioClient()
 
-            //убираем расширение
-            file.name = file.name.replace(/\.[^/\\.]+$/, "")
-            //file.name = file.name.replace(/[^\w\s!?]/g,'')
-            // x.replace(/\.[^/.]+$/, "")
+        //ПРОВЕРКА наличия основных данных
+        if ((!fileForm) && (!fileUrl)) return false
+        //if (!bucketName) return false
+        if (!fromId) return false
 
-            //содержимое файла в буфер
-            let file_buffer = fs.createReadStream(file.path)
-            file_buffer = await new Promise(function(resolve,reject){
-                file_buffer.on('data', (data) => resolve(data))
+        fromId = new DB().ObjectID(fromId)
+
+        let fileBuffer = null
+        let fileMime = null
+        let fileSize = null
+        let fileName = null
+
+        //ФОРМА
+        if (fileForm) {
+            //файл в буфер
+            const bytes = await fileForm.arrayBuffer()
+            fileBuffer = Buffer.from(bytes)
+            //свойства
+            fileMime = fileForm.type
+            fileSize = fileForm.size
+        }
+
+        //URL
+        if (fileUrl) {
+            let response = await axios({
+                url: fileUrl, //your url
+                method: 'GET',
+                responseType: 'arraybuffer' //'blob', // important
             })
+            //результат запроса в буфер
+            fileBuffer = Buffer.from(response.data, 'binary')
+            fileMime = 'image/jpeg'
+        }
 
-            //хеш содержимого
-            let hash = crypto.createHash('md5').update(file_buffer).digest("hex")
+        //ХЕШ содержимого буфера
+        let fileHash = crypto.createHash('md5').update(fileBuffer).digest("hex")
+        let mimeExtension = await getExtension(fileMime)
 
-            //ОПРЕДЕЛЕНИЕ ТИПОВ
-            //перепроверка mime типа
-            let mimeType = await getType(file.path)
-            let mimeExtension = await getExtension(mimeType)
+        //ИМЯ ФАЙЛА без расширения
+        fileName = fileHash
+        if ((fileForm) && (fileForm.name)) fileName = fileForm.name.replace(/\.[^/\\.]+$/, "")
 
-            let bucketName = null
-            let objectName = null
-            let tableName = null
+        let minioObjectName = null
+        let mongoCollectionName = null
 
-            //ВИДЕО
-            if ((mimeType === 'video/mp4') ||
-                (mimeType === 'video/mpeg')) {
+        //ВИДЕО
+        if ((fileMime === 'video/mp4') ||
+            (fileMime === 'video/mpeg')) {
 
+            minioObjectName = `${fileHash}/original.${mimeExtension}`
+            mongoCollectionName = 'file_video'
+
+            //если не указано minio хранилище
+            if (!bucketName)
                 bucketName = 'video'
-                objectName = `${hash}/original.${mimeExtension}`
-                tableName = 'file_video'
-            }
+            else
+                minioObjectName = 'video/' + minioObjectName
+        }
 
-            //ИЗОБРАЖЕНИЕ
-            if ((mimeType === 'image/gif') ||
-                (mimeType === 'image/png') ||
-                (mimeType === 'image/jpeg')) {
+        //ИЗОБРАЖЕНИЕ
+        if ((fileMime === 'image/gif') ||
+            (fileMime === 'image/png') ||
+            (fileMime === 'image/jpeg')) {
 
-                bucketName = 'image'
-                objectName = `${hash}.${mimeExtension}`
-                tableName = 'file_image'
-            }
+            minioObjectName = `${fileHash}.${mimeExtension}`
+            mongoCollectionName = 'file_img'
 
-            //АУДИО
-            if ((mimeType === 'audio/mp4') ||
-                (mimeType === 'audio/mpeg')) {
+            //если не указано minio хранилище
+            if (!bucketName)
+                bucketName = 'img'
+            else
+                minioObjectName = 'img/' + minioObjectName
+        }
 
+        //АУДИО
+        if ((fileMime === 'audio/mp4') ||
+            (fileMime === 'audio/mpeg')) {
+
+            minioObjectName = `${fileHash}.${mimeExtension}`
+            mongoCollectionName = 'file_audio'
+
+            //если не указано minio хранилище
+            if (!bucketName)
                 bucketName = 'audio'
-                objectName = `${hash}.${mimeExtension}`
-                tableName = 'file_audio'
-            }
+            else
+                minioObjectName = 'audio/' + minioObjectName
+        }
 
-            //ДОКУМЕНТ
-            if ((mimeType === 'application/msword') ||
-                (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
-                (mimeType === 'application/vnd.ms-excel') ||
-                (mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
-                (mimeType === 'application/pdf') ||
-                (mimeType === 'text/plain')) {
+        //ДОКУМЕНТ
+        if ((fileMime === 'application/msword') ||
+            (fileMime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
+            (fileMime === 'application/vnd.ms-excel') ||
+            (fileMime === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+            (fileMime === 'application/pdf') ||
+            (fileMime === 'text/plain')) {
 
+            minioObjectName = `${fileHash}.${mimeExtension}`
+            mongoCollectionName = 'file_doc'
+
+            //если не указано minio хранилище
+            if (!bucketName)
                 bucketName = 'doc'
-                objectName = `${hash}.${mimeExtension}`
-                tableName = 'file_doc'
-            }
+            else
+                minioObjectName = 'doc/' + minioObjectName
+        }
 
-            //mime тип не прошел проверку
-            if (!mimeType) return false
-            if (!tableName) return false
+        //ПРОВЕРКА наличия дополнительных данных
+        if (!fileMime) return false
+        if (!minioObjectName) return false
+        if (!mongoCollectionName) return false
+        if (!bucketName) return false
 
-            //ПРОВЕРКИ для превью видео
+        //ПРЕВЬЮ
+        //object_id привязывается только к видео / файл может быть только изображением
+        if ((object_id) && (bucketName !== 'img')) return false //ВЫХОД
 
-            //object_id привязывается только к видео / может быть только изображением
-            if ((object_id) && (bucketName !== 'image')) return false //ВЫХОД
+        if (object_id) {
+            let collection = mongoClient.collection('file_video')
 
-            if (object_id) {
-                let collection = mongoClient.collection('file_video')
+            //object_id привязывается только к видео / файл должен существовать
+            let getFile = await CFile.GetById([object_id], 'file_video')
+            if (!getFile) return false //ВЫХОД если файла нет
 
-                //object_id привязывается только к видео / файл должен существовать
-                let getFile = await this.GetById([object_id], 'file_video')
-                if (!getFile) return false //ВЫХОД
+            getFile = getFile[0]
 
-                getFile=getFile[0]
-
-                //object_id привязывается только к видео / файл должен быть видео
-                if (getFile.type !== 'video/mp4') return false
-
-                //mime тип файла
-                let metaData = {
-                    'Content-Type': mimeType,
-                    'User-Id': from_id,
-                }
-
-                //console.log(getFile)
-
-                //загрузка файла
-                try {
-                    let resultMinio = await minioClient.fPutObject('video', `${getFile.object_name}/snapshot.jpeg`, file.path, metaData)
-                    console.log('загружен новый кадр')
-
-                    let arStatus = {
-                        snapshot_status: 'ok',
-                        snapshot_minio_etag: resultMinio.etag,
-                        snapshot_mime: 'image/jpeg',
-                        snapshot_ext: 'jpeg'
-                    }
-                    await collection.updateOne({_id: getFile._id}, {$set: arStatus}, {upsert: true})
-                } catch (err) {
-                    await collection.updateOne({_id: getFile._id}, {$set: {snapshot_status: 'err'}}, {upsert: true})
-                    return console.log(err)
-                }
-
-                /*
-                await minioClient.fPutObject('video', `${getFile.object_name}/snapshot.jpeg`, file.path, metaData, async function(err, objInfo) {
-
-                    if(err) {
-                        let result = collection.updateOne({_id: getFile._id}, {$set: {snapshot_status: 'err'}}, {upsert: true})
-                        return console.log(err)
-                    }
-
-                })*/
-
-                return getFile
-            }
-
-
-            //РАБОТА С БАЗОЙ
-
-            //выбор коллекции
-            let collection = mongoClient.collection(tableName)
-
-            //поиск файла по хэшу
-            let getFile = await this.GetByHash(hash, tableName)
-            if (getFile) {
-
-                //файл уже был загружен этим пользователем
-                if (getFile.from_id.toString() === from_id.toString()) return getFile
-
-                //создаем запись с теми же полями, меняем владельца
-                let arFields = {
-                    ...getFile, ...{from_id: from_id}
-                }
-                delete arFields._id
-
-                await collection.insertOne(arFields)
-                return arFields
-            }
-
-            //новая запись в базу
-            let arFields = {
-                module: module,
-                status: 'upload',
-
-                size: file.size,
-                type: mimeType,
-                ext: mimeExtension,
-
-                bucket_name: bucketName,
-                object_name: hash,
-
-                from_id: from_id,
-                to_group_id: to_group_id,
-
-                title: file.name,
-                text: null,
-                //album_ids: album_ids,
-            }
-
-            //если явно указан id
-            if (_id) arFields._id = _id
-
-            await collection.insertOne(arFields)
-
-            //ПОДГОТОВКА К ЗАГРУЗКЕ ФАЙЛА
+            //object_id привязывается только к видео / файл должен быть видео
+            if (getFile.type !== 'video/mp4') return false
 
             //mime тип файла
             let metaData = {
-                'Content-Type': mimeType,
-                'User-Id': from_id,
+                'Content-Type': 'image/jpeg',
+                'User-Id': fromId,
             }
 
+            //загрузка файла
             try {
-                //загрузка файла
-                let resultMinio = await minioClient.fPutObject(bucketName, objectName, file.path, metaData)
-                console.log(resultMinio)
-                console.log('основной файл загружен')
+                let resultMinio = await minioClient.putObject(bucketName, `video/${getFile.object_name}/snapshot.jpeg`, fileBuffer, metaData)
+                console.log('загружен новый кадр')
 
                 let arStatus = {
-                    status: 'ok',
-                    minio_etag: resultMinio.etag
+                    snapshot_status: 'ok',
+                    snapshot_minio_etag: resultMinio.etag,
+                    snapshot_mime: 'image/jpeg',
+                    snapshot_ext: 'jpeg'
+                }
+                await collection.updateOne({_id: getFile._id}, {$set: arStatus}, {upsert: true})
+            } catch (err) {
+                await collection.updateOne({_id: getFile._id}, {$set: {snapshot_status: 'err'}}, {upsert: true})
+                return console.log(err)
+            }
+
+            return getFile
+        }
+
+        //ОСНОВНОЙ ФАЙЛ
+
+        //выбор коллекции
+        let collection = mongoClient.collection(mongoCollectionName)
+
+        //поиск файла по хэшу
+        let getFile = await CFile.GetByHash(fileHash, mongoCollectionName)
+
+        if (getFile) {
+            //файл уже был загружен этим пользователем
+            if (getFile.from_id.toString() === fromId.toString()) return getFile
+
+            //создаем запись с теми же полями, меняем владельца
+            let arFields = {
+                ...getFile, ...{from_id: fromId}
+            }
+            delete arFields._id
+
+            await collection.insertOne(arFields)
+            return arFields
+        }
+
+        //новая запись в базу
+        let arFields = {
+            module: module,
+            status: 'upload',
+
+            size: fileSize,
+            type: fileMime,
+            ext: mimeExtension,
+
+            object_name: fileHash,
+
+            from_id: fromId,
+
+            title: fileName,
+            text: null,
+        }
+
+        //если явно указан id
+        //if (_id) arFields._id = _id
+
+        await collection.insertOne(arFields)
+
+        //ПОДГОТОВКА К ЗАГРУЗКЕ ФАЙЛА
+
+        //mime тип файла
+        let metaData = {
+            'Content-Type': fileMime,
+            'User-Id': fromId,
+        }
+
+        try {
+            //загрузка файла
+            let resultMinio = await minioClient.putObject(bucketName, minioObjectName, fileBuffer, metaData)
+            console.log(resultMinio)
+            console.log('основной файл загружен')
+
+            let arStatus = {
+                status: 'ok',
+                minio_etag: resultMinio.etag
+            }
+            await collection.updateOne({_id: arFields._id}, {$set: arStatus}, {upsert: true})
+        } catch (e) {
+            console.log(e)
+            await collection.updateOne({_id: arFields._id}, {$set: {status: 'err'}}, {upsert: true})
+        }
+        //СОЗДАНИЕ SNAPSHOT
+        if (fileMime === 'video/mp4') {
+            try {
+
+                //проверка и создание временного каталога
+                if (!fs.existsSync(`${process.cwd()}/tmp`)) await fs.mkdirSync(path.join(process.cwd(), "tmp"))
+
+                //извлечение кадра
+                await extractFrames({
+                    input: `${minioClient.protocol}//${minioClient.host}:${minioClient.port}/${bucketName}/video/${fileHash}/original.mp4`,
+                    output: `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`,
+                    offset: 3000 // seek offset in milliseconds
+                })
+
+                //console.log(`${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`)
+                //удаление временного файла
+                //await fs.unlinkSync(`${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`)
+
+                //mime тип файла
+                let metaData = {
+                    'Content-Type': 'image/jpeg',
+                    'User-Id': fromId,
+                }
+
+                //загрузка файла
+                let resultMinio = await minioClient.fPutObject(bucketName, `video/${fileHash}/snapshot.jpeg`, `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`, metaData)
+                console.log('извлечение кадра выполнено')
+                console.log(resultMinio)
+
+                let arStatus = {
+                    snapshot_status: 'ok',
+                    snapshot_minio_etag: resultMinio.etag,
+                    snapshot_mime: 'image/jpeg',
+                    snapshot_ext: 'jpeg'
                 }
                 await collection.updateOne({_id: arFields._id}, {$set: arStatus}, {upsert: true})
             } catch (e) {
-                await collection.updateOne({_id: arFields._id}, {$set: {status: 'err'}}, {upsert: true})
-            }
-            /*
-            await minioClient.fPutObject(bucketName, objectName, file.path, metaData, async function(err, objInfo) {
-
-                if(err) {
-                    let result = collection.updateOne({_id: arFields._id}, {$set: {status: 'err'}}, {upsert: true})
-                    return console.log(err)
-                }
-                console.log('загружаю')
-                //файл
-                let arStatus = {
-                    status: 'ok',
-                    minio_etag: objInfo.etag,
-                    minio_version_id: objInfo.versionId
-                }
-                let result = collection.updateOne({_id: arFields._id}, {$set: arStatus}, {upsert: true})
-
-            })*/
-
-            //СОЗДАНИЕ SNAPSHOT
-
-            if (mimeType === 'video/mp4') {
-                try {
-
-                    //извлечение кадра
-                    await extractFrames({
-                        input: file.path,
-                        output: `${file.path}.jpeg`,
-                        offset: 3000 // seek offset in milliseconds
-                    })
-
-                    //mime тип файла
-                    let metaData = {
-                        'Content-Type': 'image/jpeg',
-                        'User-Id': from_id,
-                    }
-
-                    //загрузка файла
-                    let resultMinio = await minioClient.fPutObject('video', `${hash}/snapshot.jpeg`, `${file.path}.jpeg`, metaData)
-                    console.log('извлечение кадра выполнено')
-
-                    let arStatus = {
-                        snapshot_status: 'ok',
-                        snapshot_minio_etag: resultMinio.etag,
-                        snapshot_mime: 'image/jpeg',
-                        snapshot_ext: 'jpeg'
-                    }
-                    await collection.updateOne({_id: arFields._id}, {$set: arStatus}, {upsert: true})
-                } catch (e) {
-                    console.log(e)
-                    await collection.updateOne({_id: arFields._id}, {$set: {status_snapshot: 'err'}}, {upsert: true})
-                }
-
-                /*
-                await minioClient.fPutObject('video', `${hash}/snapshot.jpeg`, `${file.path}.jpeg`, metaData, async function(err, objInfo) {
-
-                    if(err) {
-                        let result = collection.updateOne({_id: arFields._id}, {$set: {status_snapshot: 'err'}}, {upsert: true})
-                        return console.log(err)
-                    }
-
-                    //файл
-                    let arStatus = {
-                        snapshot_status: 'ok',
-                        snapshot_mime: 'image/jpeg',
-                        snapshot_ext: 'jpeg'
-                    }
-                    let result = collection.updateOne({_id: arFields._id}, {$set: arStatus}, {upsert: true})
-                })*/
+                console.log(e)
+                await collection.updateOne({_id: arFields._id}, {$set: {status_snapshot: 'err'}}, {upsert: true})
             }
 
-            return arFields
-
-        } catch (err) {
-            console.log(err)
-            throw ({code: 3001000, msg: 'CFile Add'})
         }
+
+        return arFields
     }
 
-    /*
-    //Сохраняем новый вайл в таблицу файлов и сам файл
-    static async SaveFile ( fields, savePath, preview = true ) {
-        try {
-            const mongoClient = Store.GetMongoClient()
-            fields.to_user_id = new DB().ObjectID(fields.to_user_id)
-            fields.to_group_id = new DB().ObjectID(fields.to_group_id)
-            if (fields.to_group_id)
-                delete fields.to_user_id
-
-            if (fields.album_ids)
-                fields.album_ids = new DB().arObjectID(fields.album_ids)
-
-            //id вложенного файла
-            fields.file_id = new DB().ObjectID(fields.file_id)
-
-            let collection = mongoClient.collection('file')
-
-            //удаление файла с диска и базы
-            //if (fields.old_file)
-                //await this.Delete(fields.old_file, true)
-
-            //содержимое файла
-            let file_buffer = fs.createReadStream(fields.file.path)
-            file_buffer = await new Promise(function(resolve,reject){
-                file_buffer.on('data', (data) => resolve(data))
-            })
-
-            //хеш содержимого
-            let hash = crypto.createHash('md5').update(file_buffer).digest("hex")
-
-            //вытаскиваем расширение типа
-            let type = fields.file.type.split('/');
-            type = type[1]
-
-            //url путь к файлу
-            let url = `${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.${type}`
-
-            //полный путь к файлу
-            let newPathVideo = `${savePath}/${url}`
-
-            //копирование файла в постоянную папку
-            await fs.copy(fields.file.path, newPathVideo)
-
-            url = `files/${url}`
-
-            let newIdImg = null
-
-            //картинки не существует
-            if (!fields.file_id) {
-
-                let urlImg = `${hash[0]}${hash[1]}/${hash[2]}${hash[3]}/${hash}.jpeg`
-
-                //полный путь к файлу
-                let newPathImg = `${savePath}${urlImg}`
-
-                try {
-                    //вытаскиваем видео
-                    await ImageSave(newPathVideo, newPathImg)
-                } catch (e) {
-                    console.log(e)
-                }
-
-
-                urlImg = `files/${urlImg}`
-
-                let arFields = {
-
-                    size: 0,
-                    path: newPathImg,
-                    type: 'image/jpeg',
-                    url: urlImg,
-
-                    from_id: fields.from_id,
-                    to_user_id: fields.to_user_id,
-                    to_group_id: fields.to_group_id,
-
-                    file_id: null,
-
-                    title: fields.title,
-
-                    create_id: fields.create_id
-                }
-
-                let result = await collection.insertOne(arFields)
-                newIdImg = arFields._id
-            }
-
-            //добавление записи о файле в таблицу
-            let arFields = {
-
-                size: fields.file.size,
-                path: newPathVideo,
-                type: fields.file.type,
-                url: url,
-
-                from_id: fields.from_id,
-                to_user_id: fields.to_user_id,
-                to_group_id: fields.to_group_id,
-
-                file_id: (fields.file_id) ? fields.file_id : newIdImg,
-
-                title: (fields.title) ? fields.title : fields.file.title,
-                text: fields.text,
-                album_ids: fields.album_ids,
-                create_id: fields.create_id
-            }
-
-            let result = await collection.insertOne(arFields)
-            return arFields
-
-        } catch (err) {
-            console.log(err)
-            throw ({code: 3001000, msg: 'CFile SaveFile'})
-        }
-
-    }*/
-
-//загрузка по id
-    static async GetById ( ids, collectionName ) {
-        try {
-            const mongoClient = Store.GetMongoClient()
-            ids = new DB().arObjectID(ids)
-
-            let collection = mongoClient.collection(collectionName)
-
-            let result = await collection.find({_id: { $in: ids}}).toArray()
-
-            if (!result.length) return false
-            result = await Promise.all(result.map(async (item, i) => {
-                if (item.text === null) item.text = ''
-
-                return item
-            }))
-
-            return result
-        } catch (err) {
-            console.log(err)
-            throw ({code: 8001000, msg: 'CFile GetById'})
-        }
-    }
-
-
-//загрузка по id
+    //поиск по Хэшу
     static async GetByHash ( hash, collectionName ) {
         try {
             const mongoClient = Store.GetMongoClient()
@@ -447,30 +297,6 @@ export class CFile {
             throw ({code: 8001000, msg: 'CFile GetById'})
         }
     }
-
-    /*
-    //удаление информации о файле из базы и сам файл
-    static async Delete ( id, deleteFile ) {
-        try {
-            //удаление файла
-            if (deleteFile) {
-                let result = await DB.Init.Query(`SELECT * FROM ${DB.Init.TablePrefix}file WHERE id=$1`, [id])
-                if (!result[0])
-                    return false
-
-                result = await fs.remove(`${result[0].path}/${result[0].name}`)
-            }
-
-            //удаление записи о файле
-            let result = await DB.Init.Query(`DELETE FROM ${DB.Init.TablePrefix}file WHERE id=$1`, [id])
-            return true
-
-        } catch (err) {
-            console.log(err)
-            throw ({code: 3003000, msg: 'CFile Delete'})
-        }
-
-    }*/
 }
 
 const ImageSave = async (pathVideo, pathImg) => {
@@ -483,5 +309,4 @@ const ImageSave = async (pathVideo, pathImg) => {
     } catch (e) {
         return false
     }
-
 }
