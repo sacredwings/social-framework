@@ -250,7 +250,6 @@ export class CAuth {
             })
 
             let userAuth = false
-
             //авторизован
             if (arUser) {
                 //если поля у пользователей не найдены - можно привязать к текущему
@@ -294,9 +293,10 @@ export class CAuth {
                         let rsFile = await CFile.Upload({
                             module: 'user',
                             fileUrl: telegram.photo_url,
-                            fromId: userId,
+                            fromId: userAuth._id,
                             bucketName: bucketName
                         })
+
                         await CUser.Edit(userAuth._id, {photo_id: rsFile._id})
                     }
                 }
