@@ -281,7 +281,7 @@ export class CAuth {
                 //если поля у пользователей не найдены - создаем пользователя
                 if (!arSearchUser) {
                     let arFields = {
-                        login: 'tg_' + telegram.username,
+                        login: 'tg_' + telegram.id,
                         tg_id: telegram.id,
                         first_name: telegram.first_name,
                     }
