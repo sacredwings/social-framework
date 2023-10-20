@@ -234,6 +234,7 @@ export class CAuth {
             const mongoClient = Store.GetMongoClient()
             let collectionUser = mongoClient.collection('user')
 
+            console.log(telegram)
             //проверка хеша авторизации
             if (!await checkTgAuth(telegramToken, telegram)) throw ({code: 999, msg: 'Не верная авторизация'})
 
@@ -325,12 +326,17 @@ function getRandomInt(min, max) {
 }*/
 
 async function checkTgAuth(token, { hash, ...userData }) {
+    let newUserData = {}
+    for (const [key, value] of Object.entries(userData)) {
+        if (value) newUserData[key] = value
+    }
+
     const secretKey = crypto.createHash('sha256')
         .update(token)
         .digest();
-    const dataCheckString = Object.keys(userData)
+    const dataCheckString = Object.keys(newUserData)
         .sort()
-        .map(key => (`${key}=${userData[key]}`))
+        .map(key => (`${key}=${newUserData[key]}`))
         .join('\n');
     const hmac = crypto.createHmac('sha256', secretKey)
         .update(dataCheckString)
