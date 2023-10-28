@@ -7,19 +7,22 @@ export class CUser {
     //добавить пользователя
     static async Add(fields) {
         try {
+            //ПОДГОТОВКА
+            //ссылки
             if (fields.photo_id)
                 fields.photo_id = new DB().ObjectID(fields.photo_id)
-            if (fields.cover_img_id)
-                fields.cover_img_id = new DB().ObjectID(fields.cover_img_id)
+            if (fields.cover_id)
+                fields.cover_id = new DB().ObjectID(fields.cover_id)
             if (fields.cover_video_id)
                 fields.cover_video_id = new DB().ObjectID(fields.cover_video_id)
 
+            //обязательно нижний регистр
             if (fields.email)
                 fields.email = fields.email.toLowerCase()
-
             if (fields.login)
                 fields.login = fields.login.toLowerCase()
 
+            //создание пароля
             if (fields.password) {
                 //создаем hash пароль
                 const saltRounds = 10
@@ -27,6 +30,7 @@ export class CUser {
                 fields.password = await bcrypt.hash(fields.password, passwordSalt)
             }
 
+            //ПРОВЕРКА
             let arSearchUser = false
             if (fields.email)
                 arSearchUser = await this.GetByField({email: fields.email})
@@ -43,10 +47,11 @@ export class CUser {
             if (arSearchUser)
                 throw ({code: 30020001, msg: 'Такой телефон уже зарегистрирован'})
 
+            //ДЕЙСТВИЕ
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('user')
 
-            let arFields = {...fields, reg_date: new Date()}
+            let arFields = {...fields, create_date: new Date()}
             await collection.insertOne(arFields)
 
             return arFields
@@ -60,14 +65,14 @@ export class CUser {
     static async GetById ( ids ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            ids = new DB().arObjectID(ids)
+            ids = new DB().ObjectID(ids)
 
             let collection = mongoClient.collection('user');
             let result = await collection.aggregate([
-                { $match:
-                        {
-                            _id: {$in: ids}
-                        }
+                {
+                    $match: {
+                        _id: {$in: ids}
+                    }
                 }, {
                     $lookup: {
                         from: 'file_img',
@@ -78,9 +83,9 @@ export class CUser {
                 }, {
                     $lookup: {
                         from: 'file_img',
-                        localField: 'cover_img_id',
+                        localField: 'cover_id',
                         foreignField: '_id',
-                        as: '_cover_img_id',
+                        as: '_cover_id',
                     },
                 }, {
                     $lookup: {
@@ -96,7 +101,7 @@ export class CUser {
                     }
                 }, {
                     $unwind: {
-                        path: '$_cover_img_id',
+                        path: '$_cover_id',
                         preserveNullAndEmptyArrays: true
                     }
                 }, {
@@ -140,9 +145,9 @@ export class CUser {
                 }, {
                     $lookup: {
                         from: 'file_img',
-                        localField: 'cover_img_id',
+                        localField: 'cover_id',
                         foreignField: '_id',
-                        as: '_cover_img_id',
+                        as: '_cover_id',
                     },
                 }, {
                     $lookup: {
@@ -158,7 +163,7 @@ export class CUser {
                     }
                 }, {
                     $unwind: {
-                        path: '$_cover_img_id',
+                        path: '$_cover_id',
                         preserveNullAndEmptyArrays: true
                     }
                 }, {
@@ -180,19 +185,24 @@ export class CUser {
 
     static async Edit(id, fields) {
         try {
+            //ПОДГОТОВКА
+            //ссылки
             id = new DB().ObjectID(id)
 
             if (fields.photo_id)
                 fields.photo_id = new DB().ObjectID(fields.photo_id)
-            if (fields.cover_img_id)
-                fields.cover_img_id = new DB().ObjectID(fields.cover_img_id)
+            if (fields.cover_id)
+                fields.cover_id = new DB().ObjectID(fields.cover_id)
             if (fields.cover_video_id)
                 fields.cover_video_id = new DB().ObjectID(fields.cover_video_id)
+
+            //обязательно нижний регистр
             if (fields.email)
                 fields.email = fields.email.toLowerCase()
             if (fields.login)
                 fields.login = fields.login.toLowerCase()
 
+            //создание пароля
             if (fields.password) {
                 //создаем hash пароль
                 const saltRounds = 10
@@ -200,6 +210,7 @@ export class CUser {
                 fields.password = await bcrypt.hash(fields.password, passwordSalt)
             }
 
+            //ПРОВЕРКА
             let arSearchUser = false
             if (fields.email)
                 arSearchUser = await this.GetByField({email: fields.email})
@@ -218,8 +229,8 @@ export class CUser {
 
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('user');
-            let result = collection.updateOne({_id: id}, {$set: fields}, {upsert: true})
 
+            let result = collection.updateOne({_id: id}, {$set: fields}, {upsert: true})
             return fields
         } catch (err) {
             console.log(err)
@@ -231,19 +242,14 @@ export class CUser {
     static async Get(fields) {
         try {
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('user');
+            let collection = mongoClient.collection('user')
 
             let arAggregate = []
 
-            if (fields.q) arAggregate.push({
-                    $match: {
-                        $text: {
-                            $search: fields.q
-                        }
-                    },
-                }
-            )
-
+            arAggregate.push({
+                $match:
+                    {}
+            })
             arAggregate.push({
                 $lookup: {
                     from: 'file_img',
@@ -254,9 +260,9 @@ export class CUser {
             }, {
                 $lookup: {
                     from: 'file_img',
-                    localField: 'cover_img_id',
+                    localField: 'cover_id',
                     foreignField: '_id',
-                    as: '_cover_img_id',
+                    as: '_cover_id',
                 },
             }, {
                 $lookup: {
@@ -272,7 +278,7 @@ export class CUser {
                 }
             }, {
                 $unwind: {
-                    path: '$_cover_img_id',
+                    path: '$_cover_id',
                     preserveNullAndEmptyArrays: true
                 }
             }, {
@@ -288,6 +294,11 @@ export class CUser {
                 }
             })
 
+            if (fields.q) {
+                arAggregate[0].$match.$text = {}
+                arAggregate[0].$match.$text.$search = fields.q
+            }
+
             let result = await collection.aggregate(arAggregate).limit(fields.count + fields.offset).skip(fields.offset).toArray()
             return result
         } catch (err) {
@@ -300,12 +311,12 @@ export class CUser {
     static async GetCount(fields) {
         try {
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('user');
+            let collection = mongoClient.collection('user')
 
-            let arSearch = {}
-            if (fields.q) arSearch = {$text: {$search: fields.q}}
+            let arFields = {}
+            if (fields.q) arFields = {$text: {$search: fields.q}}
 
-            let result = await collection.count(arSearch)
+            let result = await collection.count(arFields)
             return result
         } catch (err) {
             console.log(err)
@@ -316,7 +327,7 @@ export class CUser {
     static async Count(fields) {
         try {
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('user');
+            let collection = mongoClient.collection('user')
 
             let result = await collection.count()
             return result

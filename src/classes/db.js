@@ -3,19 +3,35 @@ import { MongoClient, ObjectId } from 'mongodb'
 //type InterfaceClient = object | null
 
 export class DB {
-    //Client: InterfaceClient
 
-    /*
-    async Init(url, dbName) {
-        try {
-            const client = new MongoClient(url)
-            await client.connect()
-            return client.db(dbName)
-        } catch (e) {
-            return false
+    ObjectID (value) {
+        //если null
+        if (!value) return null
+
+        //строка 24 символа
+        if ((value) && (typeof value === 'string') && (value.length === 24))
+            return new ObjectId(value)
+
+        //уже объект
+        if ((value) && (typeof value === 'object'))
+            return value
+
+        //массив
+        if ((value) && (value.length)) {
+            value = value.map((value, i, arr) => {
+                if ((value) && (typeof value === 'string') && (value.length === 24))
+                    return new ObjectId(value)
+
+                if ((value) && (typeof value === 'object'))
+                    return value
+
+                return null
+            })
         }
-    }*/
 
+        return null
+    }
+/*
     ObjectID (value) {
         //строка 24 символа
         if ((value) && (typeof value === 'string') && (value.length === 24))
@@ -48,7 +64,7 @@ export class DB {
         if (arResult.length) return arResult
 
         return arValue
-    }
+    }*/
 }
 
 //import { Pool } from 'pg'
