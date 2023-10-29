@@ -9,7 +9,7 @@ import path from "path";
 
 export class CFile {
 
-    static async Upload ({module, fileForm, fileUrl, object_id=null, fromId, bucketName}) {
+    static async Upload ({module, fileForm, fileUrl, object_id=null, fromId, toUserId, toGroupId, bucketName}) {
 
         //КОНЕКТЫ
         let mongoClient = Store.GetMongoClient()
@@ -203,9 +203,17 @@ export class CFile {
             object_name: fileHash,
 
             from_id: fromId,
+            to_user_id: toUserId,
+            to_group_id: toGroupId,
 
             title: fileName,
             text: null,
+
+            count_view: 0,
+            count_comment: 0,
+            count_like: 0,
+            count_dislike: 0,
+            count_repeat: 0
         }
 
         //если явно указан id
