@@ -19,9 +19,6 @@ export class CTopic {
             if (fields.to_group_id)
                 fields.to_group_id = new DB().ObjectID(fields.to_group_id)
 
-            if (fields.album_ids)
-                fields.album_ids = new DB().ObjectID(fields.album_ids)
-
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('topic')
 
@@ -171,6 +168,13 @@ export class CTopic {
                         as: '_image_id'
                     }
                 },{
+                    $lookup: {
+                        from: 'album_topic',
+                        localField: 'album_ids',
+                        foreignField: '_id',
+                        as: '_album_ids'
+                    }
+                },{
                     $unwind: {
                         path: '$_image_id',
                         preserveNullAndEmptyArrays: true
@@ -209,7 +213,6 @@ export class CTopic {
         }
     }
 
-
     static async Edit(id, fields) {
         try {
             //ПОДГОТОВКА
@@ -226,9 +229,6 @@ export class CTopic {
                 fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             if (fields.to_group_id)
                 fields.to_group_id = new DB().ObjectID(fields.to_group_id)
-
-            if (fields.album_ids)
-                fields.album_ids = new DB().ObjectID(fields.album_ids)
 
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('topic')
@@ -250,6 +250,10 @@ export class CTopic {
     static async Get ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
+            if (fields.q) {
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
+            }
 
             if (fields.from_id)
                 fields.from_id = new DB().ObjectID(fields.from_id)
@@ -261,7 +265,6 @@ export class CTopic {
             if (fields.album_ids)
                 fields.album_ids = new DB().ObjectID(fields.album_ids)
 
-            let collection = mongoClient.collection('topic')
             let arAggregate = []
             arAggregate.push({
                 $match:
@@ -376,6 +379,14 @@ export class CTopic {
                 }
             })
             arAggregate.push({
+                $lookup: {
+                    from: 'album_topic',
+                    localField: 'album_ids',
+                    foreignField: '_id',
+                    as: '_album_ids'
+                }
+            })
+            arAggregate.push({
                 $unwind: {
                     path: '$_image_id',
                     preserveNullAndEmptyArrays: true
@@ -430,7 +441,14 @@ export class CTopic {
                         $score: {$meta:"textScore"}
                     }
                 })
+            else
+                arAggregate.push({
+                    $sort: {
+                        _id: -1,
+                    }
+                })
 
+            let collection = mongoClient.collection('topic')
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
             return result
 
@@ -445,6 +463,10 @@ export class CTopic {
     static async GetCount ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
+            if (fields.q) {
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
+            }
 
             if (fields.from_id)
                 fields.from_id = new DB().ObjectID(fields.from_id)
@@ -455,8 +477,6 @@ export class CTopic {
 
             if (fields.album_ids)
                 fields.album_ids = new DB().ObjectID(fields.album_ids)
-
-            let collection = mongoClient.collection('topic')
 
             let arAggregate = [{
                 $match: {},
@@ -474,6 +494,7 @@ export class CTopic {
                 $count: 'count'
             })
 
+            let collection = mongoClient.collection('topic')
             let result = await collection.aggregate(arAggregate).toArray();
 
             if (!result.length) return 0

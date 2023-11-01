@@ -116,7 +116,7 @@ export class CUser {
 
         } catch (err) {
             console.log(err)
-            throw ({code: 7001000, msg: 'CUser GetById'})
+            throw ({...{code: 7001000, msg: 'CUser GetById'}, ...err})
         }
     }
 
@@ -179,7 +179,7 @@ export class CUser {
 
         } catch (err) {
             console.log(err)
-            throw ({code: 7001000, msg: 'CUser GetByField'})
+            throw ({...{code: 7001000, msg: 'CUser GetByField'}, ...err})
         }
     }
 
@@ -213,17 +213,17 @@ export class CUser {
             //ПРОВЕРКА
             let arSearchUser = false
             if (fields.email)
-                arSearchUser = await this.GetByField({email: fields.email})
+                arSearchUser = await this.GetByField({email: fields.email, _id: { $ne: id }})
             if (arSearchUser)
                 throw ({code: 30020001, msg: 'Такой email уже зарегистрирован'})
 
             if (fields.login)
-                arSearchUser = await this.GetByField({login: fields.login})
+                arSearchUser = await this.GetByField({login: fields.login, _id: { $ne: id }})
             if (arSearchUser)
                 throw ({code: 30020001, msg: 'Такой login уже зарегистрирован'})
 
             if (fields.phone)
-                arSearchUser = await this.GetByField({phone: fields.phone})
+                arSearchUser = await this.GetByField({phone: fields.phone, _id: { $ne: id }})
             if (arSearchUser)
                 throw ({code: 30020001, msg: 'Такой телефон уже зарегистрирован'})
 
@@ -234,7 +234,7 @@ export class CUser {
             return fields
         } catch (err) {
             console.log(err)
-            throw ({code: 7002000, msg: 'CUser Edit'})
+            throw ({...{code: 7002000, msg: 'CUser Edit'}, ...err})
         }
     }
 
@@ -303,7 +303,7 @@ export class CUser {
             return result
         } catch (err) {
             console.log(err)
-            throw ({code: 7001000, msg: 'CUser Get'})
+            throw ({...{code: 7001000, msg: 'CUser Get'}, ...err})
         }
     }
 
@@ -320,7 +320,7 @@ export class CUser {
             return result
         } catch (err) {
             console.log(err)
-            throw ({code: 7001000, msg: 'CUser GetCount'})
+            throw ({...{code: 7001000, msg: 'CUser GetCount'}, ...err})
         }
     }
 
@@ -334,7 +334,7 @@ export class CUser {
 
         } catch (err) {
             console.log(err)
-            throw ({code: 8001000, msg: 'CUser Count'})
+            throw ({...{code: 8001000, msg: 'CUser Count'}, ...err})
         }
     }
 }

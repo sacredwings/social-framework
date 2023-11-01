@@ -12,12 +12,9 @@ export class DB {
         if ((value) && (typeof value === 'string') && (value.length === 24))
             return new ObjectId(value)
 
-        //уже объект
-        if ((value) && (typeof value === 'object'))
-            return value
-
         //массив
         if ((value) && (value.length)) {
+
             value = value.map((value, i, arr) => {
                 if ((value) && (typeof value === 'string') && (value.length === 24))
                     return new ObjectId(value)
@@ -28,6 +25,10 @@ export class DB {
                 return null
             })
         }
+
+        //уже объект, но и точно не массив
+        if ((value) && (typeof value === 'object'))
+            return value
 
         return null
     }
