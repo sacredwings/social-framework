@@ -136,6 +136,10 @@ export class CGroup {
     //загрузка
     static async Get ( fields ) {
         try {
+            if (fields.q) {
+                fields.q = fields.q.replace(/ +/g, ' ').trim();
+                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
+            }
             fields.user_id = new DB().ObjectID(fields.user_id)
 
             let arAggregate = []
