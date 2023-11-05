@@ -43,82 +43,89 @@ export class CGroup {
     //загрузка по id
     static async GetById ( ids ) {
         try {
-            const mongoClient = Store.GetMongoClient()
             ids = new DB().ObjectID(ids)
 
-            let collection = mongoClient.collection('group')
-            let aggregate = [
-                {
-                    $match: {
-                        _id: {$in: ids}
-                    }
-                },{ $lookup:
-                        {
-                            from: 'user',
-                            localField: 'from_id',
-                            foreignField: '_id',
-                            as: '_from_id',
-                            pipeline: [
-                                {
-                                    $lookup: {
-                                        from: 'file_img',
-                                        localField: 'photo_id',
-                                        foreignField: '_id',
-                                        as: '_photo_id'
-                                    }
-                                },{
-                                    $unwind: {
-                                        path: '$_photo_id',
-                                        preserveNullAndEmptyArrays: true
-                                    }
-                                }
-                            ]
-                        },
-                }, {
-                    $lookup: {
-                        from: 'file_img',
-                        localField: 'photo_id',
-                        foreignField: '_id',
-                        as: '_photo_id',
-                    },
-                }, {
-                    $lookup: {
-                        from: 'file_img',
-                        localField: 'cover_id',
-                        foreignField: '_id',
-                        as: '_cover_id',
-                    },
-                }, {
-                    $lookup: {
-                        from: 'file_video',
-                        localField: 'cover_video_id',
-                        foreignField: '_id',
-                        as: '_cover_video_id',
-                    },
-                }, {
-                    $unwind: {
-                        path: '$_from_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                }, {
-                    $unwind: {
-                        path: '$_photo_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                }, {
-                    $unwind: {
-                        path: '$_cover_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                }, {
-                    $unwind: {
-                        path: '$_cover_video_id',
-                        preserveNullAndEmptyArrays: true
-                    }
+            let arAggregate = []
+            arAggregate.push({
+                $match: {
+                    _id: {$in: ids}
                 }
-            ]
-            let result = await collection.aggregate(aggregate).toArray()
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'user',
+                    localField: 'from_id',
+                    foreignField: '_id',
+                    as: '_from_id',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'file_img',
+                                localField: 'photo_id',
+                                foreignField: '_id',
+                                as: '_photo_id'
+                            }
+                        },{
+                            $unwind: {
+                                path: '$_photo_id',
+                                preserveNullAndEmptyArrays: true
+                            }
+                        }
+                    ]
+                },
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_img',
+                    localField: 'photo_id',
+                    foreignField: '_id',
+                    as: '_photo_id',
+                },
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_img',
+                    localField: 'cover_id',
+                    foreignField: '_id',
+                    as: '_cover_id',
+                },
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_video',
+                    localField: 'cover_video_id',
+                    foreignField: '_id',
+                    as: '_cover_video_id',
+                },
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_from_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_photo_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_cover_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_cover_video_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
 
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('group')
+            let result = await collection.aggregate(arAggregate).toArray()
             return result
         } catch (err) {
             console.log(err)
@@ -129,13 +136,9 @@ export class CGroup {
     //загрузка
     static async Get ( fields ) {
         try {
-            const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
 
-            let collection = mongoClient.collection('group');
-
             let arAggregate = []
-
             arAggregate.push({
                 $match:
                     {}
@@ -200,8 +203,9 @@ export class CGroup {
                 arAggregate[0].$match.$text.$search = fields.q
             }
 
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('group');
             let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray();
-
             return result
         } catch (err) {
             console.log(err)
@@ -212,9 +216,6 @@ export class CGroup {
     //количество
     static async GetCount ( fields ) {
         try {
-            const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('group');
-
             fields.from_id = new DB().ObjectID(fields.from_id)
 
             let arFields = {}
@@ -224,6 +225,9 @@ export class CGroup {
                 arFields.$text = {}
                 arFields.$text.$search = fields.q
             }
+
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('group')
             return await collection.count(arFields)
         } catch (err) {
             console.log(err)
@@ -272,16 +276,19 @@ export class CGroup {
     }
 
     //удаление группы
-    static async Delete ( id ) {
+    static async Delete ( id, user_id ) {
         try {
-            const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
+            user_id = new DB().ObjectID(user_id)
 
-            let collection = mongoClient.collection('group')
             let arFields = {
                 delete: true,
-                delete_date: new Date()
+                delete_date: new Date(),
+                delete_user: user_id
             }
+
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('group')
             let result = collection.updateOne({_id: id}, {$set: arFields}, {upsert: true})
             return result
         } catch (err) {

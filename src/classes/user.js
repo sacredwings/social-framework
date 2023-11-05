@@ -64,54 +64,59 @@ export class CUser {
     //поиск по id
     static async GetById ( ids ) {
         try {
-            const mongoClient = Store.GetMongoClient()
             ids = new DB().ObjectID(ids)
 
-            let collection = mongoClient.collection('user');
-            let result = await collection.aggregate([
-                {
-                    $match: {
-                        _id: {$in: ids}
-                    }
-                }, {
-                    $lookup: {
-                        from: 'file_img',
-                        localField: 'photo_id',
-                        foreignField: '_id',
-                        as: '_photo_id',
-                    },
-                }, {
-                    $lookup: {
-                        from: 'file_img',
-                        localField: 'cover_id',
-                        foreignField: '_id',
-                        as: '_cover_id',
-                    },
-                }, {
-                    $lookup: {
-                        from: 'file_video',
-                        localField: 'cover_video_id',
-                        foreignField: '_id',
-                        as: '_cover_video_id',
-                    },
-                }, {
-                    $unwind: {
-                        path: '$_photo_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                }, {
-                    $unwind: {
-                        path: '$_cover_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                }, {
-                    $unwind: {
-                        path: '$_cover_video_id',
-                        preserveNullAndEmptyArrays: true
-                    }
+            let arAggregate = []
+            arAggregate.push({
+                $match: {
+                    _id: {$in: ids}
                 }
-            ]).toArray()
-
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_img',
+                    localField: 'photo_id',
+                    foreignField: '_id',
+                    as: '_photo_id'
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_img',
+                    localField: 'cover_id',
+                    foreignField: '_id',
+                    as: '_cover_id',
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_video',
+                    localField: 'cover_video_id',
+                    foreignField: '_id',
+                    as: '_cover_video_id',
+                },
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_photo_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_cover_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_cover_video_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection(`user`)
+            let result = await collection.aggregate(arAggregate).toArray()
             return result
 
         } catch (err) {
@@ -123,57 +128,61 @@ export class CUser {
     //Поиск по полю
     static async GetByField(value) {
         try {
-            const mongoClient = Store.GetMongoClient()
-
             //в нижний регистр
             if (value._id) value._id = new DB().ObjectID(value._id)
             if (value.email) value.email = value.email.toLowerCase()
             if (value.login) value.login = value.login.toLowerCase()
 
-            let collection = mongoClient.collection('user')
-
-            let result = await collection.aggregate([
-                {
-                    $match: value
-                }, {
-                    $lookup: {
-                        from: 'file_img',
-                        localField: 'photo_id',
-                        foreignField: '_id',
-                        as: '_photo_id',
-                    },
-                }, {
-                    $lookup: {
-                        from: 'file_img',
-                        localField: 'cover_id',
-                        foreignField: '_id',
-                        as: '_cover_id',
-                    },
-                }, {
-                    $lookup: {
-                        from: 'file_video',
-                        localField: 'cover_video_id',
-                        foreignField: '_id',
-                        as: '_cover_video_id',
-                    },
-                }, {
-                    $unwind: {
-                        path: '$_photo_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                }, {
-                    $unwind: {
-                        path: '$_cover_id',
-                        preserveNullAndEmptyArrays: true
-                    }
-                }, {
-                    $unwind: {
-                        path: '$_cover_video_id',
-                        preserveNullAndEmptyArrays: true
-                    }
+            let arAggregate = []
+            arAggregate.push({
+                $match: value
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_img',
+                    localField: 'photo_id',
+                    foreignField: '_id',
+                    as: '_photo_id'
                 }
-            ]).toArray()
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_img',
+                    localField: 'cover_id',
+                    foreignField: '_id',
+                    as: '_cover_id',
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'file_video',
+                    localField: 'cover_video_id',
+                    foreignField: '_id',
+                    as: '_cover_video_id',
+                },
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_photo_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_cover_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_cover_video_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
 
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection(`user`)
+            let result = await collection.aggregate(arAggregate).toArray()
             if (!result.length) return false
             return result[0]
 
@@ -241,11 +250,7 @@ export class CUser {
     //поиск по пользователям
     static async Get(fields) {
         try {
-            const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('user')
-
             let arAggregate = []
-
             arAggregate.push({
                 $match:
                     {}
@@ -255,33 +260,38 @@ export class CUser {
                     from: 'file_img',
                     localField: 'photo_id',
                     foreignField: '_id',
-                    as: '_photo_id',
-                },
-            }, {
+                    as: '_photo_id'
+                }
+            })
+            arAggregate.push({
                 $lookup: {
                     from: 'file_img',
                     localField: 'cover_id',
                     foreignField: '_id',
                     as: '_cover_id',
-                },
-            }, {
+                }
+            })
+            arAggregate.push({
                 $lookup: {
                     from: 'file_video',
                     localField: 'cover_video_id',
                     foreignField: '_id',
                     as: '_cover_video_id',
                 },
-            }, {
+            })
+            arAggregate.push({
                 $unwind: {
                     path: '$_photo_id',
                     preserveNullAndEmptyArrays: true
                 }
-            }, {
+            })
+            arAggregate.push({
                 $unwind: {
                     path: '$_cover_id',
                     preserveNullAndEmptyArrays: true
                 }
-            }, {
+            })
+            arAggregate.push({
                 $unwind: {
                     path: '$_cover_video_id',
                     preserveNullAndEmptyArrays: true
@@ -299,6 +309,8 @@ export class CUser {
                 arAggregate[0].$match.$text.$search = fields.q
             }
 
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('user')
             let result = await collection.aggregate(arAggregate).limit(fields.count + fields.offset).skip(fields.offset).toArray()
             return result
         } catch (err) {
@@ -310,12 +322,11 @@ export class CUser {
     //количество / поиск по пользователям
     static async GetCount(fields) {
         try {
-            const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('user')
-
             let arFields = {}
             if (fields.q) arFields = {$text: {$search: fields.q}}
 
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('user')
             let result = await collection.count(arFields)
             return result
         } catch (err) {
