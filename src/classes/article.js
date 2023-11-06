@@ -420,7 +420,7 @@ export class CArticle {
 
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('article')
-            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
+            let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
             return result
 
         } catch (err) {
