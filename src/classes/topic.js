@@ -488,9 +488,7 @@ export class CTopic {
 
             let arAggregate = []
             arAggregate.push({
-                $match: {
-                    $match: {},
-                }
+                $match: {}
             })
 
             if (fields.q) arAggregate[0].$match.$text = {}
