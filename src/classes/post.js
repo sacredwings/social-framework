@@ -40,7 +40,7 @@ export class CPost {
     //загрузка по id
     static async GetById ( ids ) {
         try {
-            ids = new DB().arObjectID(ids)
+            ids = new DB().ObjectID(ids)
 
             let arAggregate = []
             arAggregate.push({

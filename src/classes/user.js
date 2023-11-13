@@ -126,16 +126,16 @@ export class CUser {
     }
 
     //Поиск по полю
-    static async GetByField(value) {
+    static async GetByField(fields) {
         try {
             //в нижний регистр
-            if (value._id) value._id = new DB().ObjectID(value._id)
-            if (value.email) value.email = value.email.toLowerCase()
-            if (value.login) value.login = value.login.toLowerCase()
+            if (fields._id) fields._id = new DB().ObjectID(fields._id)
+            if (fields.email) fields.email = fields.email.toLowerCase()
+            if (fields.login) fields.login = fields.login.toLowerCase()
 
             let arAggregate = []
             arAggregate.push({
-                $match: value
+                $match: fields
             })
             arAggregate.push({
                 $lookup: {
@@ -179,6 +179,13 @@ export class CUser {
                     preserveNullAndEmptyArrays: true
                 }
             })
+
+            if (fields._id)
+                arAggregate[0].$match._id = fields._id
+            if (fields.email)
+                arAggregate[0].$match.email = fields.email
+            if (fields.login)
+                arAggregate[0].$match.login = fields.login
 
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection(`user`)

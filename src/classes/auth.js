@@ -12,10 +12,11 @@ export class CAuth {
     //* password
     //* ip
     //* device
-    static async LoginByField ({password, ...value}) {
+    static async LoginByField ({password, ip, browser, ...value}) {
         try {
             //поиск пользователя
-            let user = await CUser.GetByField({value})
+            console.log(value)
+            let user = await CUser.GetByField(value)
             if (!user)
                 throw ({code: 1001001, msg: 'Пользователь не найден'})
 
