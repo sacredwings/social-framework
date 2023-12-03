@@ -9,7 +9,7 @@ import path from "path";
 
 export class CFile {
 
-    static async Upload ({module, fileForm, fileUrl, object_id=null, fromId, toUserId, toGroupId, bucketName}) {
+    static async Upload ({module, fileForm, fileUrl, objectId=null, fromId, toUserId, toGroupId, bucketName}) {
 
         //КОНЕКТЫ
         let mongoClient = Store.GetMongoClient()
@@ -21,6 +21,8 @@ export class CFile {
         if (!fromId) return false
 
         fromId = new DB().ObjectID(fromId)
+        toUserId = new DB().ObjectID(toUserId)
+        toGroupId = new DB().ObjectID(toGroupId)
 
         let fileBuffer = null
         let fileMime = null
@@ -128,19 +130,19 @@ export class CFile {
         if (!bucketName) return false
 
         //ПРЕВЬЮ
-        //object_id привязывается только к видео / файл может быть только изображением
-        if ((object_id) && (bucketName !== 'img')) return false //ВЫХОД
+        //objectId привязывается только к видео / файл может быть только изображением
+        if ((objectId) && (bucketName !== 'img')) return false //ВЫХОД
 
-        if (object_id) {
+        if (objectId) {
             let collection = mongoClient.collection('file_video')
 
-            //object_id привязывается только к видео / файл должен существовать
-            let getFile = await CFile.GetById([object_id], 'file_video')
+            //objectId привязывается только к видео / файл должен существовать
+            let getFile = await CFile.GetById([objectId], 'file_video')
             if (!getFile) return false //ВЫХОД если файла нет
 
             getFile = getFile[0]
 
-            //object_id привязывается только к видео / файл должен быть видео
+            //objectId привязывается только к видео / файл должен быть видео
             if (getFile.type !== 'video/mp4') return false
 
             //mime тип файла
@@ -213,7 +215,9 @@ export class CFile {
             count_comment: 0,
             count_like: 0,
             count_dislike: 0,
-            count_repeat: 0
+            count_repeat: 0,
+
+            create_date: new Date()
         }
 
         //если явно указан id

@@ -13,15 +13,25 @@ export class CLike {
     static async Add ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection(`like_${fields.module}`)
+            let collectionLike = mongoClient.collection(`like_${fields.module}`)
+            let collectionObject = mongoClient.collection(fields.module)
 
             //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
 
-            //обработка полей
+            //где
             fields.object_id = new DB().ObjectID(fields.object_id)
+
+            //кто
             fields.from_id = new DB().ObjectID(fields.from_id)
             let date = new Date()
 
+            //ПОЛУЧАЕМ ОБЪЕКТ / узнаем создателя объекта
+            let object = await collectionObject.findOne({
+                _id: fields.object_id
+            })
+            if (!object) return false
+
+            /*
             //узнаем создателя объекта
             let object = null
             if (fields.module === 'video') object = await CVideo.GetById([fields.object_id])
@@ -33,8 +43,9 @@ export class CLike {
             if (fields.module === 'comment_topic') object = await CComment.GetById([fields.object_id], 'topic')
 
             if (!object.length) return false
-            object = object[0]
+            object = object[0]*/
 
+            /*
             //для уведомлений пользователю
             let newLike = null //по умолчанию,  лайк не установлен
 
@@ -199,7 +210,7 @@ export class CLike {
                     object_id: fields.object_id,
                 }
                 let notify = await CNotify.Add ( arFields )
-            }
+            }*/
 
             return true
         } catch (err) {

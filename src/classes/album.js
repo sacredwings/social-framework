@@ -5,7 +5,7 @@ import { Store } from "../store"
 export class CAlbum {
 
 //добавить новый видео альбом
-    static async Add (fields) {
+    static async Add ({module, ...fields}) {
         try {
 
             //ПОДГОТОВКА
@@ -22,7 +22,7 @@ export class CAlbum {
                 fields.to_group_id = new DB().ObjectID(fields.to_group_id)
 
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection(`album_${fields.module}`)
+            let collection = mongoClient.collection(`album_${module}`)
 
             let result = await collection.insertOne(fields)
             return fields
@@ -366,6 +366,7 @@ export class CAlbum {
                     }
                 })
 
+            console.log(arAggregate[0].$match)
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection(`album_${fields.module}`)
             let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
