@@ -10,6 +10,7 @@ import { CGroup } from './classes/group/group'
 import { CGroupPay } from './classes/group/pay'
 import { CLike } from './classes/like'
 import { CMessage } from './classes/message'
+import { CChat } from './classes/chat'
 import { CPost } from './classes/post'
 import { CUser } from './classes/user'
 import { CVideo } from './classes/video'
@@ -32,6 +33,7 @@ export {
     CGroupPay,
     CLike,
     CMessage,
+    CChat,
     CPost,
     CUser,
     CVideo,

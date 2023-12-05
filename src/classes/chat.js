@@ -6,14 +6,14 @@ export class CChat {
     static async Get ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.user_id = new DB().ObjectID(fields.user_id)
 
             let collection = mongoClient.collection('chat')
 
-            let Aggregate = [
+            let arAggregate = [
                 {
                     $match: {
-                        user_ids: fields.from_id
+                        user_ids: fields.user_id
                     }
                 },{
                     $lookup: {
@@ -58,7 +58,7 @@ export class CChat {
                 }
             ]
 
-            let result = await collection.aggregate(Aggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
+            let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
             return result
 
         } catch (err) {
@@ -70,19 +70,17 @@ export class CChat {
     static async GetCount ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            fields.from_id = new DB().ObjectID(fields.from_id)
+            fields.user_id = new DB().ObjectID(fields.user_id)
 
             let collection = mongoClient.collection('chat')
 
-            let Aggregate = [
-                {
-                    $match: {
-                        user_ids: fields.from_id
-                    }
-                },{
-                    $count: 'count'
+            let Aggregate = [{
+                $match: {
+                    user_ids: fields.user_id
                 }
-            ]
+            },{
+                $count: 'count'
+            }]
 
             let result = await collection.aggregate(Aggregate).toArray();
             if (!result.length) return 0

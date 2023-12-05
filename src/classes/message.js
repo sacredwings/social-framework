@@ -201,7 +201,7 @@ export class CMessage {
                 }
             ]
 
-            let result = await collection.aggregate(Aggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
+            let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
             return result
 
         } catch (err) {
@@ -457,16 +457,12 @@ export class CMessage {
                 to_id: fields.from_id,
                 from_id: fields.to_id
             }
-            /*
-            let arQuery = {
-                to_id: fields.to_id,
-                from_id: fields.from_id
-            }*/
+
             let arFields = {
                 read: true
             }
 
-            let result = collection.update(arQuery, {$set: arFields})
+            let result = collection.updateMany(arQuery, {$set: arFields})
             return result
 
         } catch (err) {
