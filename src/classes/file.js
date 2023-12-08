@@ -9,20 +9,20 @@ import path from "path";
 
 export class CFile {
 
-    static async Upload ({module, fileForm, fileUrl, objectId=null, fromId, toUserId, toGroupId, bucketName}) {
+    static async Upload ({module, file_form, file_url, object_id=null, from_id, to_user_id, to_group_id, bucket_name}) {
 
         //КОНЕКТЫ
         let mongoClient = Store.GetMongoClient()
         let minioClient = Store.GetMinioClient()
 
         //ПРОВЕРКА наличия основных данных
-        if ((!fileForm) && (!fileUrl)) return false
-        //if (!bucketName) return false
-        if (!fromId) return false
+        if ((!file_form) && (!file_url)) return false
+        //if (!bucket_name) return false
+        if (!from_id) return false
 
-        fromId = new DB().ObjectID(fromId)
-        toUserId = new DB().ObjectID(toUserId)
-        toGroupId = new DB().ObjectID(toGroupId)
+        from_id = new DB().ObjectID(from_id)
+        to_user_id = new DB().ObjectID(to_user_id)
+        to_group_id = new DB().ObjectID(to_group_id)
 
         let fileBuffer = null
         let fileMime = null
@@ -30,19 +30,19 @@ export class CFile {
         let fileName = null
 
         //ФОРМА
-        if (fileForm) {
+        if (file_form) {
             //файл в буфер
-            const bytes = await fileForm.arrayBuffer()
+            const bytes = await file_form.arrayBuffer()
             fileBuffer = Buffer.from(bytes)
             //свойства
-            fileMime = fileForm.type
-            fileSize = fileForm.size
+            fileMime = file_form.type
+            fileSize = file_form.size
         }
 
         //URL
-        if (fileUrl) {
+        if (file_url) {
             let response = await axios({
-                url: fileUrl, //your url
+                url: file_url, //your url
                 method: 'GET',
                 responseType: 'arraybuffer' //'blob', // important
             })
@@ -57,7 +57,7 @@ export class CFile {
 
         //ИМЯ ФАЙЛА без расширения
         fileName = fileHash
-        if ((fileForm) && (fileForm.name)) fileName = fileForm.name.replace(/\.[^/\\.]+$/, "")
+        if ((file_form) && (file_form.name)) fileName = file_form.name.replace(/\.[^/\\.]+$/, "")
 
         let minioObjectName = null
         let mongoCollectionName = null
@@ -70,8 +70,8 @@ export class CFile {
             mongoCollectionName = 'file_video'
 
             //если не указано minio хранилище
-            if (!bucketName)
-                bucketName = 'video'
+            if (!bucket_name)
+                bucket_name = 'video'
             else
                 minioObjectName = 'video/' + minioObjectName
         }
@@ -85,8 +85,8 @@ export class CFile {
             mongoCollectionName = 'file_img'
 
             //если не указано minio хранилище
-            if (!bucketName)
-                bucketName = 'img'
+            if (!bucket_name)
+                bucket_name = 'img'
             else
                 minioObjectName = 'img/' + minioObjectName
         }
@@ -99,8 +99,8 @@ export class CFile {
             mongoCollectionName = 'file_audio'
 
             //если не указано minio хранилище
-            if (!bucketName)
-                bucketName = 'audio'
+            if (!bucket_name)
+                bucket_name = 'audio'
             else
                 minioObjectName = 'audio/' + minioObjectName
         }
@@ -117,8 +117,8 @@ export class CFile {
             mongoCollectionName = 'file_doc'
 
             //если не указано minio хранилище
-            if (!bucketName)
-                bucketName = 'doc'
+            if (!bucket_name)
+                bucket_name = 'doc'
             else
                 minioObjectName = 'doc/' + minioObjectName
         }
@@ -127,33 +127,33 @@ export class CFile {
         if (!fileMime) return false
         if (!minioObjectName) return false
         if (!mongoCollectionName) return false
-        if (!bucketName) return false
+        if (!bucket_name) return false
 
         //ПРЕВЬЮ
-        //objectId привязывается только к видео / файл может быть только изображением
-        if ((objectId) && (bucketName !== 'img')) return false //ВЫХОД
+        //object_id привязывается только к видео / файл может быть только изображением
+        if ((object_id) && (bucket_name !== 'img')) return false //ВЫХОД
 
-        if (objectId) {
+        if (object_id) {
             let collection = mongoClient.collection('file_video')
 
-            //objectId привязывается только к видео / файл должен существовать
-            let getFile = await CFile.GetById([objectId], 'file_video')
+            //object_id привязывается только к видео / файл должен существовать
+            let getFile = await CFile.GetById([object_id], 'file_video')
             if (!getFile) return false //ВЫХОД если файла нет
 
             getFile = getFile[0]
 
-            //objectId привязывается только к видео / файл должен быть видео
+            //object_id привязывается только к видео / файл должен быть видео
             if (getFile.type !== 'video/mp4') return false
 
             //mime тип файла
             let metaData = {
                 'Content-Type': 'image/jpeg',
-                'User-Id': fromId,
+                'User-Id': from_id,
             }
 
             //загрузка файла
             try {
-                let resultMinio = await minioClient.putObject(bucketName, `video/${getFile.object_name}/snapshot.jpeg`, fileBuffer, metaData)
+                let resultMinio = await minioClient.putObject(bucket_name, `video/${getFile.object_name}/snapshot.jpeg`, fileBuffer, metaData)
                 console.log('загружен новый кадр')
 
                 let arStatus = {
@@ -181,11 +181,11 @@ export class CFile {
 
         if (getFile) {
             //файл уже был загружен этим пользователем
-            if (getFile.from_id.toString() === fromId.toString()) return getFile
+            if (getFile.from_id.toString() === from_id.toString()) return getFile
 
             //создаем запись с теми же полями, меняем владельца
             let arFields = {
-                ...getFile, ...{from_id: fromId}
+                ...getFile, ...{from_id: from_id}
             }
             delete arFields._id
 
@@ -204,9 +204,9 @@ export class CFile {
 
             object_name: fileHash,
 
-            from_id: fromId,
-            to_user_id: toUserId,
-            to_group_id: toGroupId,
+            from_id: from_id,
+            to_user_id: to_user_id,
+            to_group_id: to_group_id,
 
             title: fileName,
             text: null,
@@ -230,12 +230,12 @@ export class CFile {
         //mime тип файла
         let metaData = {
             'Content-Type': fileMime,
-            'User-Id': fromId,
+            'User-Id': from_id,
         }
 
         try {
             //загрузка файла
-            let resultMinio = await minioClient.putObject(bucketName, minioObjectName, fileBuffer, metaData)
+            let resultMinio = await minioClient.putObject(bucket_name, minioObjectName, fileBuffer, metaData)
             console.log(resultMinio)
             console.log('основной файл загружен')
 
@@ -257,7 +257,7 @@ export class CFile {
 
                 //извлечение кадра
                 await extractFrames({
-                    input: `${minioClient.protocol}//${minioClient.host}:${minioClient.port}/${bucketName}/video/${fileHash}/original.mp4`,
+                    input: `${minioClient.protocol}//${minioClient.host}:${minioClient.port}/${bucket_name}/video/${fileHash}/original.mp4`,
                     output: `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`,
                     offset: 3000 // seek offset in milliseconds
                 })
@@ -269,11 +269,11 @@ export class CFile {
                 //mime тип файла
                 let metaData = {
                     'Content-Type': 'image/jpeg',
-                    'User-Id': fromId,
+                    'User-Id': from_id,
                 }
 
                 //загрузка файла
-                let resultMinio = await minioClient.fPutObject(bucketName, `video/${fileHash}/snapshot.jpeg`, `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`, metaData)
+                let resultMinio = await minioClient.fPutObject(bucket_name, `video/${fileHash}/snapshot.jpeg`, `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`, metaData)
                 console.log('извлечение кадра выполнено')
                 console.log(resultMinio)
 

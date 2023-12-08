@@ -11,10 +11,11 @@ export class CMessage {
             //обработка полей
             fields.from_id = new DB().ObjectID(fields.from_id)
             fields.to_id = new DB().ObjectID(fields.to_id)
-            fields.video_ids = new DB().arObjectID(fields.video_ids)
-            fields.img_ids = new DB().arObjectID(fields.img_ids)
-            fields.doc_ids = new DB().arObjectID(fields.doc_ids)
-            fields.audio_ids = new DB().arObjectID(fields.audio_ids)
+
+            fields.video_ids = new DB().ObjectID(fields.video_ids)
+            fields.img_ids = new DB().ObjectID(fields.img_ids)
+            fields.doc_ids = new DB().ObjectID(fields.doc_ids)
+            fields.audio_ids = new DB().ObjectID(fields.audio_ids)
             fields.date = new Date()
 
             //сначало само сообщение
@@ -95,7 +96,7 @@ export class CMessage {
 
             let collection = mongoClient.collection('message')
 
-            let Aggregate = [
+            let arAggregate = [
                 {
                     $match: {
                         $or: [{
@@ -301,7 +302,7 @@ export class CMessage {
     static async GetById ( ids ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            ids = new DB().arObjectID(ids)
+            ids = new DB().ObjectID(ids)
 
             let collection = mongoClient.collection('message')
 
@@ -475,10 +476,10 @@ export class CMessage {
         try {
             const mongoClient = Store.GetMongoClient()
             id = new DB().ObjectID(id)
-            fields.video_ids = new DB().arObjectID(fields.video_ids)
-            fields.img_ids = new DB().arObjectID(fields.img_ids)
-            fields.doc_ids = new DB().arObjectID(fields.doc_ids)
-            fields.audio_ids = new DB().arObjectID(fields.audio_ids)
+            fields.video_ids = new DB().ObjectID(fields.video_ids)
+            fields.img_ids = new DB().ObjectID(fields.img_ids)
+            fields.doc_ids = new DB().ObjectID(fields.doc_ids)
+            fields.audio_ids = new DB().ObjectID(fields.audio_ids)
             fields.change_date = new Date()
 
             let collection = mongoClient.collection('message');
