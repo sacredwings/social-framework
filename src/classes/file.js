@@ -24,6 +24,7 @@ export class CFile {
         to_user_id = new DB().ObjectID(to_user_id)
         to_group_id = new DB().ObjectID(to_group_id)
 
+        let newBucketName = null
         let fileBuffer = null
         let fileMime = null
         let fileSize = null
@@ -70,8 +71,8 @@ export class CFile {
             mongoCollectionName = 'file_video'
 
             //если не указано minio хранилище
-            if (!bucket_name)
-                bucket_name = 'video'
+            if (!newBucketName)
+                newBucketName = 'video'
             else
                 minioObjectName = 'video/' + minioObjectName
         }
@@ -85,8 +86,8 @@ export class CFile {
             mongoCollectionName = 'file_img'
 
             //если не указано minio хранилище
-            if (!bucket_name)
-                bucket_name = 'img'
+            if (!newBucketName)
+                newBucketName = 'img'
             else
                 minioObjectName = 'img/' + minioObjectName
         }
@@ -99,8 +100,8 @@ export class CFile {
             mongoCollectionName = 'file_audio'
 
             //если не указано minio хранилище
-            if (!bucket_name)
-                bucket_name = 'audio'
+            if (!newBucketName)
+                newBucketName = 'audio'
             else
                 minioObjectName = 'audio/' + minioObjectName
         }
@@ -117,8 +118,8 @@ export class CFile {
             mongoCollectionName = 'file_doc'
 
             //если не указано minio хранилище
-            if (!bucket_name)
-                bucket_name = 'doc'
+            if (!newBucketName)
+                newBucketName = 'doc'
             else
                 minioObjectName = 'doc/' + minioObjectName
         }
@@ -127,19 +128,19 @@ export class CFile {
         if (!fileMime) return false
         if (!minioObjectName) return false
         if (!mongoCollectionName) return false
-        if (!bucket_name) return false
+        if (!newBucketName) return false
 
         //ПРЕВЬЮ
         //object_id привязывается только к видео / файл может быть только изображением
-        if ((object_id) && (bucket_name !== 'img')) return false //ВЫХОД
+        if ((object_id) && (newBucketName !== 'img')) return false //ВЫХОД
 
         if (object_id) {
             let collection = mongoClient.collection('file_video')
 
             //object_id привязывается только к видео / файл должен существовать
-            let getFile = await CFile.GetById([object_id], 'file_video')
-            if (!getFile) return false //ВЫХОД если файла нет
+            let getFile = await this.GetById([object_id], 'file_video')
 
+            if (!getFile.length) return false //ВЫХОД если файла нет
             getFile = getFile[0]
 
             //object_id привязывается только к видео / файл должен быть видео
@@ -153,7 +154,14 @@ export class CFile {
 
             //загрузка файла
             try {
-                let resultMinio = await minioClient.putObject(bucket_name, `video/${getFile.object_name}/snapshot.jpeg`, fileBuffer, metaData)
+                let fileName = `video/${getFile.object_name}/snapshot.jpeg`
+                let bucketNameSnapshot = bucket_name
+                if (!bucket_name) {
+                    fileName = `${getFile.object_name}/snapshot.jpeg`
+                    bucketNameSnapshot = 'video'
+                }
+
+                let resultMinio = await minioClient.putObject(bucketNameSnapshot, fileName, fileBuffer, metaData)
                 console.log('загружен новый кадр')
 
                 let arStatus = {
@@ -235,7 +243,7 @@ export class CFile {
 
         try {
             //загрузка файла
-            let resultMinio = await minioClient.putObject(bucket_name, minioObjectName, fileBuffer, metaData)
+            let resultMinio = await minioClient.putObject(newBucketName, minioObjectName, fileBuffer, metaData)
             console.log(resultMinio)
             console.log('основной файл загружен')
 
@@ -255,9 +263,12 @@ export class CFile {
                 //проверка и создание временного каталога
                 if (!fs.existsSync(`${process.cwd()}/tmp`)) await fs.mkdirSync(path.join(process.cwd(), "tmp"))
 
+                let fileVideoName = `${minioClient.protocol}//${minioClient.host}:${minioClient.port}/${newBucketName}/video/${fileHash}/original.mp4`
+                if (!bucket_name) fileVideoName = `${minioClient.protocol}//${minioClient.host}:${minioClient.port}/${newBucketName}/${fileHash}/original.mp4`
+
                 //извлечение кадра
                 await extractFrames({
-                    input: `${minioClient.protocol}//${minioClient.host}:${minioClient.port}/${bucket_name}/video/${fileHash}/original.mp4`,
+                    input: fileVideoName,
                     output: `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`,
                     offset: 3000 // seek offset in milliseconds
                 })
@@ -272,8 +283,11 @@ export class CFile {
                     'User-Id': from_id,
                 }
 
+                let fileName = `video/${fileHash}/snapshot.jpeg`
+                if (!bucket_name) fileName = `${fileHash}/snapshot.jpeg`
+
                 //загрузка файла
-                let resultMinio = await minioClient.fPutObject(bucket_name, `video/${fileHash}/snapshot.jpeg`, `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`, metaData)
+                let resultMinio = await minioClient.fPutObject(newBucketName, fileName, `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`, metaData)
                 console.log('извлечение кадра выполнено')
                 console.log(resultMinio)
 
@@ -292,6 +306,21 @@ export class CFile {
         }
 
         return arFields
+    }
+
+    static async GetById ( ids, collectionName ) {
+        try {
+            ids = new DB().ObjectID(ids)
+
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection(collectionName);
+            let result = await collection.find({_id: {$in: ids}}).toArray()
+
+            return result
+        } catch (err) {
+            console.log(err)
+            throw ({code: 8001000, msg: 'CFile GetById'})
+        }
     }
 
     //поиск по Хэшу
