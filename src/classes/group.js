@@ -1,5 +1,5 @@
-import { DB } from "../db"
-import { Store } from "../../store"
+import { DB } from "./db"
+import { Store } from "../store"
 
 export class CGroup {
 

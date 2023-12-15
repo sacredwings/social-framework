@@ -13,7 +13,7 @@ export class CComment {
     static async Add ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            let collectionObject = mongoClient.collection(fields.value)
+            let collectionObject = mongoClient.collection(fields.module)
             let collectionComment = mongoClient.collection(`comment_${fields.module}`)
 
             if (fields.object_id)

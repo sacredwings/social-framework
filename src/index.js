@@ -6,8 +6,8 @@ import { CAuth } from './classes/auth'
 import { CComment } from './classes/comment'
 import { CFile } from './classes/file'
 import { CFriend } from './classes/friend'
-import { CGroup } from './classes/group/group'
-import { CGroupPay } from './classes/group/pay'
+import { CGroup } from './classes/group'
+import { CPay } from './classes/pay'
 import { CLike } from './classes/like'
 import { CMessage } from './classes/message'
 import { CChat } from './classes/chat'
@@ -30,7 +30,7 @@ export {
     CFile,
     CFriend,
     CGroup,
-    CGroupPay,
+    CPay,
     CLike,
     CMessage,
     CChat,

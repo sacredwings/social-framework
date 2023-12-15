@@ -1,9 +1,9 @@
-import { DB } from "../db"
-import { Store } from "../../store"
+import { DB } from "./db"
+import { Store } from "../store"
 import { CGroup } from "./group"
 
-export class CGroupPay {
-
+export class CPay {
+/*
     static async GetUserList (fields) {
         try {
             const mongoClient = Store.GetMongoClient()
@@ -104,10 +104,10 @@ export class CGroupPay {
             throw ({code: 4001000, msg: 'CGroupPay GetUserList'})
         }
     }
-
+*/
     //ТРАНЗАКЦИИ ПЛАТЕЖНОЙ СИСТЕМЫ YANDEX
     //добавить новую группу
-    static async PayTransactionAdd ( fields ) {
+    static async TransactionAdd ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
@@ -129,12 +129,12 @@ export class CGroupPay {
             return fields
         } catch (err) {
             console.log(err)
-            throw ({code: 4001000, msg: 'CGroup PayTransactionAdd'})
+            throw ({code: 4001000, msg: 'CPay TransactionAdd'})
         }
     }
 
     //добавить новую группу
-    static async PayTransactionGet ( fields ) {
+    static async TransactionGet ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('pay_transaction_group');
@@ -143,10 +143,10 @@ export class CGroupPay {
             return result
         } catch (err) {
             console.log(err)
-            throw ({code: 4001000, msg: 'CGroup PayTransactionGet'})
+            throw ({code: 4001000, msg: 'CPay TransactionGet'})
         }
     }
-    static async PayTransactionUpdate ( fields ) {
+    static async TransactionUpdate ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('pay_transaction_group');
@@ -155,13 +155,13 @@ export class CGroupPay {
             return result
         } catch (err) {
             console.log(err)
-            throw ({code: 4001000, msg: 'CGroup PayTransactionAdd'})
+            throw ({code: 4001000, msg: 'CPay TransactionAdd'})
         }
     }
 
     //ОПЛАТА ГРУППЫ ПОЛЬЗОВАТЕЛЕМ
     //добавить новую группу
-    static async PayAdd ( fields ) {
+    static async Add ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
@@ -227,12 +227,12 @@ export class CGroupPay {
             return true
         } catch (err) {
             console.log(err)
-            throw ({code: 4001000, msg: 'CGroup PayAdd'})
+            throw ({code: 4001000, msg: 'CPay Add'})
         }
     }
 
     //добавить новую группу
-    static async PayGet ( fields ) {
+    static async Get ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
             fields.user_id = new DB().ObjectID(fields.user_id)
@@ -258,13 +258,13 @@ export class CGroupPay {
 
         } catch (err) {
             console.log(err)
-            throw ({code: 4001000, msg: 'CGroup PayGet'})
+            throw ({code: 4001000, msg: 'CPay Get'})
         }
     }
 
     //СТАТУС ГРУППЫ
     //добавить новую группу
-    static async StatusPay ( fields ) {
+    static async Status ( fields ) {
         try {
             fields.user_id = new DB().ObjectID(fields.user_id)
             fields.group_id = new DB().ObjectID(fields.group_id)
@@ -305,7 +305,7 @@ export class CGroupPay {
             })
         } catch (err) {
             console.log(err)
-            throw ({code: 4001000, msg: 'CGroup PayStatus'})
+            throw ({code: 4001000, msg: 'CPay Status'})
         }
     }
 }
