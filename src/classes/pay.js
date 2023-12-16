@@ -174,10 +174,10 @@ export class CPay {
                 user_id: fields.user_id,
                 group_id: fields.group_id
             }
-            let getResult = await this.PayGet (arFields)
+            let getResult = await this.Get (arFields)
 
             arFields.actual = true
-            let getResultActual = await this.PayGet (arFields)
+            let getResultActual = await this.Get (arFields)
 
             //сколько дней оплаты
             let dateDay = new Date()
@@ -284,7 +284,7 @@ export class CPay {
             }
 
             //получаем запись об оплате
-            let result = await this.PayGet(fields)
+            let result = await this.Get(fields)
 
             //платы нет
             if (!result) return {
