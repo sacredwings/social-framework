@@ -150,7 +150,7 @@ export class CGroup {
             arAggregate.push(
                 { $lookup:
                         {
-                            from: 'file_image',
+                            from: 'file_img',
                             localField: 'photo_id',
                             foreignField: '_id',
                             as: '_photo_id',
@@ -159,7 +159,7 @@ export class CGroup {
             arAggregate.push(
                 { $lookup:
                         {
-                            from: 'file_image',
+                            from: 'file_img',
                             localField: 'cover_id',
                             foreignField: '_id',
                             as: '_cover_image_id',
@@ -169,7 +169,7 @@ export class CGroup {
                 { $lookup:
                         {
                             from: 'file_video',
-                            localField: 'cover_id',
+                            localField: 'cover_video_id',
                             foreignField: '_id',
                             as: '_cover_video_id',
                         },
@@ -186,7 +186,7 @@ export class CGroup {
                 {
                     $unwind:
                         {
-                            path: '$_cover_image_id',
+                            path: '$_cover_id',
                             preserveNullAndEmptyArrays: true
                         }
                 })
@@ -198,6 +198,7 @@ export class CGroup {
                             preserveNullAndEmptyArrays: true
                         }
                 })
+
 
             if (fields.from_id)
                 arAggregate[0].$match.from_id = fields.from_id
