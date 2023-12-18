@@ -15,7 +15,6 @@ export class CAuth {
     static async LoginByField ({password, ip, browser, ...value}) {
         try {
             //поиск пользователя
-            console.log(value)
             let user = await CUser.GetByField(value)
             if (!user)
                 throw ({code: 1001001, msg: 'Пользователь не найден'})
@@ -27,7 +26,7 @@ export class CAuth {
 
             //новый токен
             let token = await this.TokenAdd({
-                userId: user._id,
+                user_id: user._id,
                 ip: value.ip,
                 device: value.device
             })
@@ -45,7 +44,7 @@ export class CAuth {
     //* password
     //* ip
     //* device
-    static async TokenAdd ({userId, ip, device}) {
+    static async TokenAdd ({user_id, ip, device}) {
         try {
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('auth')
@@ -56,7 +55,7 @@ export class CAuth {
 
             //подготовка полей
             let arFields = {
-                user_id: userId,
+                user_id: user_id,
                 key: hash,
 
                 ip: (ip) ? ip : null,
@@ -91,12 +90,12 @@ export class CAuth {
     }
 
     //Авторизация ВК
-    static async AuthVK ({userId, clientId, clientSecret, redirectUri, code, device, bucketName}) {
+    static async AuthVK ({user_id, client_id, client_secret, redirect_uri, code, device, bucket_name}) {
         try {
             //АВТОРИЗОВАН - поиск пользователя по ID / нужны все поля для дальнейших проверок
             let arUser = false
-            if (userId) {
-                arUser = await CUser.GetById([userId])
+            if (user_id) {
+                arUser = await CUser.GetById([user_id])
                 arUser = arUser[0]
             }
 
@@ -108,12 +107,13 @@ export class CAuth {
             let vkInfo = null
             try {
                 let urlParam = {
-                    client_id: clientId,
-                    client_secret: clientSecret,
-                    redirect_uri: redirectUri,
+                    client_id: client_id,
+                    client_secret: client_secret,
+                    redirect_uri: redirect_uri,
                     code: code
                 }
                 let url = `https://oauth.vk.com/access_token?${new URLSearchParams(urlParam).toString()}`
+                console.log(url)
                 vkInfo = await axios({
                     method: 'get',
                     url: url,
@@ -220,7 +220,7 @@ export class CAuth {
 
             //авторизация
             let token = await CAuth.TokenAdd({
-                userId: userAuth._id
+                user_id: userAuth._id
             })
 
             return {tid: token._id, tkey: token.key, _id: userAuth._id, login: userAuth.login}
@@ -230,19 +230,19 @@ export class CAuth {
         }
     }
 
-    static async Telegram ({userId, telegramToken, telegram, bucketName}) {
+    static async Telegram ({user_id, telegram_token, telegram, bucket_name}) {
         try {
             const mongoClient = Store.GetMongoClient()
             let collectionUser = mongoClient.collection('user')
 
             console.log(telegram)
             //проверка хеша авторизации
-            if (!await checkTgAuth(telegramToken, telegram)) throw ({code: 999, msg: 'Не верная авторизация'})
+            if (!await checkTgAuth(telegram_token, telegram)) throw ({code: 999, msg: 'Не верная авторизация'})
 
             //АВТОРИЗОВАН - поиск пользователя по ID / нужны все поля для дальнейших проверок
             let arUser = false
-            if (userId) {
-                arUser = await CUser.GetById([userId])
+            if (user_id) {
+                arUser = await CUser.GetById([user_id])
                 arUser = arUser[0]
             }
 
@@ -264,9 +264,9 @@ export class CAuth {
                     if ((!arUser.photo_id) && (telegram.photo_url)) {
                         let rsFile = await CFile.Upload({
                             module: 'user',
-                            fileUrl: telegram.photo_url,
-                            fromId: userId,
-                            bucketName: bucketName
+                            file_url: telegram.photo_url,
+                            from_id: user_id,
+                            bucket_name: bucket_name
                         })
                         arFields.photo_id = rsFile._id
                     }
@@ -294,9 +294,9 @@ export class CAuth {
                     if (telegram.photo_url) {
                         let rsFile = await CFile.Upload({
                             module: 'user',
-                            fileUrl: telegram.photo_url,
-                            fromId: userAuth._id,
-                            bucketName: bucketName
+                            file_url: telegram.photo_url,
+                            from_id: userAuth._id,
+                            bucket_name: bucket_name
                         })
 
                         await CUser.Edit(userAuth._id, {photo_id: rsFile._id})
@@ -308,7 +308,7 @@ export class CAuth {
 
             //авторизация
             let token = await CAuth.TokenAdd({
-                userId: userAuth._id
+                user_id: userAuth._id
             })
 
             return {tid: token._id, tkey: token.key, _id: userAuth._id, login: userAuth.login}
