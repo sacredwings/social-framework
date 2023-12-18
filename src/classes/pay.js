@@ -273,6 +273,10 @@ export class CPay {
             if (group.length)
                 group = group[0]
 
+            if (!group) return {
+                status: false
+            }
+
             //группа бесплатная
             if (!group.price) return {
                 status: true
