@@ -75,8 +75,10 @@ export class CAuth {
     static async TokenGetByIdKey ({tid, tkey}) {
         try {
             const mongoClient = Store.GetMongoClient()
+            console.log(new DB().ObjectID)
+            console.log(tid)
             tid = new DB().ObjectID(tid)
-
+            console.log(tid)
             //поиск ключа
             let collection = mongoClient.collection('auth');
             let token = await collection.findOne({_id: tid, key: tkey})

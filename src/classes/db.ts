@@ -1,23 +1,26 @@
-import { MongoClient, ObjectId } from 'mongodb'
-
+//import { MongoClient, ObjectId } from 'mongodb'
+//import { ObjectId } from 'mongodb'
 //type InterfaceClient = object | null
+import {Store} from '../store'
 
 export class DB {
 
     ObjectID (value) {
+        let newObjectId = Store.GetMongoObjectId()
+
         //если null
         if (!value) return null
 
         //строка 24 символа
         if ((value) && (typeof value === 'string') && (value.length === 24))
-            return new ObjectId(value)
+            return new newObjectId(value)
 
         //массив
         if ((value) && (value.length)) {
 
             value = value.map((value, i, arr) => {
                 if ((value) && (typeof value === 'string') && (value.length === 24))
-                    return new ObjectId(value)
+                    return new newObjectId(value)
 
                 if ((value) && (typeof value === 'object'))
                     return value

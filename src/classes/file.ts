@@ -1,7 +1,8 @@
 import fs from "fs-extra"
 import crypto from "crypto"
 import extractFrames from "ffmpeg-extract-frame-ver-1-0-2"
-import {getType, getExtension} from 'mime';
+import mime from 'mime'
+//import {getType, getExtension} from 'mime';
 import axios from "axios";
 import { DB } from "./db"
 import { Store } from "../store"
@@ -54,7 +55,7 @@ export class CFile {
 
         //ХЕШ содержимого буфера
         let fileHash = crypto.createHash('md5').update(fileBuffer).digest("hex")
-        let mimeExtension = await getExtension(fileMime)
+        let mimeExtension = mime.getExtension(fileMime)//await getExtension(fileMime)
 
         //ИМЯ ФАЙЛА без расширения
         fileName = fileHash

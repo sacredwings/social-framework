@@ -317,6 +317,8 @@ export class CUser {
             }
 
             const mongoClient = Store.GetMongoClient()
+            console.log(mongoClient)
+            console.log(mongoClient.collection)
             let collection = mongoClient.collection('user')
             let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
             return result
