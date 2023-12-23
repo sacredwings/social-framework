@@ -12,7 +12,7 @@ export class CAuth {
     //* password
     //* ip
     //* device
-    static async LoginByField ({password, ip, browser, ...value}) {
+    static async LoginByField ({password, ip, device, ...value}) {
         try {
             //поиск пользователя
             let user = await CUser.GetByField(value)
