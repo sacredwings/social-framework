@@ -43,7 +43,7 @@ const SetMinioClient = async (config, compulsion=false) => {
     //вывод конекта
     return minioClient
 }
-const GetMinioClient = (config) => {
+const GetMinioClient = () => {
     return minioClient
 }
 /*

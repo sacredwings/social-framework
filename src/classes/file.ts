@@ -194,8 +194,9 @@ export class CFile {
 
             //создаем запись с теми же полями, меняем владельца
             let arFields = {
-                ...getFile, ...{from_id: from_id}
+                ...getFile, ...{from_id: from_id, to_user_id: to_user_id, to_group_id: to_group_id}
             }
+
             delete arFields._id
 
             await collection.insertOne(arFields)

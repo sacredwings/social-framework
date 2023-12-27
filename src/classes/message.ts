@@ -118,7 +118,7 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file_image',
+                                        from: 'file_img',
                                         localField: 'photo_id',
                                         foreignField: '_id',
                                         as: '_photo_id'
@@ -142,7 +142,7 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file_image',
+                                        from: 'file_img',
                                         localField: 'photo_id',
                                         foreignField: '_id',
                                         as: '_photo_id'
@@ -166,7 +166,7 @@ export class CMessage {
                         },
                 },{ $lookup:
                         {
-                            from: 'file_image',
+                            from: 'file_img',
                             localField: 'img_ids',
                             foreignField: '_id',
                             as: '_img_ids'
@@ -320,7 +320,7 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file_image',
+                                        from: 'file_img',
                                         localField: 'photo_id',
                                         foreignField: '_id',
                                         as: '_photo_id'
@@ -344,7 +344,7 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file_image',
+                                        from: 'file_img',
                                         localField: 'photo_id',
                                         foreignField: '_id',
                                         as: '_photo_id'
@@ -368,7 +368,7 @@ export class CMessage {
                         },
                 },{ $lookup:
                         {
-                            from: 'file_image',
+                            from: 'file_img',
                             localField: 'img_ids',
                             foreignField: '_id',
                             as: '_img_ids'
