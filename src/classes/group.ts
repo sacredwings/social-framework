@@ -199,14 +199,24 @@ export class CGroup {
                         }
                 })
 
+            if (fields.q) arAggregate[0].$match.$text = {}
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
 
-            if (fields.from_id)
-                arAggregate[0].$match.from_id = fields.from_id
+            if (fields.from_id) arAggregate[0].$match.from_id = fields.from_id
 
-            if (fields.q) {
-                arAggregate[0].$match.$text = {}
-                arAggregate[0].$match.$text.$search = fields.q
-            }
+            //сортировка, если поиска нет
+            if (fields.q)
+                arAggregate.push({
+                    $sort: {
+                        $score: {$meta:"textScore"}
+                    }
+                })
+            else
+                arAggregate.push({
+                    $sort: {
+                        _id: -1,
+                    }
+                })
 
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('group');

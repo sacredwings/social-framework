@@ -311,14 +311,24 @@ export class CUser {
                 }
             })
 
-            if (fields.q) {
-                arAggregate[0].$match.$text = {}
-                arAggregate[0].$match.$text.$search = fields.q
-            }
+            if (fields.q) arAggregate[0].$match.$text = {}
+            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
+
+            //сортировка, если поиска нет
+            if (fields.q)
+                arAggregate.push({
+                    $sort: {
+                        $score: {$meta:"textScore"}
+                    }
+                })
+            else
+                arAggregate.push({
+                    $sort: {
+                        _id: -1,
+                    }
+                })
 
             const mongoClient = Store.GetMongoClient()
-            console.log(mongoClient)
-            console.log(mongoClient.collection)
             let collection = mongoClient.collection('user')
             let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
             return result

@@ -366,7 +366,6 @@ export class CAlbum {
                     }
                 })
 
-            console.log(arAggregate[0].$match)
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection(`album_${fields.module}`)
             let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
