@@ -14,6 +14,10 @@ export class CComment {
         try {
             const mongoClient = Store.GetMongoClient()
             let collectionObject = mongoClient.collection(fields.module)
+            if ((fields.module === 'video') ||
+                (fields.module === 'audio') ||
+                (fields.module === 'img') ||
+                (fields.module === 'doc')) collectionObject = mongoClient.collection(`file_${fields.module}`)
             let collectionComment = mongoClient.collection(`comment_${fields.module}`)
 
             if (fields.object_id)
@@ -32,13 +36,16 @@ export class CComment {
 
             if (fields.from_id)
                 fields.from_id = new DB().ObjectID(fields.from_id)
+            /*
             if (fields.to_user_id)
                 fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             if (fields.to_group_id)
                 fields.to_group_id = new DB().ObjectID(fields.to_group_id)
-
+            */
             let date = new Date()
 
+            console.log(fields)
+            console.log(`file_${fields.module}`)
             //ПОЛУЧАЕМ ОБЪЕКТ / узнаем создателя объекта
 
             let object = await collectionObject.findOne({
