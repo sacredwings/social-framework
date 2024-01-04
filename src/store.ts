@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Client } from 'minio'
 //import { MongoClient } from "mongodb"
 

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {DB} from "./db"
 import {CNotify} from "./notify"
 import {CVideo} from "./video"

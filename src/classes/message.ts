@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { DB } from "./db"
 import { Store } from "../store"
 

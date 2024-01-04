@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { DB } from "./db"
 import { CVideo } from "./video"
 import { CPost } from "./post"

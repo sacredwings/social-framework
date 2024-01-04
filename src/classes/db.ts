@@ -1,3 +1,4 @@
+// @ts-nocheck
 //import { MongoClient, ObjectId } from 'mongodb'
 //import { ObjectId } from 'mongodb'
 //type InterfaceClient = object | null

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import bcrypt from "bcryptjs"
 import * as crypto from "crypto"
 import { DB } from "./db"

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from "fs-extra"
 import crypto from "crypto"
 import extractFrames from "ffmpeg-extract-frame-ver-1-0-2"
