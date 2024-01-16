@@ -38,16 +38,11 @@ export class CComment {
 
             if (fields.from_id)
                 fields.from_id = new DB().ObjectID(fields.from_id)
-            /*
-            if (fields.to_user_id)
-                fields.to_user_id = new DB().ObjectID(fields.to_user_id)
-            if (fields.to_group_id)
-                fields.to_group_id = new DB().ObjectID(fields.to_group_id)
-            */
+
+            //to_user_id / to_group_id из объекта
+
             let date = new Date()
 
-            console.log(fields)
-            console.log(`file_${fields.module}`)
             //ПОЛУЧАЕМ ОБЪЕКТ / узнаем создателя объекта
 
             let object = await collectionObject.findOne({
@@ -217,6 +212,7 @@ export class CComment {
             }
 */
 
+            return arFieldsMessage
         } catch (err) {
             console.log(err)
             throw ({...{code: 2001000, msg: 'CComment Add'}, ...err})
@@ -464,7 +460,8 @@ export class CComment {
             let arAggregate = []
             arAggregate.push({
                 $match: {
-                    object_id: fields.object_id
+                    object_id: fields.object_id,
+                    delete: { $ne: true }
                 }
             })
             arAggregate.push({
@@ -738,16 +735,25 @@ export class CComment {
         }
     }
 
-    static async Delete ( id ) {
+    static async Delete ( ids, module, user_id ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            id = new DB().ObjectID(id)
+            ids = new DB().ObjectID(ids)
+            user_id = new DB().ObjectID(user_id)
 
-            let collection = mongoClient.collection('comment');
+            let collection = mongoClient.collection(`comment_${module}`)
 
-            let result = collection.deleteOne({_id: id})
+            let arFields = {
+                _id: {$in: ids}
+            }
 
-            return result
+            let result = collection.updateOne(arFields, {$set: {
+                    delete: true,
+                    delete_date: new Date(),
+                    delete_user_id: user_id
+                }})
+
+            return ids
         } catch (err) {
             console.log(err)
             throw ({code: 7001000, msg: 'CComment Delete'})
