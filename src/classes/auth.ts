@@ -20,6 +20,9 @@ export class CAuth {
             if (!user)
                 throw ({code: 1001001, msg: 'Пользователь не найден'})
 
+            if (!user.password)
+                throw ({code: 1001001, msg: 'Пользователь не доступен для входа'})
+
             //сравнение паролей
             let match = await bcrypt.compare(password, user.password)
             if (!match)
@@ -37,6 +40,7 @@ export class CAuth {
             return {tid: token._id, tkey: token.key, _id: user._id, login: user.login}
 
         } catch (err) {
+            console.log(err)
             throw ({...{code: 1001000, msg: 'CAuth Login'}, ...err})
         }
     }

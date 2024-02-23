@@ -8,6 +8,7 @@ import axios from "axios";
 import { DB } from "./db"
 import { Store } from "../store"
 import path from "path";
+import { md5 } from 'js-md5';
 
 export class CFile {
 
@@ -55,7 +56,8 @@ export class CFile {
         }
 
         //ХЕШ содержимого буфера
-        let fileHash = crypto.createHash('md5').update(fileBuffer).digest("hex")
+        //let fileHash = await getChecksumSha256(fileBuffer) //'b5b037a78522671b89a2c1b21d9b80c6'//crypto.createHash('md5').update(fileBuffer).digest("hex")
+        let fileHash = md5.hex(fileBuffer)
         let mimeExtension = mime.getExtension(fileMime)//await getExtension(fileMime)
 
         //ИМЯ ФАЙЛА без расширения
@@ -353,4 +355,14 @@ const ImageSave = async (pathVideo, pathImg) => {
     } catch (e) {
         return false
     }
+}
+
+async function getChecksumSha256(blob: Blob): Promise<string> {
+    //const uint8Array = new Uint8Array(await blob.arrayBuffer());
+    const uint8Array = new Uint8Array(blob)
+    const hashBuffer = await crypto.subtle.digest('md5', uint8Array)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+
+    return hashArray.map((h) => h.toString(16).padStart(2, '0')).join('')
+    // if you like, it, yan can buy me a coffee https://paypal.me/bilelz/1000000
 }
