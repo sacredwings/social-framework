@@ -14,6 +14,7 @@ import { CChat } from './classes/chat'
 import { CPost } from './classes/post'
 import { CUser } from './classes/user'
 import { CVideo } from './classes/video'
+import { CImg } from './classes/img'
 import { CView } from './classes/view'
 import { CNotify } from "./classes/notify"
 import { CVisitor } from "./classes/visitor"
@@ -37,6 +38,7 @@ export {
     CPost,
     CUser,
     CVideo,
+    CImg,
     CView,
     CNotify,
     CVisitor,
