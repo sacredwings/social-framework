@@ -235,6 +235,64 @@ export class CComment {
                     localField: 'republish_id',
                     foreignField: '_id',
                     as: '_republish_id',
+                    pipeline: [{
+                        $lookup: {
+                            from: 'user',
+                            localField: 'from_id',
+                            foreignField: '_id',
+                            as: '_from_id',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file_img',
+                                            localField: 'photo_id',
+                                            foreignField: '_id',
+                                            as: '_photo_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_photo_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        }
+                    }, {
+                        $lookup: {
+                            from: 'file_video',
+                            localField: 'video_ids',
+                            foreignField: '_id',
+                            as: '_video_ids'
+                        }
+                    }, {
+                        $lookup: {
+                            from: 'file_img',
+                            localField: 'img_ids',
+                            foreignField: '_id',
+                            as: '_img_ids'
+                        }
+                    }, {
+                        $lookup: {
+                            from: 'file_doc',
+                            localField: 'doc_ids',
+                            foreignField: '_id',
+                            as: '_doc_ids'
+                        }
+                    }, {
+                        $lookup: {
+                            from: 'file_audio',
+                            localField: 'audio_ids',
+                            foreignField: '_id',
+                            as: '_audio_ids'
+                        }
+                    }, {
+                        $unwind: {
+                            path: '$_from_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                    }]
                 }
             })
             arAggregate.push({
@@ -466,10 +524,68 @@ export class CComment {
             })
             arAggregate.push({
                 $lookup: {
-                    from: `comment_${module}`,
+                    from: `comment_${fields.module}`,
                     localField: 'republish_id',
                     foreignField: '_id',
                     as: '_republish_id',
+                    pipeline: [{
+                        $lookup: {
+                            from: 'user',
+                            localField: 'from_id',
+                            foreignField: '_id',
+                            as: '_from_id',
+                            pipeline: [
+                                { $lookup:
+                                        {
+                                            from: 'file_img',
+                                            localField: 'photo_id',
+                                            foreignField: '_id',
+                                            as: '_photo_id'
+                                        }
+                                },
+                                {
+                                    $unwind:
+                                        {
+                                            path: '$_photo_id',
+                                            preserveNullAndEmptyArrays: true
+                                        }
+                                }
+                            ]
+                        }
+                    }, {
+                        $lookup: {
+                            from: 'file_video',
+                            localField: 'video_ids',
+                            foreignField: '_id',
+                            as: '_video_ids'
+                        }
+                    }, {
+                        $lookup: {
+                            from: 'file_img',
+                            localField: 'img_ids',
+                            foreignField: '_id',
+                            as: '_img_ids'
+                        }
+                    }, {
+                        $lookup: {
+                            from: 'file_doc',
+                            localField: 'doc_ids',
+                            foreignField: '_id',
+                            as: '_doc_ids'
+                        }
+                    }, {
+                        $lookup: {
+                            from: 'file_audio',
+                            localField: 'audio_ids',
+                            foreignField: '_id',
+                            as: '_audio_ids'
+                        }
+                    }, {
+                        $unwind: {
+                            path: '$_from_id',
+                            preserveNullAndEmptyArrays: true
+                        }
+                    }]
                 }
             })
             arAggregate.push({
@@ -570,14 +686,6 @@ export class CComment {
                                 }
                         }
                     ]
-                }
-            })
-            arAggregate.push({
-                $lookup: {
-                    from: 'file_video',
-                    localField: 'video_ids',
-                    foreignField: '_id',
-                    as: '_video_ids'
                 }
             })
             arAggregate.push({
