@@ -141,7 +141,7 @@ export class CGroup {
                 fields.q = fields.q.replace(/ +/g, ' ').trim();
                 fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
             }
-            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.from_id = new DB().ObjectID(fields.from_id)
 
             let arAggregate = []
             arAggregate.push({
