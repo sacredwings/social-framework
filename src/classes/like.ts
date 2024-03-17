@@ -13,9 +13,21 @@ export class CLike {
     //новый комментарий
     static async Add ( fields ) {
         try {
+            if (fields.dislike === false) fields.dislike = null
+
             const mongoClient = Store.GetMongoClient()
             let collectionLike = mongoClient.collection(`like_${fields.module}`)
-            let collectionObject = mongoClient.collection(fields.module)
+
+            let module = null
+            if (fields.module === 'video') module = `file_video`
+            if (fields.module === 'post') module = `post`
+            if (fields.module === 'article') module = `article`
+            if (fields.module === 'comment_video') module = `comment_video`
+            if (fields.module === 'comment_post') module = `comment_post`
+            if (fields.module === 'comment_article') module = `comment_article`
+            if (fields.module === 'comment_topic') module = `comment_topic`
+
+            let collectionObject = mongoClient.collection(module)
 
             //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
 
@@ -32,19 +44,64 @@ export class CLike {
             })
             if (!object) return false
 
-            /*
-            //узнаем создателя объекта
-            let object = null
-            if (fields.module === 'video') object = await CVideo.GetById([fields.object_id])
-            if (fields.module === 'post') object = await CPost.GetById([fields.object_id])
-            if (fields.module === 'article') object = await CArticle.GetById([fields.object_id])
-            if (fields.module === 'comment_video') object = await CComment.GetById([fields.object_id], 'video')
-            if (fields.module === 'comment_post') object = await CComment.GetById([fields.object_id], 'post')
-            if (fields.module === 'comment_article') object = await CComment.GetById([fields.object_id], 'article')
-            if (fields.module === 'comment_topic') object = await CComment.GetById([fields.object_id], 'topic')
+            //ПОИСК
+            //установленн уже мной
+            let arFields = {
+                module: fields.module,
+                object_id: fields.object_id,
+                from_id: fields.from_id,
+            }
+            let rsLike = await this.GetByUser(arFields)
 
-            if (!object.length) return false
-            object = object[0]*/
+            if (!rsLike) {
+
+                //нет записи о лайке /создаем
+                arFields = {
+                    object_id: fields.object_id,
+                    from_id: fields.from_id,
+                    to_user_id: object.from_id, //для посчета количества лайков \ кто выложил
+                    to_group_id: object.to_group_id, //для посчета количества лайков \ куда выложено
+                    dislike: fields.dislike,
+                    create_date: date,
+                }
+                await collectionLike.insertOne(arFields)
+
+                //newLike = true //лайк установлен
+
+            } else {
+
+                //есть запись /меняем
+                if (rsLike.dislike) { //стоит дизлайк
+
+                    if (fields.dislike) //нужен дизлайк
+                        await collectionLike.deleteOne({_id: rsLike._id}) //удаляем дизлайк
+                    else
+                        await collectionLike.updateOne({_id: rsLike._id}, {$set: {dislike: null}}) //изменили на лайк
+
+                } else { //стоит лайк
+
+                    if (fields.dislike) //нужен дизлайк
+                        await collectionLike.updateOne({_id: rsLike._id}, {$set: {dislike: true}}) //изменили на лайк
+                    else
+                        await collectionLike.deleteOne({_id: rsLike._id}) //удаляем лайк
+
+                }
+            }
+
+            //ОБНОВЛЕНИЕ СЧЕТЧИКОВ
+
+            //ОБЪЕКТ
+            arFields = {
+                module: fields.module,
+                object_id: fields.object_id,
+                dislike: null
+            }
+            let LikeCount = await this.Count ( arFields )
+            arFields.dislike = true
+            let DisLikeCount = await this.Count ( arFields )
+
+            //обновляем поля в объекте
+            await collectionObject.updateOne({_id: fields.object_id}, {$set: {count_dislike: DisLikeCount, count_like: LikeCount}})
 
             /*
             //для уведомлений пользователю
@@ -244,9 +301,9 @@ export class CLike {
         try {
             const mongoClient = Store.GetMongoClient()
             let arFields = {
-                dislike: null,
+                dislike: fields.dislike,
             }
-            if (fields.dislike) arFields.dislike = true
+            //if (fields.dislike) arFields.dislike = true
 
             if (fields.object_id) arFields.object_id = new DB().ObjectID(fields.object_id)
             if (fields.to_user_id) arFields.to_user_id = new DB().ObjectID(fields.to_user_id)
