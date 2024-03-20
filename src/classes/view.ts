@@ -9,44 +9,66 @@ export class CView {
     static async Add ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            if (!fields.from_id) return false
+            let collectionView = mongoClient.collection(`view_${fields.module}`)
 
-            let collection = mongoClient.collection('view')
+            let module = null
+            if (fields.module === 'video') module = `file_video`
+            if (fields.module === 'post') module = `post`
+            if (fields.module === 'article') module = `article`
+            if (fields.module === 'comment_video') module = `comment_video`
+            if (fields.module === 'comment_post') module = `comment_post`
+            if (fields.module === 'comment_article') module = `comment_article`
+            if (fields.module === 'comment_topic') module = `comment_topic`
 
-            //обработка полей
+            let collectionObject = mongoClient.collection(module)
+
+            //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
+
+            //где
             fields.object_id = new DB().ObjectID(fields.object_id)
+
+            //кто
             fields.from_id = new DB().ObjectID(fields.from_id)
-            fields.create_date = new Date()
+            let date = new Date()
 
+            //ПОЛУЧАЕМ ОБЪЕКТ / узнаем создателя объекта
+            let object = await collectionObject.findOne({
+                _id: fields.object_id
+            })
+            if (!object) return false
+
+            //ПОИСК
+            //установленн уже мной
             let arFields = {
-                object_id: fields.object_id,
-                from_id: fields.from_id,
-            }
-
-            let rsView = await this.GetByUser(arFields)
-            if (rsView) return false
-
-            //записи нет /создаем
-            arFields = {
-                object_id: fields.object_id,
                 module: fields.module,
+                object_id: fields.object_id,
                 from_id: fields.from_id,
-
-                create_date: fields.create_date,
             }
-            await collection.insertOne(arFields)
+            let rsView = await this.GetByUser(arFields)
+            if (rsView) return rsView
 
-            //ПРОСМОТРЫ
+            //ДОБАВЛЯЕМ
             arFields = {
+                module: fields.module,
+                object_id: fields.object_id,
+                from_id: fields.from_id,
+                to_user_id: object.from_id, //для посчета количества \ кто выложил
+                to_group_id: object.to_group_id, //для посчета количества \ куда выложено
+                create_date: date,
+            }
+            await collectionView.insertOne(arFields)
+
+            //ОБНОВЛЕНИЕ СЧЕТЧИКОВ
+
+            arFields = {
+                module: fields.module,
                 object_id: fields.object_id,
             }
             //количество просмотров
             let viewCount = await CView.Count ( arFields )
 
-            //выбираем коллекцию с объектом
-            collection = mongoClient.collection(fields.module)
             //обновляем поля в объекте
-            await collection.updateOne({_id: fields.object_id}, {$set: {view: viewCount}})
+            await collectionObject.updateOne({_id: fields.object_id}, {$set: {count_view: viewCount+1}})
 
             return true
         } catch (err) {
@@ -55,15 +77,34 @@ export class CView {
         }
     }
 
+    static async Count ( {module, ...fields} ) {
+        try {
+            const mongoClient = Store.GetMongoClient()
+            let arFields = {
+                object_id: fields.object_id,
+            }
+            if (fields.to_user_id) arFields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            if (fields.to_group_id) arFields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            if (fields.from_id) arFields.from_id = new DB().ObjectID(fields.from_id)
+
+            let collection = mongoClient.collection(`view_${fields.module}`)
+
+            let result = await collection.count(arFields)
+            return result
+
+        } catch (err) {
+            console.log(err)
+            throw ({code: 4003000, msg: 'CView Count'})
+        }
+    }
+
     static async GetByUser ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            if (!fields.from_id) return false
-
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = mongoClient.collection('view')
+            let collection = mongoClient.collection(`view_${fields.module}`)
             let arFields = {
                 from_id: fields.from_id,
                 object_id: fields.object_id,
@@ -77,22 +118,5 @@ export class CView {
         }
     }
 
-    static async Count ( fields ) {
-        try {
-            const mongoClient = Store.GetMongoClient()
-            fields.object_id = new DB().ObjectID(fields.object_id)
-
-            let collection = mongoClient.collection('view')
-            let arFields = {
-                object_id: fields.object_id,
-            }
-            let result = await collection.count(arFields)
-            return result
-
-        } catch (err) {
-            console.log(err)
-            throw ({code: 4003000, msg: 'CView Get'})
-        }
-    }
 
 }
