@@ -24,8 +24,8 @@ export class CComment {
 
             if (fields.object_id)
                 fields.object_id = new DB().ObjectID(fields.object_id)
-            if (fields.republish_id)
-                fields.republish_id = new DB().ObjectID(fields.republish_id)
+            if (fields.repeat_id)
+                fields.repeat_id = new DB().ObjectID(fields.repeat_id)
 
             if (fields.video_ids)
                 fields.video_ids = new DB().ObjectID(fields.video_ids)
@@ -51,24 +51,26 @@ export class CComment {
             if (!object) throw ({code: 6001000, msg: 'CComment Add Нет объекта'})
 
             //ПОЛУЧАЕМ РЕПОСТ КОММЕНТА / узнаем создателя репоста
-            let objectRepublish = null
-            if (fields.republish_id) {
-                objectRepublish = await this.GetById ( [fields.republish_id], fields.module )
+            let objectRepeat = null
+            if (fields.repeat_id) {
+                objectRepeat = await this.GetById ( [fields.repeat_id], fields.module )
 
-                if (!objectRepublish.length) throw ({code: 6001000, msg: 'CComment Add Нет комментария репоста'})
-                objectRepublish = objectRepublish[0]
+                if (!objectRepeat.length) throw ({code: 6001000, msg: 'CComment Add Нет комментария репоста'})
+                objectRepeat = objectRepeat[0]
+
             }
 
             //ДОБАВЛЕНИЕ КОММЕНТАРИЯ
             let arFieldsMessage = {
                 object_id: fields.object_id,
 
-                republish_id: fields.republish_id,
-                republish_user_id: objectRepublish ? objectRepublish.from_id : null,
+                repeat_id: fields.repeat_id,
+                repeat_user_id: objectRepeat ? objectRepeat.from_id : null,
 
                 from_id: fields.from_id,
                 to_user_id: object.to_user_id,
                 to_group_id: object.to_group_id,
+                whom_id: object.from_id,
 
                 text: fields.text,
                 video_ids: fields.video_ids,
@@ -105,19 +107,19 @@ export class CComment {
             })
 
             //СЧЕТЧИК КОММЕНТАРИЙ у ответа
-            //let republish = null
+            //let repeat = null
             //ОБНОВЛЕНИЕ СЧЕТЧИКА ОТВЕТОВ
             //подсчет у объекта на который отвечаем
-            if (fields.republish_id) {
-                let republishCountComment = await collectionComment.countDocuments({republish_id: fields.republish_id})
-                await collectionComment.updateOne({_id: fields.republish_id}, {
+            if (fields.repeat_id) {
+                let repeatCountComment = await collectionComment.countDocuments({repeat_id: fields.repeat_id})
+                await collectionComment.updateOne({_id: fields.repeat_id}, {
                     $set: {
-                        count_comment: republishCountComment,
+                        count_repeat: repeatCountComment,
                     }
                 })
 
                 //получаем объект которому отвечаем
-                //republish = await this.GetById ( [fields.republish_id], fields.module )
+                //repeat = await this.GetById ( [fields.repeat_id], fields.module )
             }
 
             /*
@@ -165,10 +167,10 @@ export class CComment {
                 arUser[1].count_comment_out[item] = await this.Count ( arFields ) //по каждому модулю
                 arUser[1].count_comment_out.all += arUser[1].count_comment_out[item] //общие входящие
 
-                if (fields.republish_id) {
+                if (fields.repeat_id) {
                     arFields = {
                         module: item,
-                        republish_user_id: objectRepublish.from_id
+                        repeat_user_id: objectRepeat.from_id
                     }
                     arUser[2].count_comment_in[item] = await this.Count ( arFields ) //по каждому модулю
                     arUser[2].count_comment_in.all += arUser[2].count_comment_in[item] //общие входящие
@@ -186,8 +188,8 @@ export class CComment {
                     count_comment_out: arUser[1].count_comment_out
                 }})
 
-            if (fields.republish_id)
-                await collection.updateOne({_id: objectRepublish.from_id}, {$set: {
+            if (fields.repeat_id)
+                await collection.updateOne({_id: objectRepeat.from_id}, {$set: {
                         count_comment_in: arUser[2].count_comment_in
                     }})
 
@@ -205,7 +207,7 @@ export class CComment {
 
             //если это ответ
             //не повторять если владелиц комментария и форума один человек
-            if ((republish) && (object.from_id !== republish[0].from_id)) {
+            if ((repeat) && (object.from_id !== repeat[0].from_id)) {
                 //уведомление комментария на который отвечает пользователь
                 arFields.to_id = object.from_id
                 notify = await CNotify.Add ( arFields )
@@ -232,9 +234,9 @@ export class CComment {
             arAggregate.push({
                 $lookup: {
                     from: `comment_${module}`,
-                    localField: 'republish_id',
+                    localField: 'repeat_id',
                     foreignField: '_id',
-                    as: '_republish_id',
+                    as: '_repeat_id',
                     pipeline: [{
                         $lookup: {
                             from: 'user',
@@ -298,9 +300,9 @@ export class CComment {
             arAggregate.push({
                 $lookup: {
                     from: 'user',
-                    localField: 'republish_user_id',
+                    localField: 'repeat_user_id',
                     foreignField: '_id',
-                    as: '_republish_user_id',
+                    as: '_repeat_user_id',
                     pipeline: [
                         { $lookup:
                                 {
@@ -429,13 +431,13 @@ export class CComment {
             })
             arAggregate.push({
                 $unwind: {
-                    path: '$_republish_id',
+                    path: '$_repeat_id',
                     preserveNullAndEmptyArrays: true
                 }
             })
             arAggregate.push({
                 $unwind: {
-                    path: '$_republish_user_id',
+                    path: '$_repeat_user_id',
                     preserveNullAndEmptyArrays: true
                 }
             })
@@ -525,9 +527,9 @@ export class CComment {
             arAggregate.push({
                 $lookup: {
                     from: `comment_${fields.module}`,
-                    localField: 'republish_id',
+                    localField: 'repeat_id',
                     foreignField: '_id',
-                    as: '_republish_id',
+                    as: '_repeat_id',
                     pipeline: [{
                         $lookup: {
                             from: 'user',
@@ -591,9 +593,9 @@ export class CComment {
             arAggregate.push({
                 $lookup: {
                     from: 'user',
-                    localField: 'republish_user_id',
+                    localField: 'repeat_user_id',
                     foreignField: '_id',
-                    as: '_republish_user_id',
+                    as: '_repeat_user_id',
                     pipeline: [
                         { $lookup:
                                 {
@@ -722,13 +724,13 @@ export class CComment {
             })
             arAggregate.push({
                 $unwind: {
-                    path: '$_republish_id',
+                    path: '$_repeat_id',
                     preserveNullAndEmptyArrays: true
                 }
             })
             arAggregate.push({
                 $unwind: {
-                    path: '$_republish_user_id',
+                    path: '$_repeat_user_id',
                     preserveNullAndEmptyArrays: true
                 }
             })
