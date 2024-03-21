@@ -13,6 +13,7 @@ export class CView {
 
             let module = null
             if (fields.module === 'video') module = `file_video`
+            if (fields.module === 'topic') module = `topic`
             if (fields.module === 'post') module = `post`
             if (fields.module === 'article') module = `article`
             if (fields.module === 'comment_video') module = `comment_video`
@@ -52,8 +53,9 @@ export class CView {
                 module: fields.module,
                 object_id: fields.object_id,
                 from_id: fields.from_id,
-                to_user_id: object.from_id, //для посчета количества \ кто выложил
+                to_user_id: object.to_user_id, //для посчета количества \ кто выложил
                 to_group_id: object.to_group_id, //для посчета количества \ куда выложено
+                whom_id: object.from_id,
                 create_date: date,
             }
             await collectionView.insertOne(arFields)
