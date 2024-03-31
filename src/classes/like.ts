@@ -16,7 +16,6 @@ export class CLike {
             if (fields.dislike === false) fields.dislike = null
 
             const mongoClient = Store.GetMongoClient()
-            let collectionLike = mongoClient.collection(`like_${fields.module}`)
 
             let module = null
             if (fields.module === 'video') module = `file_video`
@@ -28,6 +27,7 @@ export class CLike {
             if (fields.module === 'comment_article') module = `comment_article`
             if (fields.module === 'comment_topic') module = `comment_topic`
 
+            let collectionLike = mongoClient.collection(`like_${fields.module}`)
             let collectionObject = mongoClient.collection(module)
 
             //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
@@ -68,7 +68,14 @@ export class CLike {
                 }
                 await collectionLike.insertOne(arFields)
 
-                //newLike = true //лайк установлен
+                arFields = {
+                    from_id: fields.from_id,
+                    to_id: object.from_id, //из объекта
+                    module: fields.module,
+                    action: fields.dislike ? 'dislike' : 'like',
+                    object_id: fields.object_id,
+                }
+                let notify = await CNotify.Add ( arFields )
 
             } else {
 
@@ -302,19 +309,18 @@ export class CLike {
     static async Count ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
+
             let arFields = {
                 dislike: fields.dislike,
             }
-            //if (fields.dislike) arFields.dislike = true
 
             if (fields.object_id) arFields.object_id = new DB().ObjectID(fields.object_id)
             if (fields.to_user_id) arFields.to_user_id = new DB().ObjectID(fields.to_user_id)
             if (fields.to_group_id) arFields.to_group_id = new DB().ObjectID(fields.to_group_id)
             if (fields.from_id) arFields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = mongoClient.collection(`like_${fields.module}`)
-
-            let result = await collection.count(arFields)
+            let collectionLike = mongoClient.collection(`like_${fields.module}`)
+            let result = await collectionLike.count(arFields)
             return result
 
         } catch (err) {
@@ -326,15 +332,16 @@ export class CLike {
     static async GetByUser ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
+
             fields.object_id = new DB().ObjectID(fields.object_id)
             fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = mongoClient.collection(`like_${fields.module}`)
+            let collectionLike = mongoClient.collection(`like_${fields.module}`)
             let arFields = {
                 from_id: fields.from_id,
                 object_id: fields.object_id,
             }
-            let result = await collection.findOne(arFields)
+            let result = await collectionLike.findOne(arFields)
             return result
 
         } catch (err) {
@@ -343,27 +350,231 @@ export class CLike {
         }
     }
 
-    /*
-    static async GetByUserLike ( fields ) {
-        try {
-            let dislike = null
-            if (fields.dislike)
-                dislike = true
-            fields.object_id = new DB().ObjectID(fields.object_id)
-            fields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = DB.Client.collection('like')
-            let arFields = {
-                from_id: fields.from_id,
-                object_id: fields.object_id,
-                dislike: dislike,
-            }
-            let result = await collection.findOne(arFields)
+    //загрузка
+    static async Get ( fields ) {
+        try {
+            if (fields.from_id)
+                fields.from_id = new DB().ObjectID(fields.from_id)
+            if (fields.to_user_id)
+                fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            if (fields.to_group_id)
+                fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            if (fields.whom_id)
+                fields.whom_id = new DB().ObjectID(fields.whom_id)
+
+            let module = null
+            if (fields.module === 'video') module = `file_video`
+            if (fields.module === 'topic') module = `topic`
+            if (fields.module === 'post') module = `post`
+            if (fields.module === 'article') module = `article`
+            if (fields.module === 'comment_video') module = `comment_video`
+            if (fields.module === 'comment_post') module = `comment_post`
+            if (fields.module === 'comment_article') module = `comment_article`
+            if (fields.module === 'comment_topic') module = `comment_topic`
+
+            let arAggregate = []
+            arAggregate.push({
+                $match: {}
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'user',
+                    localField: 'from_id',
+                    foreignField: '_id',
+                    as: '_from_id',
+                    pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'file_img',
+                                    localField: 'photo_id',
+                                    foreignField: '_id',
+                                    as: '_photo_id'
+                                }
+                        },
+                        {
+                            $unwind:
+                                {
+                                    path: '$_photo_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
+                        }
+                    ]
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'user',
+                    localField: 'to_user_id',
+                    foreignField: '_id',
+                    as: '_to_user_id',
+                    pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'file_img',
+                                    localField: 'to_user_id',
+                                    foreignField: '_id',
+                                    as: '_to_user_id'
+                                }
+                        },
+                        {
+                            $unwind:
+                                {
+                                    path: '$_to_user_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
+                        }
+                    ]
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'group',
+                    localField: 'to_group_id',
+                    foreignField: '_id',
+                    as: '_to_group_id',
+                    pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'file_img',
+                                    localField: 'photo_id',
+                                    foreignField: '_id',
+                                    as: '_photo_id'
+                                }
+                        },
+                        {
+                            $unwind:
+                                {
+                                    path: '$_photo_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
+                        }
+                    ]
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'user',
+                    localField: 'whom_id',
+                    foreignField: '_id',
+                    as: '_whom_id',
+                    pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'file_img',
+                                    localField: 'photo_id',
+                                    foreignField: '_id',
+                                    as: '_photo_id'
+                                }
+                        },
+                        {
+                            $unwind:
+                                {
+                                    path: '$_photo_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
+                        }
+                    ]
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: module,
+                    localField: 'object_id',
+                    foreignField: '_id',
+                    as: '_object_id'
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_from_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_to_user_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_to_group_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_whom_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_object_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+
+            if (fields.from_id) arAggregate[0].$match.from_id = fields.from_id
+            if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+            if (fields.whom_id) arAggregate[0].$match.whom_id = fields.whom_id
+
+            arAggregate.push({
+                $sort: {
+                    _id: -1,
+                }
+            })
+
+            const mongoClient = Store.GetMongoClient()
+            let collectionLike = mongoClient.collection(`like_${fields.module}`)
+            let result = await collectionLike.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
             return result
 
         } catch (err) {
             console.log(err)
-            throw ({code: 4003000, msg: 'CLike GetByUserLike'})
+            throw ({code: 8001000, msg: 'CLike Get'})
         }
-    }*/
+    }
+
+    //количество
+    static async GetCount ( fields ) {
+        try {
+
+            if (fields.from_id)
+                fields.from_id = new DB().ObjectID(fields.from_id)
+            if (fields.to_user_id)
+                fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            if (fields.to_group_id)
+                fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            if (fields.whom_id)
+                fields.whom_id = new DB().ObjectID(fields.whom_id)
+
+            let arAggregate = []
+            arAggregate.push({
+                $match: {}
+            })
+
+            if (fields.from_id) arAggregate[0].$match.from_id = fields.from_id
+            if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+            if (fields.whom_id) arAggregate[0].$match.whom_id = fields.whom_id
+
+            arAggregate.push({
+                $count: 'count'
+            })
+
+            const mongoClient = Store.GetMongoClient()
+            let collectionLike = mongoClient.collection(`like_${fields.module}`)
+            let result = await collectionLike.aggregate(arAggregate).toArray()
+
+            if (!result.length) return 0
+            return result[0].count
+
+        } catch (err) {
+            console.log(err)
+            throw ({code: 8001000, msg: 'CLike GetCount'})
+        }
+    }
 }

@@ -122,6 +122,16 @@ export class CComment {
                 //repeat = await this.GetById ( [fields.repeat_id], fields.module )
             }
 
+            //уведомление создателю темы форума
+            arFields = {
+                from_id: fields.from_id,
+                to_id: object.from_id,
+                module: fields.module,
+                action: 'comment',
+                object_id: fields.object_id,
+            }
+            let notify = await CNotify.Add ( arFields )
+
             /*
             //ПОЛЬЗОВАТЕЛЬ
             let arUser = [{}, {}, {}]
@@ -507,15 +517,19 @@ export class CComment {
 
     static async Get ( fields ) {
         try {
-            if (fields.q) {
-                fields.q = fields.q.replace(/ +/g, ' ').trim();
-                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
-            }
-
             if (fields.object_id)
                 fields.object_id = new DB().ObjectID(fields.object_id)
             if (fields.comment_id)
                 fields.comment_id = new DB().ObjectID(fields.comment_id)
+
+            if (fields.from_id)
+                fields.from_id = new DB().ObjectID(fields.from_id)
+            if (fields.to_user_id)
+                fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            if (fields.to_group_id)
+                fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            if (fields.whom_id)
+                fields.whom_id = new DB().ObjectID(fields.whom_id)
 
             let arAggregate = []
             arAggregate.push({
@@ -692,6 +706,31 @@ export class CComment {
             })
             arAggregate.push({
                 $lookup: {
+                    from: 'user',
+                    localField: 'whom_id',
+                    foreignField: '_id',
+                    as: '_whom_id',
+                    pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'file_img',
+                                    localField: 'photo_id',
+                                    foreignField: '_id',
+                                    as: '_photo_id'
+                                }
+                        },
+                        {
+                            $unwind:
+                                {
+                                    path: '$_photo_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
+                        }
+                    ]
+                }
+            })
+            arAggregate.push({
+                $lookup: {
                     from: 'file_video',
                     localField: 'video_ids',
                     foreignField: '_id',
@@ -752,25 +791,26 @@ export class CComment {
                     preserveNullAndEmptyArrays: true
                 }
             })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_whom_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
 
-            if (fields.q) arAggregate[0].$match.$text = {}
-            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
-
+            if (fields.object_id) arAggregate[0].$match.object_id = fields.object_id
             if (fields.comment_id) arAggregate[0].$match.comment_id = fields.comment_id
 
-            //сортировка, если поиска нет
-            if (fields.q)
-                arAggregate.push({
-                    $sort: {
-                        $score: {$meta:"textScore"}
-                    }
-                })
-            else
-                arAggregate.push({
-                    $sort: {
-                        _id: -1,
-                    }
-                })
+            if (fields.from_id) arAggregate[0].$match.from_id = fields.from_id
+            if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+            if (fields.whom_id) arAggregate[0].$match.whom_id = fields.whom_id
+
+            arAggregate.push({
+                $sort: {
+                    _id: -1,
+                }
+            })
 
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection(`comment_${fields.module}`)
@@ -785,23 +825,32 @@ export class CComment {
 
     static async GetCount ( fields ) {
         try {
-            if (fields.q) {
-                fields.q = fields.q.replace(/ +/g, ' ').trim();
-                fields.q = fields.q.replace("[^\\da-zA-Zа-яёА-ЯЁ ]", ' ').trim();
-            }
-
             if (fields.object_id)
                 fields.object_id = new DB().ObjectID(fields.object_id)
+            if (fields.comment_id)
+                fields.comment_id = new DB().ObjectID(fields.comment_id)
+
+            if (fields.from_id)
+                fields.from_id = new DB().ObjectID(fields.from_id)
+            if (fields.to_user_id)
+                fields.to_user_id = new DB().ObjectID(fields.to_user_id)
+            if (fields.to_group_id)
+                fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+            if (fields.whom_id)
+                fields.whom_id = new DB().ObjectID(fields.whom_id)
 
             let arAggregate = []
             arAggregate.push({
                 $match: {}
             })
 
-            if (fields.q) arAggregate[0].$match.$text = {}
-            if (fields.q) arAggregate[0].$match.$text.$search = fields.q
-
             if (fields.object_id) arAggregate[0].$match.object_id = fields.object_id
+            if (fields.comment_id) arAggregate[0].$match.comment_id = fields.comment_id
+
+            if (fields.from_id) arAggregate[0].$match.from_id = fields.from_id
+            if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
+            if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
+            if (fields.whom_id) arAggregate[0].$match.whom_id = fields.whom_id
 
             arAggregate.push({
                 $count: 'count'

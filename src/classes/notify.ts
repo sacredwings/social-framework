@@ -10,13 +10,14 @@ export class CNotify {
         try {
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('notify')
-            fields.from_id = new DB().ObjectID(fields.from_id)
-            fields.to_id = new DB().ObjectID(fields.to_id)
-            fields.object_id = new DB().ObjectID(fields.object_id)
-            fields.create_date = new Date()
 
-            if (fields.from_id.toString() === fields.to_id.toString())
-                return false
+            if (fields.from_id)
+                fields.from_id = new DB().ObjectID(fields.from_id)
+            if (fields.to_id)
+                fields.to_id = new DB().ObjectID(fields.to_id)
+            if (fields.object_id)
+                fields.object_id = new DB().ObjectID(fields.object_id)
+            fields.create_date = new Date()
 
             //установленно мной
             let arFields = {
@@ -61,13 +62,13 @@ export class CNotify {
     static async Get ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
             let collection = mongoClient.collection('notify')
 
             let arAggregate = []
             arAggregate.push({
                 $match: {
-                    to_id: fields.user_id
+                    to_id: fields.to_id
                 }
             })
             arAggregate.push({
@@ -272,13 +273,13 @@ export class CNotify {
     static async GetCount ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
             let collection = mongoClient.collection('notify')
 
             let arAggregate = []
             arAggregate.push({
                 $match: {
-                    to_id: fields.user_id
+                    to_id: fields.to_id
                 }
             })
 
@@ -300,13 +301,13 @@ export class CNotify {
     static async NoViewedCount ( fields ) {
         try {
             const mongoClient = Store.GetMongoClient()
-            fields.user_id = new DB().ObjectID(fields.user_id)
+            fields.to_id = new DB().ObjectID(fields.to_id)
             let collection = mongoClient.collection('notify')
 
             let arAggregate = []
             arAggregate.push({
                 $match: {
-                    to_id: fields.user_id,
+                    to_id: fields.to_id,
                     viewed: null
                 }
             })
