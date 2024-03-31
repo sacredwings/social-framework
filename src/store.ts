@@ -1,31 +1,11 @@
 // @ts-nocheck
 import { Client } from 'minio'
-//import { MongoClient } from "mongodb"
+import { MongoClient } from "mongodb"
 
 //СОСТОЯНИЕ
 let minioClient = null
 let mongoClient = null
-let mongoObjectId = null
 let test = null
-
-//MONGO
-const GetMongoObjectId = () => {
-    return mongoObjectId
-}
-const GetMongoClient = () => {
-    return mongoClient
-}
-const SetMongoClient = async ({MongoClient, ObjectId}, {url, dbName}) => {
-    mongoObjectId = ObjectId
-
-    if (mongoClient) return mongoClient
-
-    const client = new MongoClient(url)
-    await client.connect()
-    mongoClient = client.db(dbName);
-
-    return mongoClient
-}
 
 //MINIO
 const SetMinioClient = async (config, compulsion=false) => {
@@ -47,7 +27,7 @@ const SetMinioClient = async (config, compulsion=false) => {
 const GetMinioClient = () => {
     return minioClient
 }
-/*
+
 //MONGO
 const GetMongoClient = () => {
     return mongoClient
@@ -64,7 +44,7 @@ const SetMongoClient = async (config, compulsion=false) => {
     //вывод конекта
     return mongoClient
 }
-*/
+
 //Test
 const GetTest = () => {
     return test
@@ -79,8 +59,6 @@ export const Store = {
 
     GetMongoClient,
     SetMongoClient,
-
-    GetMongoObjectId,
 
     GetTest,
     SetTest
