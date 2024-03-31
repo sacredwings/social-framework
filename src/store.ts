@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Client } from 'minio'
-import { MongoClient } from "mongodb"
+import { MongoClient, ObjectId } from "mongodb"
 
 //СОСТОЯНИЕ
 let minioClient = null
@@ -44,6 +44,9 @@ const SetMongoClient = async (config, compulsion=false) => {
     //вывод конекта
     return mongoClient
 }
+const GetMongoObjectId = () => {
+    return ObjectId
+}
 
 //Test
 const GetTest = () => {
@@ -59,6 +62,7 @@ export const Store = {
 
     GetMongoClient,
     SetMongoClient,
+    GetMongoObjectId,
 
     GetTest,
     SetTest
