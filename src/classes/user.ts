@@ -62,6 +62,50 @@ export class CUser {
         }
     }
 
+    static async AddGenerate () {
+        try {
+            //создание пароля
+
+            let password = randomNumber(11111111, 99999999)
+
+            const saltRounds = 10
+            let passwordSalt = await bcrypt.genSalt(saltRounds)
+            let hashPassword = await bcrypt.hash(password, passwordSalt)
+
+            let arFields = {
+                login: hashPassword,
+                password: hashPassword,
+                first_name: hashPassword,
+
+                create_date: new Date()
+            }
+
+            //ДЕЙСТВИЕ
+            const mongoClient = Store.GetMongoClient()
+            let collection = mongoClient.collection('user')
+
+            //создание чистой записи
+            await collection.insertOne(arFields)
+
+            let arFieldsEdit = {
+                login: arFields._id,
+                first_name: arFields._id
+            }
+
+            let result = collection.updateOne({_id: arFields._id}, {$set: arFieldsEdit}, {upsert: true})
+            return {
+                _id: arFields._id,
+                login: arFields._id,
+                first_name: arFields._id,
+                password: password
+            }
+
+        } catch (err) {
+            console.log(err)
+            throw ({...{code: 7001000, msg: 'CUser Add'}, ...err})
+        }
+    }
+
     //поиск по id
     static async GetById ( ids ) {
         try {
@@ -368,4 +412,8 @@ export class CUser {
             throw ({...{code: 8001000, msg: 'CUser Count'}, ...err})
         }
     }
+}
+
+function randomNumber(min, max) {
+    return Math.random() * (max - min) + min;
 }
