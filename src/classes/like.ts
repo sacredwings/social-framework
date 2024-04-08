@@ -71,9 +71,9 @@ export class CLike {
                 arFields = {
                     from_id: fields.from_id,
                     to_id: object.from_id, //из объекта
-                    module: fields.module,
-                    action: fields.dislike ? 'dislike' : 'like',
+                    type: `like_${fields.module}`,
                     object_id: fields.object_id,
+                    child_id: arFields._id,
                 }
                 let notify = await CNotify.Add ( arFields )
 

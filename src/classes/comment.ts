@@ -126,9 +126,9 @@ export class CComment {
             arFields = {
                 from_id: fields.from_id,
                 to_id: object.from_id,
-                module: fields.module,
-                action: 'comment',
+                type: `comment_${fields.module}`,
                 object_id: fields.object_id,
+                child_id: arFieldsMessage._id,
             }
             let notify = await CNotify.Add ( arFields )
 
