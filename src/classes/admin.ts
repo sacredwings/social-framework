@@ -38,8 +38,8 @@ export class CAdmin {
                 })
                 console.log(arIndexes)
 
-                console.log('file_image')
-                collection = mongoClient.collection('file_img')
+                console.log('image')
+                collection = mongoClient.collection('img')
                 arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')
@@ -52,8 +52,8 @@ export class CAdmin {
                 )
                 console.log(arIndexes)
 
-                console.log('file_video')
-                collection = mongoClient.collection('file_video')
+                console.log('video')
+                collection = mongoClient.collection('video')
                 arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')
@@ -66,8 +66,8 @@ export class CAdmin {
                 )
                 console.log(arIndexes)
 
-                console.log('file_doc')
-                collection = mongoClient.collection('file_doc')
+                console.log('doc')
+                collection = mongoClient.collection('doc')
                 arIndexes = await collection.indexes()
                 arIndexes.forEach((item)=>{
                     if (item.name !== '_id_')

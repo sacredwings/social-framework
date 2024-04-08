@@ -72,7 +72,7 @@ export class CFile {
             (fileMime === 'video/mpeg')) {
 
             minioObjectName = `${fileHash}/original.${mimeExtension}`
-            mongoCollectionName = 'file_video'
+            mongoCollectionName = 'video'
 
             //если не указано minio хранилище
             if (!newBucketName)
@@ -87,7 +87,7 @@ export class CFile {
             (fileMime === 'image/jpeg')) {
 
             minioObjectName = `${fileHash}.${mimeExtension}`
-            mongoCollectionName = 'file_img'
+            mongoCollectionName = 'img'
 
             //если не указано minio хранилище
             if (!newBucketName)
@@ -101,7 +101,7 @@ export class CFile {
             (fileMime === 'audio/mpeg')) {
 
             minioObjectName = `${fileHash}.${mimeExtension}`
-            mongoCollectionName = 'file_audio'
+            mongoCollectionName = 'audio'
 
             //если не указано minio хранилище
             if (!newBucketName)
@@ -119,7 +119,7 @@ export class CFile {
             (fileMime === 'text/plain')) {
 
             minioObjectName = `${fileHash}.${mimeExtension}`
-            mongoCollectionName = 'file_doc'
+            mongoCollectionName = 'doc'
 
             //если не указано minio хранилище
             if (!newBucketName)
@@ -139,10 +139,10 @@ export class CFile {
         if ((object_id) && (newBucketName !== 'img')) return false //ВЫХОД
 
         if (object_id) {
-            let collection = mongoClient.collection('file_video')
+            let collection = mongoClient.collection('video')
 
             //object_id привязывается только к видео / файл должен существовать
-            let getFile = await this.GetById([object_id], 'file_video')
+            let getFile = await this.GetById([object_id], 'video')
 
             if (!getFile.length) return false //ВЫХОД если файла нет
             getFile = getFile[0]

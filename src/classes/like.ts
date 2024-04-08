@@ -18,7 +18,7 @@ export class CLike {
             const mongoClient = Store.GetMongoClient()
 
             let module = null
-            if (fields.module === 'video') module = `file_video`
+            if (fields.module === 'video') module = `video`
             if (fields.module === 'topic') module = `topic`
             if (fields.module === 'post') module = `post`
             if (fields.module === 'article') module = `article`
@@ -364,7 +364,7 @@ export class CLike {
                 fields.whom_id = new DB().ObjectID(fields.whom_id)
 
             let module = null
-            if (fields.module === 'video') module = `file_video`
+            if (fields.module === 'video') module = `video`
             if (fields.module === 'topic') module = `topic`
             if (fields.module === 'post') module = `post`
             if (fields.module === 'article') module = `article`
@@ -386,7 +386,7 @@ export class CLike {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -411,7 +411,7 @@ export class CLike {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'to_user_id',
                                     foreignField: '_id',
                                     as: '_to_user_id'
@@ -436,7 +436,7 @@ export class CLike {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -461,7 +461,7 @@ export class CLike {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'

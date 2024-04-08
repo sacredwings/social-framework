@@ -12,7 +12,7 @@ export class CView {
             let collectionView = mongoClient.collection(`view_${fields.module}`)
 
             let module = null
-            if (fields.module === 'video') module = `file_video`
+            if (fields.module === 'video') module = `video`
             if (fields.module === 'topic') module = `topic`
             if (fields.module === 'post') module = `post`
             if (fields.module === 'article') module = `article`

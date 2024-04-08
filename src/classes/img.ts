@@ -24,7 +24,7 @@ export class CImg {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -49,7 +49,7 @@ export class CImg {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'to_user_id',
                                     foreignField: '_id',
                                     as: '_to_user_id'
@@ -74,7 +74,7 @@ export class CImg {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -118,7 +118,7 @@ export class CImg {
             })
 
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('file_img');
+            let collection = mongoClient.collection('img');
             let result = await collection.aggregate(arAggregate).toArray()
             return result
         } catch (err) {

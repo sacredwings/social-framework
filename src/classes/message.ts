@@ -119,7 +119,7 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file_img',
+                                        from: 'img',
                                         localField: 'photo_id',
                                         foreignField: '_id',
                                         as: '_photo_id'
@@ -143,7 +143,7 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file_img',
+                                        from: 'img',
                                         localField: 'photo_id',
                                         foreignField: '_id',
                                         as: '_photo_id'
@@ -160,28 +160,28 @@ export class CMessage {
                     },
                 },{ $lookup:
                         {
-                            from: 'file_video',
+                            from: 'video',
                             localField: 'video_ids',
                             foreignField: '_id',
                             as: '_video_ids',
                         },
                 },{ $lookup:
                         {
-                            from: 'file_img',
+                            from: 'img',
                             localField: 'img_ids',
                             foreignField: '_id',
                             as: '_img_ids'
                         },
                 },{ $lookup:
                         {
-                            from: 'file_doc',
+                            from: 'doc',
                             localField: 'doc_ids',
                             foreignField: '_id',
                             as: '_doc_ids'
                         },
                 },{ $lookup:
                         {
-                            from: 'file_audio',
+                            from: 'audio',
                             localField: 'audio_ids',
                             foreignField: '_id',
                             as: '_audio_ids'
@@ -321,7 +321,7 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file_img',
+                                        from: 'img',
                                         localField: 'photo_id',
                                         foreignField: '_id',
                                         as: '_photo_id'
@@ -345,7 +345,7 @@ export class CMessage {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file_img',
+                                        from: 'img',
                                         localField: 'photo_id',
                                         foreignField: '_id',
                                         as: '_photo_id'
@@ -362,28 +362,28 @@ export class CMessage {
                     },
                 },{ $lookup:
                         {
-                            from: 'file_video',
+                            from: 'video',
                             localField: 'video_ids',
                             foreignField: '_id',
                             as: '_video_ids',
                         },
                 },{ $lookup:
                         {
-                            from: 'file_img',
+                            from: 'img',
                             localField: 'img_ids',
                             foreignField: '_id',
                             as: '_img_ids'
                         },
                 },{ $lookup:
                         {
-                            from: 'file_doc',
+                            from: 'doc',
                             localField: 'doc_ids',
                             foreignField: '_id',
                             as: '_doc_ids'
                         },
                 },{ $lookup:
                         {
-                            from: 'file_audio',
+                            from: 'audio',
                             localField: 'audio_ids',
                             foreignField: '_id',
                             as: '_audio_ids'

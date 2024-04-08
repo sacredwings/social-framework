@@ -64,7 +64,7 @@ export class CArticle {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -89,7 +89,7 @@ export class CArticle {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'to_user_id',
                                     foreignField: '_id',
                                     as: '_to_user_id'
@@ -114,7 +114,7 @@ export class CArticle {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -132,7 +132,7 @@ export class CArticle {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_video',
+                    from: 'video',
                     localField: 'video_ids',
                     foreignField: '_id',
                     as: '_video_ids'
@@ -140,7 +140,7 @@ export class CArticle {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_img',
+                    from: 'img',
                     localField: 'img_ids',
                     foreignField: '_id',
                     as: '_img_ids'
@@ -148,7 +148,7 @@ export class CArticle {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_doc',
+                    from: 'doc',
                     localField: 'doc_ids',
                     foreignField: '_id',
                     as: '_doc_ids'
@@ -156,7 +156,7 @@ export class CArticle {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_audio',
+                    from: 'audio',
                     localField: 'audio_ids',
                     foreignField: '_id',
                     as: '_audio_ids'
@@ -164,7 +164,7 @@ export class CArticle {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_img',
+                    from: 'img',
                     localField: 'image_id',
                     foreignField: '_id',
                     as: '_image_id'
@@ -290,7 +290,7 @@ export class CArticle {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -315,7 +315,7 @@ export class CArticle {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'to_user_id',
                                     foreignField: '_id',
                                     as: '_to_user_id'
@@ -340,7 +340,7 @@ export class CArticle {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -358,7 +358,7 @@ export class CArticle {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_img',
+                    from: 'img',
                     localField: 'image_id',
                     foreignField: '_id',
                     as: '_image_id'

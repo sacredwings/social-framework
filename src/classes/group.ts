@@ -61,7 +61,7 @@ export class CGroup {
                     pipeline: [
                         {
                             $lookup: {
-                                from: 'file_img',
+                                from: 'img',
                                 localField: 'photo_id',
                                 foreignField: '_id',
                                 as: '_photo_id'
@@ -77,7 +77,7 @@ export class CGroup {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_img',
+                    from: 'img',
                     localField: 'photo_id',
                     foreignField: '_id',
                     as: '_photo_id',
@@ -85,7 +85,7 @@ export class CGroup {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_img',
+                    from: 'img',
                     localField: 'cover_id',
                     foreignField: '_id',
                     as: '_cover_id',
@@ -93,7 +93,7 @@ export class CGroup {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_video',
+                    from: 'video',
                     localField: 'cover_video_id',
                     foreignField: '_id',
                     as: '_cover_video_id',
@@ -151,7 +151,7 @@ export class CGroup {
             arAggregate.push(
                 { $lookup:
                         {
-                            from: 'file_img',
+                            from: 'img',
                             localField: 'photo_id',
                             foreignField: '_id',
                             as: '_photo_id',
@@ -160,7 +160,7 @@ export class CGroup {
             arAggregate.push(
                 { $lookup:
                         {
-                            from: 'file_img',
+                            from: 'img',
                             localField: 'cover_id',
                             foreignField: '_id',
                             as: '_cover_image_id',
@@ -169,7 +169,7 @@ export class CGroup {
             arAggregate.push(
                 { $lookup:
                         {
-                            from: 'file_video',
+                            from: 'video',
                             localField: 'cover_video_id',
                             foreignField: '_id',
                             as: '_cover_video_id',

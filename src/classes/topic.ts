@@ -73,7 +73,7 @@ export class CTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -98,7 +98,7 @@ export class CTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'to_user_id',
                                     foreignField: '_id',
                                     as: '_to_user_id'
@@ -123,7 +123,7 @@ export class CTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -148,7 +148,7 @@ export class CTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -166,7 +166,7 @@ export class CTopic {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_img',
+                    from: 'img',
                     localField: 'image_id',
                     foreignField: '_id',
                     as: '_image_id'
@@ -292,7 +292,7 @@ export class CTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -317,7 +317,7 @@ export class CTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'to_user_id',
                                     foreignField: '_id',
                                     as: '_to_user_id'
@@ -342,7 +342,7 @@ export class CTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -367,7 +367,7 @@ export class CTopic {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -385,7 +385,7 @@ export class CTopic {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'file_img',
+                    from: 'img',
                     localField: 'image_id',
                     foreignField: '_id',
                     as: '_image_id'

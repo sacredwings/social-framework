@@ -26,7 +26,7 @@ export class CVideo {
             }
 
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('file_video');
+            let collection = mongoClient.collection('video');
             let result = collection.updateOne(arFields, {$set: fields})
 
             return result
@@ -56,7 +56,7 @@ export class CVideo {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -81,7 +81,7 @@ export class CVideo {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'to_user_id',
                                     foreignField: '_id',
                                     as: '_to_user_id'
@@ -106,7 +106,7 @@ export class CVideo {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -150,7 +150,7 @@ export class CVideo {
             })
 
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('file_video');
+            let collection = mongoClient.collection('video');
             let result = await collection.aggregate(arAggregate).toArray()
             return result
         } catch (err) {
@@ -190,7 +190,7 @@ export class CVideo {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -215,7 +215,7 @@ export class CVideo {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'to_user_id',
                                     foreignField: '_id',
                                     as: '_to_user_id'
@@ -240,7 +240,7 @@ export class CVideo {
                     pipeline: [
                         { $lookup:
                                 {
-                                    from: 'file_img',
+                                    from: 'img',
                                     localField: 'photo_id',
                                     foreignField: '_id',
                                     as: '_photo_id'
@@ -306,7 +306,7 @@ export class CVideo {
                 })
 
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('file_video')
+            let collection = mongoClient.collection('video')
             let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
             return result
 
@@ -352,7 +352,7 @@ export class CVideo {
             })
 
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('file_video');
+            let collection = mongoClient.collection('video');
             let result = await collection.aggregate(arAggregate).toArray()
 
             if (!result.length) return 0
@@ -367,7 +367,7 @@ export class CVideo {
     static async Count () {
         try {
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('file_video');
+            let collection = mongoClient.collection('video');
 
             let result = await collection.count()
             return result
