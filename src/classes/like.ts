@@ -16,19 +16,8 @@ export class CLike {
             if (fields.dislike === false) fields.dislike = null
 
             const mongoClient = Store.GetMongoClient()
-
-            let module = null
-            if (fields.module === 'video') module = `video`
-            if (fields.module === 'topic') module = `topic`
-            if (fields.module === 'post') module = `post`
-            if (fields.module === 'article') module = `article`
-            if (fields.module === 'comment_video') module = `comment_video`
-            if (fields.module === 'comment_post') module = `comment_post`
-            if (fields.module === 'comment_article') module = `comment_article`
-            if (fields.module === 'comment_topic') module = `comment_topic`
-
             let collectionLike = mongoClient.collection(`like_${fields.module}`)
-            let collectionObject = mongoClient.collection(module)
+            let collectionObject = mongoClient.collection(fields.module)
 
             //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
 
@@ -363,16 +352,6 @@ export class CLike {
             if (fields.whom_id)
                 fields.whom_id = new DB().ObjectID(fields.whom_id)
 
-            let module = null
-            if (fields.module === 'video') module = `video`
-            if (fields.module === 'topic') module = `topic`
-            if (fields.module === 'post') module = `post`
-            if (fields.module === 'article') module = `article`
-            if (fields.module === 'comment_video') module = `comment_video`
-            if (fields.module === 'comment_post') module = `comment_post`
-            if (fields.module === 'comment_article') module = `comment_article`
-            if (fields.module === 'comment_topic') module = `comment_topic`
-
             let arAggregate = []
             arAggregate.push({
                 $match: {}
@@ -479,7 +458,7 @@ export class CLike {
             })
             arAggregate.push({
                 $lookup: {
-                    from: module,
+                    from: fields.module,
                     localField: 'object_id',
                     foreignField: '_id',
                     as: '_object_id'

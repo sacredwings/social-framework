@@ -16,10 +16,6 @@ export class CComment {
         try {
             const mongoClient = Store.GetMongoClient()
             let collectionObject = mongoClient.collection(fields.module)
-            if ((fields.module === 'video') ||
-                (fields.module === 'audio') ||
-                (fields.module === 'img') ||
-                (fields.module === 'doc')) collectionObject = mongoClient.collection(`file_${fields.module}`)
             let collectionComment = mongoClient.collection(`comment_${fields.module}`)
 
             if (fields.object_id)

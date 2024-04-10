@@ -451,6 +451,9 @@ export class CNotify {
             arAggregate.push(JoinNoAr('reply_comment_article_id'))
             arAggregate.push(JoinNoAr('reply_comment_topic_id'))
 
+            arAggregate.push(JoinNoAr('from_id'))
+            arAggregate.push(JoinNoAr('to_id'))
+
             arAggregate.push({
                 $sort: {
                     _id: -1,
