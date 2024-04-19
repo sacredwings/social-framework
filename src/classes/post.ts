@@ -46,7 +46,8 @@ export class CPost {
             let arAggregate = []
             arAggregate.push({
                 $match: {
-                    _id: {$in: ids}
+                    _id: {$in: ids},
+                    delete: {$ne: true}
                 }
             })
             arAggregate.push({
@@ -212,8 +213,9 @@ export class CPost {
 
             let arAggregate = []
             arAggregate.push({
-                $match:
-                    {}
+                $match: {
+                    delete: {$ne: true}
+                }
             })
             arAggregate.push({
                 $lookup: {
@@ -397,7 +399,9 @@ export class CPost {
 
             let arAggregate = []
             arAggregate.push({
-                $match: {}
+                $match: {
+                    delete: {$ne: true}
+                }
             })
 
             if (fields.q) arAggregate[0].$match.$text = {}
@@ -481,8 +485,8 @@ export class CPost {
 
             let arFields = {
                 delete: true,
+                delete_user: user_id,
                 delete_date: new Date(),
-                delete_user: user_id
             }
 
             const mongoClient = Store.GetMongoClient()

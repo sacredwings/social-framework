@@ -43,7 +43,8 @@ export class CImg {
             let arAggregate = []
             arAggregate.push({
                 $match: {
-                    _id: {$in: ids}
+                    _id: {$in: ids},
+                    delete: {$ne: true}
                 }
             })
             arAggregate.push({
@@ -177,7 +178,9 @@ export class CImg {
 
             let arAggregate = []
             arAggregate.push({
-                $match: {}
+                $match: {
+                    delete: {$ne: true}
+                }
             })
             arAggregate.push({
                 $lookup: {
@@ -334,7 +337,9 @@ export class CImg {
 
             let arAggregate = []
             arAggregate.push({
-                $match: {}
+                $match: {
+                    delete: {$ne: true}
+                }
             })
 
             if (fields.q) arAggregate[0].$match.$text = {}
@@ -379,11 +384,12 @@ export class CImg {
     static async Delete ( id, user_id ) {
         try {
             id = new DB().ObjectID(id)
+            user_id = new DB().ObjectID(user_id)
 
             let arFields = {
                 delete: true,
+                delete_user: user_id,
                 delete_date: new Date(),
-                delete_user: user_id
             }
 
             const mongoClient = Store.GetMongoClient()

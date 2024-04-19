@@ -234,7 +234,8 @@ export class CComment {
             let arAggregate = []
             arAggregate.push({
                 $match: {
-                    _id: {$in: ids}
+                    _id: {$in: ids},
+                    delete: {$ne: true}
                 }
             })
             arAggregate.push({
@@ -837,7 +838,9 @@ export class CComment {
 
             let arAggregate = []
             arAggregate.push({
-                $match: {}
+                $match: {
+                    delete: {$ne: true}
+                }
             })
 
             if (fields.object_id) arAggregate[0].$match.object_id = fields.object_id

@@ -61,7 +61,8 @@ export class CTopic {
             let arAggregate = []
             arAggregate.push({
                 $match: {
-                    _id: {$in: ids}
+                    _id: {$in: ids},
+                    delete: {$ne: true}
                 }
             })
             arAggregate.push({
@@ -280,8 +281,9 @@ export class CTopic {
 
             let arAggregate = []
             arAggregate.push({
-                $match:
-                    {}
+                $match: {
+                    delete: {$ne: true}
+                }
             })
             arAggregate.push({
                 $lookup: {
@@ -489,7 +491,9 @@ export class CTopic {
 
             let arAggregate = []
             arAggregate.push({
-                $match: {}
+                $match: {
+                    delete: {$ne: true}
+                }
             })
 
             if (fields.q) arAggregate[0].$match.$text = {}
