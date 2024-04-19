@@ -389,7 +389,7 @@ export class CVideo {
             }
 
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('file');
+            let collection = mongoClient.collection('video');
             let result = collection.updateOne({_id: id}, {$set: arFields}, {upsert: true})
             return result
         } catch (err) {
