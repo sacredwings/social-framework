@@ -31,8 +31,8 @@ export class CAuth {
             //новый токен
             let token = await this.TokenAdd({
                 user_id: user._id,
-                ip: value.ip,
-                device: value.device
+                ip: ip,
+                device: device
             })
             if (!token)
                 throw ({code: 1001003, msg: 'Токен не создан'})
@@ -80,10 +80,8 @@ export class CAuth {
     static async TokenGetByIdKey ({tid, tkey}) {
         try {
             const mongoClient = Store.GetMongoClient()
-            console.log(new DB().ObjectID)
-            console.log(tid)
             tid = new DB().ObjectID(tid)
-            console.log(tid)
+
             //поиск ключа
             let collection = mongoClient.collection('auth');
             let token = await collection.findOne({_id: tid, key: tkey})
@@ -242,7 +240,6 @@ export class CAuth {
             const mongoClient = Store.GetMongoClient()
             let collectionUser = mongoClient.collection('user')
 
-            console.log(telegram)
             //проверка хеша авторизации
             if (!await checkTgAuth(telegram_token, telegram)) throw ({code: 999, msg: 'Не верная авторизация'})
 
