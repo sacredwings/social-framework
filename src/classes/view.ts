@@ -32,6 +32,7 @@ export class CView {
             let arFields = {
                 object_id: fields.object_id,
                 from_id: fields.from_id,
+                module: fields.module
             }
             let rsView = await this.GetByUser(arFields)
             if (rsView) return rsView
