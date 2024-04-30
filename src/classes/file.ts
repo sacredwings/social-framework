@@ -12,16 +12,14 @@ import { md5 } from 'js-md5';
 
 export class CFile {
 
-    static async Upload ({module, file_form, file_url, object_id=null, from_id, to_user_id, to_group_id, bucket_name}) {
+    static async Upload ({module, file_form, file_url, object_id=null, from_id, to_user_id, to_group_id, bucket_name='', bucket_mini=true}) {
 
         //КОНЕКТЫ
         let mongoClient = Store.GetMongoClient()
         let minioClient = Store.GetMinioClient()
 
-        //ПРОВЕРКА наличия основных данных
+        //ПРОВЕРКА наличия файла
         if ((!file_form) && (!file_url)) return false
-        //if (!bucket_name) return false
-        if (!from_id) return false
 
         from_id = new DB().ObjectID(from_id)
         to_user_id = new DB().ObjectID(to_user_id)
@@ -56,7 +54,6 @@ export class CFile {
         }
 
         //ХЕШ содержимого буфера
-        //let fileHash = await getChecksumSha256(fileBuffer) //'b5b037a78522671b89a2c1b21d9b80c6'//crypto.createHash('md5').update(fileBuffer).digest("hex")
         let fileHash = md5.hex(fileBuffer)
         let mimeExtension = mime.getExtension(fileMime)//await getExtension(fileMime)
 
@@ -71,14 +68,15 @@ export class CFile {
         if ((fileMime === 'video/mp4') ||
             (fileMime === 'video/mpeg')) {
 
+            newBucketName = `${bucket_name}_video`
             minioObjectName = `${fileHash}/original.${mimeExtension}`
             mongoCollectionName = 'video'
 
-            //если не указано minio хранилище
-            if (!newBucketName)
-                newBucketName = 'video'
-            else
+            //minio хранилище
+            if (bucket_mini) {
+                newBucketName = bucket_name
                 minioObjectName = 'video/' + minioObjectName
+            }
         }
 
         //ИЗОБРАЖЕНИЕ
@@ -86,28 +84,30 @@ export class CFile {
             (fileMime === 'image/png') ||
             (fileMime === 'image/jpeg')) {
 
+            newBucketName = `${bucket_name}_img`
             minioObjectName = `${fileHash}.${mimeExtension}`
             mongoCollectionName = 'img'
 
-            //если не указано minio хранилище
-            if (!newBucketName)
-                newBucketName = 'img'
-            else
+            //minio хранилище
+            if (bucket_mini) {
+                newBucketName = bucket_name
                 minioObjectName = 'img/' + minioObjectName
+            }
         }
 
         //АУДИО
         if ((fileMime === 'audio/mp4') ||
             (fileMime === 'audio/mpeg')) {
 
+            newBucketName = `${bucket_name}_audio`
             minioObjectName = `${fileHash}.${mimeExtension}`
             mongoCollectionName = 'audio'
 
-            //если не указано minio хранилище
-            if (!newBucketName)
-                newBucketName = 'audio'
-            else
+            //minio хранилище
+            if (bucket_mini) {
+                newBucketName = bucket_name
                 minioObjectName = 'audio/' + minioObjectName
+            }
         }
 
         //ДОКУМЕНТ
@@ -118,14 +118,16 @@ export class CFile {
             (fileMime === 'application/pdf') ||
             (fileMime === 'text/plain')) {
 
+            newBucketName = `${bucket_name}_doc`
             minioObjectName = `${fileHash}.${mimeExtension}`
             mongoCollectionName = 'doc'
 
-            //если не указано minio хранилище
-            if (!newBucketName)
-                newBucketName = 'doc'
-            else
+            //minio хранилище
+            if (bucket_mini) {
+                newBucketName = bucket_name
                 minioObjectName = 'doc/' + minioObjectName
+            }
+
         }
 
         //ПРОВЕРКА наличия дополнительных данных
@@ -136,7 +138,7 @@ export class CFile {
 
         //ПРЕВЬЮ
         //object_id привязывается только к видео / файл может быть только изображением
-        if ((object_id) && (newBucketName !== 'img')) return false //ВЫХОД
+        if ((object_id) && (mongoCollectionName !== 'img')) return false //ВЫХОД
 
         if (object_id) {
             let collection = mongoClient.collection('video')
@@ -158,14 +160,16 @@ export class CFile {
 
             //загрузка файла
             try {
-                let fileName = `video/${getFile.object_name}/snapshot.jpeg`
-                let bucketNameSnapshot = bucket_name
-                if (!bucket_name) {
-                    fileName = `${getFile.object_name}/snapshot.jpeg`
-                    bucketNameSnapshot = 'video'
+                let snapshotBucketName = `${bucket_name}_video`
+                let snapshotObjectName = `${getFile.object_name}/snapshot.jpeg`
+
+                //minio хранилище
+                if (bucket_mini) {
+                    snapshotBucketName = bucket_name
+                    snapshotObjectName = `video/${getFile.object_name}/snapshot.jpeg`
                 }
 
-                let resultMinio = await minioClient.putObject(bucketNameSnapshot, fileName, fileBuffer, metaData)
+                let resultMinio = await minioClient.putObject(snapshotBucketName, snapshotObjectName, fileBuffer, metaData)
                 console.log('загружен новый кадр')
 
                 let arStatus = {
@@ -247,6 +251,7 @@ export class CFile {
         }
 
         try {
+
             //загрузка файла
             let resultMinio = await minioClient.putObject(newBucketName, minioObjectName, fileBuffer, metaData)
             console.log(resultMinio)
@@ -261,15 +266,15 @@ export class CFile {
             console.log(e)
             await collection.updateOne({_id: arFields._id}, {$set: {status: 'err'}}, {upsert: true})
         }
+
         //СОЗДАНИЕ SNAPSHOT
-        if (fileMime === 'video/mp4') {
+        if (mongoCollectionName === 'video') {
             try {
 
                 //проверка и создание временного каталога
                 if (!fs.existsSync(`${process.cwd()}/tmp`)) await fs.mkdirSync(path.join(process.cwd(), "tmp"))
 
-                let fileVideoName = `${minioClient.protocol}//${minioClient.host}:${minioClient.port}/${newBucketName}/video/${fileHash}/original.mp4`
-                if (!bucket_name) fileVideoName = `${minioClient.protocol}//${minioClient.host}:${minioClient.port}/${newBucketName}/${fileHash}/original.mp4`
+                let fileVideoName = `${minioClient.protocol}//${minioClient.host}:${minioClient.port}/${newBucketName}/${minioObjectName}`
 
                 //извлечение кадра
                 await extractFrames({
@@ -288,11 +293,12 @@ export class CFile {
                     'User-Id': from_id,
                 }
 
-                let fileName = `video/${fileHash}/snapshot.jpeg`
-                if (!bucket_name) fileName = `${fileHash}/snapshot.jpeg`
+                let snapshotObjectName =`${fileHash}/snapshot.jpeg`
+                if (bucket_mini)
+                    snapshotObjectName = 'video/' + snapshotObjectName
 
                 //загрузка файла
-                let resultMinio = await minioClient.fPutObject(newBucketName, fileName, `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`, metaData)
+                let resultMinio = await minioClient.fPutObject(newBucketName, snapshotObjectName, `${process.cwd()}/tmp/${fileHash}_snapshot.jpeg`, metaData)
                 console.log('извлечение кадра выполнено')
                 console.log(resultMinio)
 

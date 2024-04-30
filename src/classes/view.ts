@@ -10,18 +10,7 @@ export class CView {
         try {
             const mongoClient = Store.GetMongoClient()
             let collectionView = mongoClient.collection(`view_${fields.module}`)
-
-            let module = null
-            if (fields.module === 'video') module = `video`
-            if (fields.module === 'topic') module = `topic`
-            if (fields.module === 'post') module = `post`
-            if (fields.module === 'article') module = `article`
-            if (fields.module === 'comment_video') module = `comment_video`
-            if (fields.module === 'comment_post') module = `comment_post`
-            if (fields.module === 'comment_article') module = `comment_article`
-            if (fields.module === 'comment_topic') module = `comment_topic`
-
-            let collectionObject = mongoClient.collection(module)
+            let collectionObject = mongoClient.collection(fields.module)
 
             //ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ
 
@@ -41,7 +30,6 @@ export class CView {
             //ПОИСК
             //установленн уже мной
             let arFields = {
-                module: fields.module,
                 object_id: fields.object_id,
                 from_id: fields.from_id,
             }
@@ -50,7 +38,6 @@ export class CView {
 
             //ДОБАВЛЯЕМ
             arFields = {
-                module: fields.module,
                 object_id: fields.object_id,
                 from_id: fields.from_id,
                 to_user_id: object.to_user_id, //для посчета количества \ кто выложил
@@ -63,7 +50,6 @@ export class CView {
             //ОБНОВЛЕНИЕ СЧЕТЧИКОВ
 
             arFields = {
-                module: fields.module,
                 object_id: fields.object_id,
             }
             //количество просмотров
