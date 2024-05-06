@@ -68,7 +68,7 @@ export class CFile {
         if ((fileMime === 'video/mp4') ||
             (fileMime === 'video/mpeg')) {
 
-            newBucketName = `${bucket_name}_video`
+            newBucketName = `${bucket_name}video`
             minioObjectName = `${fileHash}/original.${mimeExtension}`
             mongoCollectionName = 'video'
 
@@ -84,7 +84,7 @@ export class CFile {
             (fileMime === 'image/png') ||
             (fileMime === 'image/jpeg')) {
 
-            newBucketName = `${bucket_name}_img`
+            newBucketName = `${bucket_name}img`
             minioObjectName = `${fileHash}.${mimeExtension}`
             mongoCollectionName = 'img'
 
@@ -99,7 +99,7 @@ export class CFile {
         if ((fileMime === 'audio/mp4') ||
             (fileMime === 'audio/mpeg')) {
 
-            newBucketName = `${bucket_name}_audio`
+            newBucketName = `${bucket_name}audio`
             minioObjectName = `${fileHash}.${mimeExtension}`
             mongoCollectionName = 'audio'
 
@@ -118,7 +118,7 @@ export class CFile {
             (fileMime === 'application/pdf') ||
             (fileMime === 'text/plain')) {
 
-            newBucketName = `${bucket_name}_doc`
+            newBucketName = `${bucket_name}doc`
             minioObjectName = `${fileHash}.${mimeExtension}`
             mongoCollectionName = 'doc'
 
