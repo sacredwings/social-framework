@@ -118,11 +118,14 @@ export class CComment {
                 //repeat = await this.GetById ( [fields.repeat_id], fields.module )
             }
 
+            let notifyType = `comment_${fields.module}`
+            if (fields.repeat_id) notifyType = `reply_${notifyType}`
+
             //уведомление создателю темы форума
             arFields = {
                 from_id: fields.from_id,
                 to_id: object.from_id,
-                type: `comment_${fields.module}`,
+                type: notifyType,
                 object_id: fields.object_id,
                 child_id: arFieldsMessage._id,
             }

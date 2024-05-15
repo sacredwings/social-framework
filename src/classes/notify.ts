@@ -120,11 +120,12 @@ export class CNotify {
                 create_date: fields.create_date
             }
 
+            let collection
+            let arResult
+
             switch (fields.type) {
                 case 'like_comment_video':
-                    let collectionLikeCommentVideo = mongoClient.collection(`like_comment_video`)
-                    let collectionCommentVideo = mongoClient.collection(`comment_video`)
-                    let collectionVideo = mongoClient.collection(`video`)
+                    collection = mongoClient.collection(`comment_video`)
 
                     //запрос за лайком
                     arFields.like_comment_video_id = fields.child_id
@@ -133,21 +134,177 @@ export class CNotify {
                     arFields.comment_video_id = fields.object_id
 
                     //запрос за видео
-                    let arVideo = await collectionCommentVideo.findOne({_id: fields.object_id})
-                    arFields.video_id = arVideo.object_id
+                    arResult = await collection.findOne({_id: fields.object_id})
+                    arFields.video_id = arResult._id
+                    break;
+                case 'like_comment_img':
+                    collection = mongoClient.collection(`comment_img`)
+
+                    //запрос за лайком
+                    arFields.like_comment_img_id = fields.child_id
+
+                    //запрос за комментом
+                    arFields.comment_img_id = fields.object_id
+
+                    //запрос за видео
+                    arResult = await collection.findOne({_id: fields.object_id})
+                    arFields.img_id = arResult._id
+                    break;
+                case 'like_comment_doc':
+                    collection = mongoClient.collection(`comment_doc`)
+
+                    //запрос за лайком
+                    arFields.like_comment_doc_id = fields.child_id
+
+                    //запрос за комментом
+                    arFields.comment_doc_id = fields.object_id
+
+                    //запрос за видео
+                    arResult = await collection.findOne({_id: fields.object_id})
+                    arFields.doc_id = arResult._id
+                    break;
+                case 'like_comment_audio':
+                    collection = mongoClient.collection(`comment_audio`)
+
+                    //запрос за лайком
+                    arFields.like_comment_audio_id = fields.child_id
+
+                    //запрос за комментом
+                    arFields.comment_audio_id = fields.object_id
+
+                    //запрос за видео
+                    arResult = await collection.findOne({_id: fields.object_id})
+                    arFields.audio_id = arResult._id
+                    break;
+                case 'like_comment_post':
+                    collection = mongoClient.collection(`comment_post`)
+
+                    //запрос за лайком
+                    arFields.like_comment_post_id = fields.child_id
+
+                    //запрос за комментом
+                    arFields.comment_post_id = fields.object_id
+
+                    //запрос за видео
+                    arResult = await collection.findOne({_id: fields.object_id})
+                    arFields.post_id = arResult._id
+                    break;
+                case 'like_comment_article':
+                    collection = mongoClient.collection(`comment_article`)
+
+                    //запрос за лайком
+                    arFields.like_comment_article_id = fields.child_id
+
+                    //запрос за комментом
+                    arFields.comment_article_id = fields.object_id
+
+                    //запрос за видео
+                    arResult = await collection.findOne({_id: fields.object_id})
+                    arFields.article_id = arResult._id
+                    break;
+                case 'like_comment_topic':
+                    collection = mongoClient.collection(`comment_topic`)
+
+                    //запрос за лайком
+                    arFields.like_comment_topic_id = fields.child_id
+
+                    //запрос за комментом
+                    arFields.comment_topic_id = fields.object_id
+
+                    //запрос за видео
+                    arResult = await collection.findOne({_id: fields.object_id})
+                    arFields.topic_id = arResult._id
                     break;
                 case 'reply_comment_video':
-                    collectionCommentVideo = mongoClient.collection(`comment_video`)
-                    collectionVideo = mongoClient.collection(`video`)
+                    collection = mongoClient.collection(`comment_topic`)
 
                     //запрос за комментом
-                    arFields.reply_comment_video_id = fields.child_id
+                    arFields.comment_video_id = fields.child_id
 
                     //запрос за комментом
-                    arFields.comment_video_id = fields.object_id
+                    arResult = await collection.findOne({_id: fields.child_id})
+                    arFields.reply_comment_video_id = arResult.repeat_id
 
                     //запрос за видео
                     arFields.video_id = fields.object_id
+                    break;
+                case 'reply_comment_img':
+                    collection = mongoClient.collection(`comment_img`)
+
+                    //запрос за комментом
+                    arFields.comment_img_id = fields.child_id
+
+                    //запрос за комментом
+                    arResult = await collection.findOne({_id: fields.child_id})
+                    arFields.reply_comment_img_id = arResult.repeat_id
+
+                    //запрос за видео
+                    arFields.img_id = fields.object_id
+                    break;
+                case 'reply_comment_doc':
+                    collection = mongoClient.collection(`comment_doc`)
+
+                    //запрос за комментом
+                    arFields.comment_doc_id = fields.child_id
+
+                    //запрос за комментом
+                    arResult = await collection.findOne({_id: fields.child_id})
+                    arFields.reply_comment_doc_id = arResult.repeat_id
+
+                    //запрос за видео
+                    arFields.doc_id = fields.object_id
+                    break;
+                case 'reply_comment_audio':
+                    collection = mongoClient.collection(`comment_audio`)
+
+                    //запрос за комментом
+                    arFields.comment_audio_id = fields.child_id
+
+                    //запрос за комментом
+                    arResult = await collection.findOne({_id: fields.child_id})
+                    arFields.reply_comment_audio_id = arResult.repeat_id
+
+                    //запрос за видео
+                    arFields.audio_id = fields.object_id
+                    break;
+                case 'reply_comment_post':
+                    collection = mongoClient.collection(`comment_post`)
+
+                    //запрос за комментом
+                    arFields.comment_post_id = fields.child_id
+
+                    //запрос за комментом
+                    arResult = await collection.findOne({_id: fields.child_id})
+                    arFields.reply_comment_post_id = arResult.repeat_id
+
+                    //запрос за видео
+                    arFields.post_id = fields.object_id
+                    break;
+                case 'reply_comment_article':
+                    collection = mongoClient.collection(`comment_article`)
+
+                    //запрос за комментом
+                    arFields.comment_article_id = fields.child_id
+
+                    //запрос за комментом
+                    arResult = await collection.findOne({_id: fields.child_id})
+                    arFields.reply_comment_article_id = arResult.repeat_id
+
+                    //запрос за видео
+                    arFields.article_id = fields.object_id
+                    break;
+                case 'reply_comment_topic':
+                    collection = mongoClient.collection(`comment_topic`)
+
+                    //запрос за комментом
+                    arFields.comment_topic_id = fields.child_id
+
+                    //запрос за комментом
+                    arResult = await collection.findOne({_id: fields.child_id})
+                    arFields.reply_comment_topic_id = arResult.repeat_id
+
+                    //запрос за видео
+                    arFields.topic_id = fields.object_id
                     break;
                 case 'comment_video':
                     //запрос за комментом
