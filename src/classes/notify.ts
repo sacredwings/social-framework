@@ -135,7 +135,7 @@ export class CNotify {
 
                     //запрос за видео
                     arResult = await collection.findOne({_id: fields.object_id})
-                    arFields.video_id = arResult._id
+                    arFields.video_id = arResult.object_id
                     break;
                 case 'like_comment_img':
                     collection = mongoClient.collection(`comment_img`)
@@ -148,7 +148,7 @@ export class CNotify {
 
                     //запрос за видео
                     arResult = await collection.findOne({_id: fields.object_id})
-                    arFields.img_id = arResult._id
+                    arFields.img_id = arResult.object_id
                     break;
                 case 'like_comment_doc':
                     collection = mongoClient.collection(`comment_doc`)
@@ -161,7 +161,7 @@ export class CNotify {
 
                     //запрос за видео
                     arResult = await collection.findOne({_id: fields.object_id})
-                    arFields.doc_id = arResult._id
+                    arFields.doc_id = arResult.object_id
                     break;
                 case 'like_comment_audio':
                     collection = mongoClient.collection(`comment_audio`)
@@ -174,7 +174,7 @@ export class CNotify {
 
                     //запрос за видео
                     arResult = await collection.findOne({_id: fields.object_id})
-                    arFields.audio_id = arResult._id
+                    arFields.audio_id = arResult.object_id
                     break;
                 case 'like_comment_post':
                     collection = mongoClient.collection(`comment_post`)
@@ -187,7 +187,7 @@ export class CNotify {
 
                     //запрос за видео
                     arResult = await collection.findOne({_id: fields.object_id})
-                    arFields.post_id = arResult._id
+                    arFields.post_id = arResult.object_id
                     break;
                 case 'like_comment_article':
                     collection = mongoClient.collection(`comment_article`)
@@ -200,7 +200,7 @@ export class CNotify {
 
                     //запрос за видео
                     arResult = await collection.findOne({_id: fields.object_id})
-                    arFields.article_id = arResult._id
+                    arFields.article_id = arResult.object_id
                     break;
                 case 'like_comment_topic':
                     collection = mongoClient.collection(`comment_topic`)
@@ -213,7 +213,7 @@ export class CNotify {
 
                     //запрос за видео
                     arResult = await collection.findOne({_id: fields.object_id})
-                    arFields.topic_id = arResult._id
+                    arFields.topic_id = arResult.object_id
                     break;
                 case 'reply_comment_video':
                     collection = mongoClient.collection(`comment_topic`)

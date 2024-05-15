@@ -121,15 +121,17 @@ export class CComment {
             let notifyType = `comment_${fields.module}`
             if (fields.repeat_id) notifyType = `reply_${notifyType}`
 
-            //уведомление создателю темы форума
-            arFields = {
-                from_id: fields.from_id,
-                to_id: object.from_id,
-                type: notifyType,
-                object_id: fields.object_id,
-                child_id: arFieldsMessage._id,
+            //объект не пренадлежит мне
+            if (toString(fields.from_id) !== toString(object.from_id)) {
+                arFields = {
+                    from_id: fields.from_id,
+                    to_id: object.from_id,
+                    type: notifyType,
+                    object_id: fields.object_id,
+                    child_id: arFieldsMessage._id,
+                }
+                let notify = await CNotify.Add ( arFields )
             }
-            let notify = await CNotify.Add ( arFields )
 
             /*
             //ПОЛЬЗОВАТЕЛЬ

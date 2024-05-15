@@ -57,14 +57,17 @@ export class CLike {
                 }
                 await collectionLike.insertOne(arFields)
 
-                arFields = {
-                    from_id: fields.from_id,
-                    to_id: object.from_id, //из объекта
-                    type: `like_${fields.module}`,
-                    object_id: fields.object_id,
-                    child_id: arFields._id,
+                //объект не пренадлежит мне
+                if (toString(fields.from_id) !== toString(object.from_id)) {
+                    arFields = {
+                        from_id: fields.from_id,
+                        to_id: object.from_id, //из объекта
+                        type: `like_${fields.module}`,
+                        object_id: fields.object_id,
+                        child_id: arFields._id,
+                    }
+                    let notify = await CNotify.Add ( arFields )
                 }
-                let notify = await CNotify.Add ( arFields )
 
             } else {
 
