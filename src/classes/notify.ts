@@ -488,18 +488,20 @@ export class CNotify {
                     foreignField: '_id',
                     as: '_from_id',
                     pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'img',
+                                    localField: 'photo_id',
+                                    foreignField: '_id',
+                                    as: '_photo_id'
+                                }
+                        },
                         {
-                            $lookup: {
-                                from: 'file_image',
-                                localField: 'photo_id',
-                                foreignField: '_id',
-                                as: '_photo_id'
-                            }
-                        },{
-                            $unwind: {
-                                path: '$_photo_id',
-                                preserveNullAndEmptyArrays: true
-                            }
+                            $unwind:
+                                {
+                                    path: '$_photo_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
                         }
                     ]
                 }
@@ -511,18 +513,20 @@ export class CNotify {
                     foreignField: '_id',
                     as: '_to_id',
                     pipeline: [
+                        { $lookup:
+                                {
+                                    from: 'img',
+                                    localField: 'photo_id',
+                                    foreignField: '_id',
+                                    as: '_photo_id'
+                                }
+                        },
                         {
-                            $lookup: {
-                                from: 'file_image',
-                                localField: 'photo_id',
-                                foreignField: '_id',
-                                as: '_photo_id'
-                            }
-                        },{
-                            $unwind: {
-                                path: '$_photo_id',
-                                preserveNullAndEmptyArrays: true
-                            }
+                            $unwind:
+                                {
+                                    path: '$_photo_id',
+                                    preserveNullAndEmptyArrays: true
+                                }
                         }
                     ]
                 }
