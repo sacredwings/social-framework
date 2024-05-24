@@ -58,7 +58,7 @@ export class CLike {
                 await collectionLike.insertOne(arFields)
 
                 //объект не пренадлежит мне
-                if (toString(fields.from_id) !== toString(object.from_id)) {
+                if (fields.from_id.toString() !== object.from_id.toString()) {
                     arFields = {
                         from_id: fields.from_id,
                         to_id: object.from_id, //из объекта
