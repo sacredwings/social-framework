@@ -622,6 +622,10 @@ export class CNotify {
             })
 
             let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
+
+            //просмотренно
+            collection.updateMany({to_id: fields.to_id}, {$set: {viewed: true}}, {upsert: true})
+
             return result
 
         } catch (err) {
