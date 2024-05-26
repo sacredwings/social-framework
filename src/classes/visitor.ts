@@ -2,7 +2,6 @@
 import { DB } from "./db"
 import { Store } from "../store"
 
-
 export class CVisitor {
 
     static async Add ({from_id, to_id, minutes=60}) {
@@ -98,7 +97,7 @@ export class CVisitor {
                 }
             },{
                 $lookup: {
-                    from: 'file_image',
+                    from: 'img',
                     localField: 'photo_id',
                     foreignField: '_id',
                     as: '_photo_id'
@@ -120,10 +119,10 @@ export class CVisitor {
                         $last: "$last_name"
                     },
                     photo: {
-                        $last: "$photo"
+                        $last: "$photo_id"
                     },
                     _photo: {
-                        $last: "$_photo"
+                        $last: "$_photo_id"
                     },
                     _visitor: {
                         $addToSet: '$_visitor'
@@ -135,11 +134,11 @@ export class CVisitor {
                 }
             }]
 
-            let result = await collection.aggregate(arAggregate).limit(fields.count+fields.offset).skip(fields.offset).toArray()
+            let result = await collection.aggregate(arAggregate).skip(fields.offset).limit(fields.count).toArray()
 
             //делаем прочитаными после загрузки
             collection = mongoClient.collection('visitor')
-            collection.update({to_id: fields.user_id}, {$set: {viewed: true}})
+            collection.updateMany({to_id: fields.user_id}, {$set: {viewed: true}})
 
             return result
         } catch (err) {
