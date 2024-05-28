@@ -160,7 +160,7 @@ export class CFile {
 
             //загрузка файла
             try {
-                let snapshotBucketName = `${bucket_name}_video`
+                let snapshotBucketName = `${bucket_name}video`
                 let snapshotObjectName = `${getFile.object_name}/snapshot.jpeg`
 
                 //minio хранилище
