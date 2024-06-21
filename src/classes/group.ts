@@ -99,6 +99,42 @@ export class CGroup {
                     as: '_cover_video_id',
                 },
             })
+            arAggregate.push(
+                { $lookup:
+                        {
+                            from: 'video',
+                            localField: 'promotional_post_id',
+                            foreignField: '_id',
+                            as: '_promotional_post_id',
+                        },
+                })
+            arAggregate.push(
+                { $lookup:
+                        {
+                            from: 'video',
+                            localField: 'promotional_video_id',
+                            foreignField: '_id',
+                            as: '_promotional_video_id',
+                        },
+                })
+            arAggregate.push(
+                { $lookup:
+                        {
+                            from: 'video',
+                            localField: 'promotional_topic_id',
+                            foreignField: '_id',
+                            as: '_promotional_topic_id',
+                        },
+                })
+            arAggregate.push(
+                { $lookup:
+                        {
+                            from: 'video',
+                            localField: 'promotional_article_id',
+                            foreignField: '_id',
+                            as: '_promotional_article_id',
+                        },
+                })
             arAggregate.push({
                 $unwind: {
                     path: '$_from_id',
@@ -120,6 +156,30 @@ export class CGroup {
             arAggregate.push({
                 $unwind: {
                     path: '$_cover_video_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_promotional_post_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_promotional_video_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_promotional_topic_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_promotional_article_id',
                     preserveNullAndEmptyArrays: true
                 }
             })
@@ -176,6 +236,42 @@ export class CGroup {
                         },
                 })
             arAggregate.push(
+                { $lookup:
+                        {
+                            from: 'video',
+                            localField: 'promotional_post_id',
+                            foreignField: '_id',
+                            as: '_promotional_post_id',
+                        },
+                })
+            arAggregate.push(
+                { $lookup:
+                        {
+                            from: 'video',
+                            localField: 'promotional_video_id',
+                            foreignField: '_id',
+                            as: '_promotional_video_id',
+                        },
+                })
+            arAggregate.push(
+                { $lookup:
+                        {
+                            from: 'video',
+                            localField: 'promotional_topic_id',
+                            foreignField: '_id',
+                            as: '_promotional_topic_id',
+                        },
+                })
+            arAggregate.push(
+                { $lookup:
+                        {
+                            from: 'video',
+                            localField: 'promotional_article_id',
+                            foreignField: '_id',
+                            as: '_promotional_article_id',
+                        },
+                })
+            arAggregate.push(
                 {
                     $unwind:
                         {
@@ -199,6 +295,30 @@ export class CGroup {
                             preserveNullAndEmptyArrays: true
                         }
                 })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_promotional_post_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_promotional_video_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_promotional_topic_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_promotional_article_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
@@ -277,8 +397,15 @@ export class CGroup {
                 fields.cover_id = new DB().ObjectID(fields.cover_id)
             if (fields.cover_video_id)
                 fields.cover_video_id = new DB().ObjectID(fields.cover_video_id)
-            if (fields.from_id)
-                fields.from_id = new DB().ObjectID(fields.from_id)
+
+            if (fields.promotional_post_id)
+                fields.promotional_post_id = new DB().ObjectID(fields.promotional_post_id)
+            if (fields.promotional_video_id)
+                fields.promotional_video_id = new DB().ObjectID(fields.promotional_video_id)
+            if (fields.promotional_topic_id)
+                fields.promotional_topic_id = new DB().ObjectID(fields.promotional_topic_id)
+            if (fields.promotional_article_id)
+                fields.promotional_article_id = new DB().ObjectID(fields.promotional_article_id)
 
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('group')

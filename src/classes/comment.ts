@@ -113,13 +113,11 @@ export class CComment {
                         count_repeat: repeatCountComment,
                     }
                 })
-
-                //получаем объект которому отвечаем
-                //repeat = await this.GetById ( [fields.repeat_id], fields.module )
             }
 
+            //УВЕДОМЛЕНИЕ СОЗДАТЕЛЮ ОБЪЕКТА
             let notifyType = `comment_${fields.module}`
-            if (fields.repeat_id) notifyType = `reply_${notifyType}`
+            //if (fields.repeat_id) notifyType = `reply_${notifyType}`
 
             //объект не пренадлежит мне
             if (fields.from_id.toString() !== object.from_id.toString()) {
@@ -132,6 +130,25 @@ export class CComment {
                 }
                 let notify = await CNotify.Add ( arFields )
             }
+
+            //УВЕДОМЛЕНИЕ / ОТВЕТ
+            if (fields.repeat_id) {
+                if (fields.from_id.toString() !== objectRepeat.from_id.toString()) {
+                    notifyType = `reply_${notifyType}`
+
+                    arFields = {
+                        from_id: fields.from_id,
+                        to_id: objectRepeat.from_id,
+                        type: notifyType,
+                        object_id: fields.object_id,
+                        child_id: arFieldsMessage._id,
+                    }
+                    let notify = await CNotify.Add ( arFields )
+                }
+            }
+
+
+
 
             /*
             //ПОЛЬЗОВАТЕЛЬ
