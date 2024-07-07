@@ -18,6 +18,7 @@ export class CGroup {
             if (fields.from_id)
                 fields.from_id = new DB().ObjectID(fields.from_id)
 
+            /*
             let newFields = {
                 create_date: new Date(),
                 count_view: 0,
@@ -25,16 +26,16 @@ export class CGroup {
                 count_like: 0,
                 count_dislike: 0,
                 count_repeat: 0
-            }
+            }*/
 
             //ДЕЙСТВИЕ
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('group')
 
-            let arFields = {...fields, ...newFields}
-            await collection.insertOne(arFields)
+            //let arFields = {...fields, ...newFields}
+            await collection.insertOne(fields)
 
-            return arFields
+            return fields
         } catch (err) {
             console.log(err)
             throw ({code: 4001000, msg: 'CGroup Add'})
