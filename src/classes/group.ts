@@ -357,7 +357,7 @@ export class CGroup {
 
             let arFields = {}
             if (fields.from_id)
-                arFields.create_id = fields.from_id
+                arFields.from_id = fields.from_id
             if (fields.q) {
                 arFields.$text = {}
                 arFields.$text.$search = fields.q
