@@ -199,7 +199,7 @@ export class CFriend {
                     as: '_from_id',
                     pipeline: [{
                         $lookup: {
-                            from: 'file_image',
+                            from: 'img',
                             localField: 'photo_id',
                             foreignField: '_id',
                             as: '_photo_id'
@@ -219,7 +219,7 @@ export class CFriend {
                     as: '_to_id',
                     pipeline: [{
                         $lookup: {
-                            from: 'file_image',
+                            from: 'img',
                             localField: 'photo_id',
                             foreignField: '_id',
                             as: '_photo_id'

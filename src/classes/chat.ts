@@ -32,7 +32,7 @@ export class CChat {
                         pipeline: [
                             { $lookup:
                                     {
-                                        from: 'file_image',
+                                        from: 'img',
                                         localField: 'photo_id',
                                         foreignField: '_id',
                                         as: '_photo_id'
