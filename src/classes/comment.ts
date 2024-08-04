@@ -87,10 +87,7 @@ export class CComment {
             let arFields = {
                 object_id: fields.object_id
             }
-            //let objectCountComment = await this.Count ( arFields )
-
             //выбираем коллекцию с объектом
-            //collection = mongoClient.collection(fields.module)
             let objectCountComment = await collectionComment.countDocuments(arFields)
 
             //обновляем поле в объекте
@@ -103,7 +100,6 @@ export class CComment {
             })
 
             //СЧЕТЧИК КОММЕНТАРИЙ у ответа
-            //let repeat = null
             //ОБНОВЛЕНИЕ СЧЕТЧИКА ОТВЕТОВ
             //подсчет у объекта на который отвечаем
             if (fields.repeat_id) {
@@ -114,6 +110,9 @@ export class CComment {
                     }
                 })
             }
+
+            //СЧЕТЧИК КОММЕНТАРИЙ у пользователя / группы
+            //if (object.to_user_id)
 
             //УВЕДОМЛЕНИЕ СОЗДАТЕЛЮ ОБЪЕКТА
             let notifyType = `comment_${fields.module}`

@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { DB } from "./db"
 import { Store } from "../store"
+import {CUser} from "./user";
+import {CGroup} from "./group";
 
 export class CTopic {
 
@@ -33,18 +35,34 @@ export class CTopic {
                 change_user_id: fields.from_id,
                 change_date: newDate,
                 create_date: newDate,
-
-                count_view: 0,
-                count_comment: 0,
-                count_like: 0,
-                count_dislike: 0,
-                count_repeat: 0
             }
 
             const mongoClient = Store.GetMongoClient()
-            let collection = mongoClient.collection('topic')
+            let collectionTopic = mongoClient.collection('topic')
+            let collectionGroup = mongoClient.collection('group')
 
-            let result = await collection.insertOne(arFields)
+            //создаем тему
+            await collectionTopic.insertOne(arFields)
+
+            await count({
+                from_id: fields.from_id,
+                to_user_id: fields.to_user_id,
+                to_group_id: fields.to_group_id,
+                collectionName: 'topic'
+            })
+
+            /*
+            //обновляем количество тем у группы
+            if (fields.to_group_id) {
+                //количество тем принадлежащих группе
+                let countGroup = await collectionTopic.find({to_group_id: fields.to_group_id}).count()
+                let arFields = {
+                    _id: fields.to_group_id
+                }
+                //обновляем количество тем в группе
+                collectionGroup.updateOne(arFields, {$set: {count_topic: countGroup}})
+            }*/
+
             return arFields
 
         } catch (err) {
@@ -533,5 +551,44 @@ export class CTopic {
             console.log(err)
             throw ({code: 8001000, msg: 'CTopic Count'})
         }
+    }
+}
+
+async function count ({from_id, to_user_id, to_group_id, collectionName}) {
+    let mongoClient = Store.GetMongoClient()
+
+    let collectionUser = mongoClient.collection('user')
+    let collectionGroup = mongoClient.collection('group')
+    let collection = mongoClient.collection(collectionName)
+
+    if (from_id) {
+        //let countFile = await CVideo.GetCount({from_id: from_id})
+        let countFile = await collection.count({from_id: from_id})
+        /*await CUser.Edit(from_id, {count: {
+                video_out: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${collectionName}_out`] = Number(countFile)
+        await CUser.Edit(from_id, fields)
+    }
+    if (to_user_id) {
+        //let countFile = await CVideo.GetCount({from_id: to_user_id})
+        let countFile = await collection.count({from_id: to_user_id})
+        /*await CUser.Edit(to_user_id, {count: {
+                video_in: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${collectionName}_in`] = Number(countFile)
+        await CUser.Edit(to_user_id, fields)
+    }
+    if (to_group_id) {
+        //let countFile = await CVideo.GetCount({to_group_id: to_group_id})
+        let countFile = await collection.count({to_group_id: to_group_id})
+        /*await CGroup.Edit(to_group_id, {count: {
+                video_in: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${collectionName}_in`] = Number(countFile)
+        await CGroup.Edit(to_group_id, fields)
     }
 }

@@ -6,6 +6,9 @@ import mime from 'mime'
 //import {getType, getExtension} from 'mime';
 import axios from "axios";
 import { DB } from "./db"
+import { CUser } from "./user"
+import { CGroup } from "./group"
+import { CVideo } from "./video"
 import { Store } from "../store"
 import path from "path";
 import { md5 } from 'js-md5';
@@ -77,6 +80,9 @@ export class CFile {
                 newBucketName = bucket_name
                 minioObjectName = 'video/' + minioObjectName
             }
+
+            //счетчик
+            await count({from_id, to_user_id, to_group_id, collectionName: 'video'})
         }
 
         //ИЗОБРАЖЕНИЕ
@@ -93,6 +99,9 @@ export class CFile {
                 newBucketName = bucket_name
                 minioObjectName = 'img/' + minioObjectName
             }
+
+            //счетчик
+            await count({from_id, to_user_id, to_group_id, collectionName: 'img'})
         }
 
         //АУДИО
@@ -108,6 +117,9 @@ export class CFile {
                 newBucketName = bucket_name
                 minioObjectName = 'audio/' + minioObjectName
             }
+
+            //счетчик
+            await count({from_id, to_user_id, to_group_id, collectionName: 'audio'})
         }
 
         //ДОКУМЕНТ
@@ -128,6 +140,8 @@ export class CFile {
                 minioObjectName = 'doc/' + minioObjectName
             }
 
+            //счетчик
+            await count({from_id, to_user_id, to_group_id, collectionName: 'doc'})
         }
 
         //ПРОВЕРКА наличия дополнительных данных
@@ -227,12 +241,6 @@ export class CFile {
 
             title: fileName,
             text: null,
-
-            count_view: 0,
-            count_comment: 0,
-            count_like: 0,
-            count_dislike: 0,
-            count_repeat: 0,
 
             create_date: new Date()
         }
@@ -348,6 +356,45 @@ export class CFile {
             console.log(err)
             throw ({code: 8001000, msg: 'CFile GetById'})
         }
+    }
+}
+
+async function count ({from_id, to_user_id, to_group_id, collectionName}) {
+    let mongoClient = Store.GetMongoClient()
+
+    let collectionUser = mongoClient.collection('user')
+    let collectionGroup = mongoClient.collection('group')
+    let collection = mongoClient.collection(collectionName)
+
+    if (from_id) {
+        //let countFile = await CVideo.GetCount({from_id: from_id})
+        let countFile = await collection.count({from_id: from_id})
+        /*await CUser.Edit(from_id, {count: {
+                video_out: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${collectionName}_out`] = Number(countFile) + 1
+        await CUser.Edit(from_id, fields)
+    }
+    if (to_user_id) {
+        //let countFile = await CVideo.GetCount({from_id: to_user_id})
+        let countFile = await collection.count({from_id: to_user_id})
+        /*await CUser.Edit(to_user_id, {count: {
+                video_in: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${collectionName}_in`] = Number(countFile) + 1
+        await CUser.Edit(to_user_id, fields)
+    }
+    if (to_group_id) {
+        //let countFile = await CVideo.GetCount({to_group_id: to_group_id})
+        let countFile = await collection.count({to_group_id: to_group_id})
+        /*await CGroup.Edit(to_group_id, {count: {
+                video_in: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${collectionName}_in`] = Number(countFile) + 1
+        await CGroup.Edit(to_group_id, fields)
     }
 }
 

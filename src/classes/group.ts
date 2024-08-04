@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { DB } from "./db"
 import { Store } from "../store"
+import {CUser} from "./user";
 
 export class CGroup {
 
@@ -18,22 +19,15 @@ export class CGroup {
             if (fields.from_id)
                 fields.from_id = new DB().ObjectID(fields.from_id)
 
-            /*
-            let newFields = {
-                create_date: new Date(),
-                count_view: 0,
-                count_comment: 0,
-                count_like: 0,
-                count_dislike: 0,
-                count_repeat: 0
-            }*/
-
             //ДЕЙСТВИЕ
             const mongoClient = Store.GetMongoClient()
             let collection = mongoClient.collection('group')
-
-            //let arFields = {...fields, ...newFields}
             await collection.insertOne(fields)
+
+            await count({
+                from_id: fields.from_id,
+                collectionName: 'group'
+            })
 
             return fields
         } catch (err) {
@@ -477,4 +471,24 @@ function Day(day, startDate=new Date()) {
     date.setDate(date.getDate() + day); // Set now + 30 days as the new date
 
     return date
+}
+
+async function count ({from_id, collectionName}) {
+    let mongoClient = Store.GetMongoClient()
+
+    let collectionUser = mongoClient.collection('user')
+    let collectionGroup = mongoClient.collection('group')
+    let collection = mongoClient.collection(collectionName)
+
+    if (from_id) {
+        //let countFile = await CVideo.GetCount({from_id: from_id})
+        let countFile = await collection.count({from_id: from_id})
+        /*await CUser.Edit(from_id, {count: {
+                video_out: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${collectionName}`] = Number(countFile)
+        await CUser.Edit(from_id, fields)
+    }
+
 }
