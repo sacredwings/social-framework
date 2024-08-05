@@ -6,6 +6,8 @@ import { CArticle } from "./article"
 import { CComment } from "./comment"
 import {CNotify} from "./notify";
 import { Store } from "../store"
+import {CUser} from "./user";
+import {CGroup} from "./group";
 
 
 export class CLike {
@@ -57,6 +59,14 @@ export class CLike {
                 }
                 await collectionLike.insertOne(arFields)
 
+                await count({
+                    from_id: fields.from_id,
+                    to_user_id: object.to_user_id,
+                    to_group_id: object.to_group_id,
+                    collectionName: fields.module,
+                    dislike: fields.dislike,
+                })
+
                 //объект не пренадлежит мне
                 if (fields.from_id.toString() !== object.from_id.toString()) {
                     arFields = {
@@ -102,7 +112,7 @@ export class CLike {
             let DisLikeCount = await this.Count ( arFields )
 
             //обновляем поля в объекте
-            await collectionObject.updateOne({_id: fields.object_id}, {$set: {count_dislike: DisLikeCount, count_like: LikeCount}})
+            await collectionObject.updateOne({_id: fields.object_id}, {$set: {"count.dislike": DisLikeCount, "count.like": LikeCount}})
 
             /*
             //для уведомлений пользователю
@@ -558,5 +568,44 @@ export class CLike {
             console.log(err)
             throw ({code: 8001000, msg: 'CLike GetCount'})
         }
+    }
+}
+
+async function count ({from_id, to_user_id, to_group_id, collectionName, dislike}) {
+    let mongoClient = Store.GetMongoClient()
+
+    let collectionUser = mongoClient.collection('user')
+    let collectionGroup = mongoClient.collection('group')
+    let collection = mongoClient.collection(`like_${collectionName}`)
+
+    if (from_id) {
+        //let countFile = await CVideo.GetCount({from_id: from_id})
+        let countFile = await collection.count({from_id: from_id})
+        /*await CUser.Edit(from_id, {count: {
+                video_out: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${dislike ? 'dislike' : 'like'}_${collectionName}_out`] = Number(countFile)
+        await CUser.Edit(from_id, fields)
+    }
+    if (to_user_id) {
+        //let countFile = await CVideo.GetCount({from_id: to_user_id})
+        let countFile = await collection.count({from_id: to_user_id})
+        /*await CUser.Edit(to_user_id, {count: {
+                video_in: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${dislike ? 'dislike' : 'like'}_${collectionName}_in`] = Number(countFile)
+        await CUser.Edit(to_user_id, fields)
+    }
+    if (to_group_id) {
+        //let countFile = await CVideo.GetCount({to_group_id: to_group_id})
+        let countFile = await collection.count({to_group_id: to_group_id})
+        /*await CGroup.Edit(to_group_id, {count: {
+                video_in: countFile
+            }})*/
+        let fields = {}
+        fields[`count.${dislike ? 'dislike' : 'like'}_${collectionName}_in`] = Number(countFile)
+        await CGroup.Edit(to_group_id, fields)
     }
 }
