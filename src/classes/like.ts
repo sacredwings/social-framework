@@ -15,7 +15,7 @@ export class CLike {
     //новый комментарий
     static async Add ( fields ) {
         try {
-            if (fields.dislike === false) fields.dislike = null
+            //if (fields.dislike === false) fields.dislike = null
 
             const mongoClient = Store.GetMongoClient()
             let collectionLike = mongoClient.collection(`like_${fields.module}`)
@@ -367,7 +367,9 @@ export class CLike {
 
             let arAggregate = []
             arAggregate.push({
-                $match: {}
+                $match: {
+                    dislike: fields.dislike
+                }
             })
             arAggregate.push({
                 $lookup: {
@@ -513,6 +515,8 @@ export class CLike {
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
             if (fields.whom_id) arAggregate[0].$match.whom_id = fields.whom_id
 
+            //if (fields.dislike) arAggregate[0].$match.dislike = fields.dislike
+
             arAggregate.push({
                 $sort: {
                     _id: -1,
@@ -545,13 +549,17 @@ export class CLike {
 
             let arAggregate = []
             arAggregate.push({
-                $match: {}
+                $match: {
+                    dislike: fields.dislike
+                }
             })
 
             if (fields.from_id) arAggregate[0].$match.from_id = fields.from_id
             if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
             if (fields.whom_id) arAggregate[0].$match.whom_id = fields.whom_id
+
+            //if (fields.dislike) arAggregate[0].$match.dislike = fields.dislike
 
             arAggregate.push({
                 $count: 'count'
