@@ -235,13 +235,20 @@ export class CAuth {
         }
     }
 
-    static async Telegram ({user_id, telegram_token, telegram, bucket_name}) {
+    static async Telegram ({user_id, telegram_token, telegram, bucket_name, bot=false}) {
         try {
-            const mongoClient = Store.GetMongoClient()
-            let collectionUser = mongoClient.collection('user')
+            //const mongoClient = Store.GetMongoClient()
+            //let collectionUser = mongoClient.collection('user')
+
+            let telegramUser = null
 
             //проверка хеша авторизации
-            if (!await checkTgAuth(telegram_token, telegram)) throw ({code: 999, msg: 'Не верная авторизация'})
+            if (bot)
+                telegramUser = await checkTgAuthBot(telegram_token, telegram)
+            else
+                telegramUser = await checkTgAuth(telegram_token, telegram)
+
+            if (!telegramUser) throw ({code: 999, msg: 'Телеграм не прошел проверку безопасности'})
 
             //АВТОРИЗОВАН - поиск пользователя по ID / нужны все поля для дальнейших проверок
             let arUser = false
@@ -252,7 +259,7 @@ export class CAuth {
 
             //поиск среди пользователей
             let arSearchUser = await CUser.GetByField({
-                tg_id: telegram.id
+                tg_id: telegramUser.id
             })
 
             let userAuth = false
@@ -261,14 +268,14 @@ export class CAuth {
                 //если поля у пользователей не найдены - можно привязать к текущему
                 if (!arSearchUser) {
                     let arFields = {
-                        tg_id: telegram.id,
+                        tg_id: telegramUser.id,
                     }
 
                     //у пользователя фото нет, а в телеграме есть
-                    if ((!arUser.photo_id) && (telegram.photo_url)) {
+                    if ((!arUser.photo_id) && (telegramUser.photo_url)) {
                         let rsFile = await CFile.Upload({
                             module: 'user',
-                            file_url: telegram.photo_url,
+                            file_url: telegramUser.photo_url,
                             from_id: user_id,
                             bucket_name: bucket_name
                         })
@@ -287,18 +294,18 @@ export class CAuth {
                 //если поля у пользователей не найдены - создаем пользователя
                 if (!arSearchUser) {
                     let arFields = {
-                        login: 'tg_' + telegram.id,
-                        tg_id: telegram.id,
-                        first_name: telegram.first_name,
+                        login: 'tg_' + telegramUser.id,
+                        tg_id: telegramUser.id,
+                        first_name: telegramUser.first_name,
                     }
 
                     userAuth = await CUser.Add(arFields)
 
                     //загрузка фото если оно есть
-                    if (telegram.photo_url) {
+                    if (telegramUser.photo_url) {
                         let rsFile = await CFile.Upload({
                             module: 'user',
-                            file_url: telegram.photo_url,
+                            file_url: telegramUser.photo_url,
                             from_id: userAuth._id,
                             bucket_name: bucket_name
                         })
@@ -329,13 +336,14 @@ function getRandomInt(min, max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
 }*/
-
+/*
 async function checkTgAuth(token, { hash, ...userData }) {
     let newUserData = {}
     for (const [key, value] of Object.entries(userData)) {
         if (value) newUserData[key] = value
     }
 
+    //console.log(Object.keys(newUserData))
     const secretKey = crypto.createHash('sha256')
         .update(token)
         .digest();
@@ -348,4 +356,86 @@ async function checkTgAuth(token, { hash, ...userData }) {
         .digest('hex');
 
     return hmac === hash;
+}*/
+
+async function checkTgAuth(token, { hash, ...userData }) {
+    let newUserData = {}
+    for (const [key, value] of Object.entries(userData)) {
+        if (value) newUserData[key] = value
+    }
+
+    //console.log(Object.keys(newUserData))
+    const secretKey = crypto.createHash('sha256')
+        .update(token)
+        .digest();
+    const dataCheckString = Object.keys(newUserData)
+        .sort()
+        .map(key => (`${key}=${newUserData[key]}`))
+        .join('\n');
+    const hmac = crypto.createHmac('sha256', secretKey)
+        .update(dataCheckString)
+        .digest('hex');
+
+    if (hmac === hash)
+        return userData
+
+    return null
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+function parseAuthString (iniData) {
+    // parse string to get params
+    const searchParams = new URLSearchParams(iniData);
+
+    // take the hash and remove it from params list
+    const hash = searchParams.get('hash');
+    searchParams.delete('hash');
+
+    // sort params
+    const restKeys = Array.from(searchParams.entries());
+    restKeys.sort(([aKey, aValue], [bKey, bValue]) => aKey.localeCompare(bKey));
+
+    // and join it with \n
+    const dataCheckString = restKeys.map(([n, v]) => `${n}=${v}`).join('\n');
+
+    return {
+        dataCheckString,
+        hash,
+        // get metaData from params
+        metaData: {
+            user: JSON.parse(searchParams.get('user')),
+            auth_date: searchParams.get('auth_date'),
+            query_id: searchParams.get('query_id'),
+        },
+    };
+}
+function encodeHmac (message, key, repr=undefined) {
+    return crypto.createHmac('sha256', key).update(message).digest(repr);
+}
+function checkTgAuthBot (token, iniData) {
+    // parsing the iniData sting
+    const authTelegramData = parseAuthString(iniData);
+
+    const WEB_APP_DATA_CONST = "WebAppData"
+    const TELEGRAM_BOT_TOKEN = token
+
+    // creating the secret key and keep it as a Buffer (important!)
+    const secretKey = encodeHmac(
+        TELEGRAM_BOT_TOKEN,
+        WEB_APP_DATA_CONST,
+    );
+
+    // creating the validation key (and transform it to HEX)
+    const validationKey = encodeHmac(
+        authTelegramData.dataCheckString,
+        secretKey,
+        'hex',
+    );
+
+    // the final step - comparing and returning
+    if (validationKey === authTelegramData.hash) {
+        return authTelegramData.metaData.user;
+    }
+
+    return null;
 }
