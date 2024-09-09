@@ -559,7 +559,7 @@ export class CComment {
             let arAggregate = []
             arAggregate.push({
                 $match: {
-                    object_id: fields.object_id,
+                    //object_id: fields.object_id,
                     delete: { $ne: true }
                 }
             })
