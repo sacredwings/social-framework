@@ -475,17 +475,10 @@ function Day(day, startDate=new Date()) {
 
 async function count ({from_id, collectionName}) {
     let mongoClient = Store.GetMongoClient()
-
-    let collectionUser = mongoClient.collection('user')
-    let collectionGroup = mongoClient.collection('group')
     let collection = mongoClient.collection(collectionName)
 
     if (from_id) {
-        //let countFile = await CVideo.GetCount({from_id: from_id})
         let countFile = await collection.count({from_id: from_id})
-        /*await CUser.Edit(from_id, {count: {
-                video_out: countFile
-            }})*/
         let fields = {}
         fields[`count.${collectionName}`] = Number(countFile)
         await CUser.Edit(from_id, fields)
