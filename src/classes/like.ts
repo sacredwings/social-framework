@@ -59,13 +59,14 @@ export class CLike {
                 }
                 await collectionLike.insertOne(arFields)
 
+                /*
                 await count({
                     from_id: fields.from_id,
                     to_user_id: object.to_user_id,
                     to_group_id: object.to_group_id,
                     collectionName: fields.module,
                     dislike: fields.dislike,
-                })
+                })*/
 
                 //объект не пренадлежит мне
                 if (fields.from_id.toString() !== object.from_id.toString()) {
@@ -87,7 +88,7 @@ export class CLike {
                     if (fields.dislike) //нужен дизлайк
                         await collectionLike.deleteOne({_id: rsLike._id}) //удаляем дизлайк
                     else
-                        await collectionLike.updateOne({_id: rsLike._id}, {$set: {dislike: null}}) //изменили на лайк
+                        await collectionLike.updateOne({_id: rsLike._id}, {$set: {dislike: false}}) //изменили на лайк
 
                 } else { //стоит лайк
 
@@ -99,13 +100,14 @@ export class CLike {
                 }
             }
 
+            //----------------------------------------------------------------------------------------------------------
             //ОБНОВЛЕНИЕ СЧЕТЧИКОВ
 
             //ОБЪЕКТ
             arFields = {
                 module: fields.module,
                 object_id: fields.object_id,
-                dislike: null
+                dislike: false
             }
             let LikeCount = await this.Count ( arFields )
             arFields.dislike = true
@@ -114,172 +116,14 @@ export class CLike {
             //обновляем поля в объекте
             await collectionObject.updateOne({_id: fields.object_id}, {$set: {"count.dislike": DisLikeCount, "count.like": LikeCount}})
 
-            /*
-            //для уведомлений пользователю
-            let newLike = null //по умолчанию,  лайк не установлен
-
-            //для установки лайка
-            let dislike = null //лайк
-            if (fields.dislike)
-                dislike = true //дизлайк
-
-            //ПОИСК
-            //установленн уже мной
-            let arFields = {
-                module: fields.module,
-                object_id: fields.object_id,
+            //ПОЛЬЗОВАТЕЛЬ / ГРУППА
+            await count({
                 from_id: fields.from_id,
-            }
-            let rsLike = await this.GetByUser(arFields)
-
-            if (!rsLike) {
-
-                //нет записи о лайке /создаем
-                arFields = {
-                    object_id: fields.object_id,
-                    from_id: fields.from_id,
-                    to_user_id: object.from_id, //для посчета количества лайков \ кто выложил
-                    to_group_id: object.to_group_id, //для посчета количества лайков \ куда выложено
-                    dislike: dislike,
-                    create_date: date,
-                }
-                await collection.insertOne(arFields)
-
-                newLike = true //лайк установлен
-
-            } else {
-
-                //есть запись /меняем
-                if (rsLike.dislike) { //стоит дизлайк
-
-                    if (fields.dislike) //нужен дизлайк
-                        await collection.deleteOne({_id: rsLike._id}) //удаляем дизлайк
-                    else
-                        await collection.updateOne({_id: rsLike._id}, {$set: {dislike: null}}) //изменили на лайк
-
-                } else { //стоит лайк
-
-                    if (fields.dislike) //нужен дизлайк
-                        await collection.updateOne({_id: rsLike._id}, {$set: {dislike: true}}) //изменили на лайк
-                    else
-                        await collection.deleteOne({_id: rsLike._id}) //удаляем лайк
-
-                }
-            }
-
-            //ОБНОВЛЕНИЕ СЧЕТЧИКОВ
-
-            //ОБЪЕКТ
-            arFields = {
-                module: fields.module,
-                object_id: fields.object_id,
-            }
-            let LikeCount = await this.Count ( arFields )
-            arFields.dislike = true
-            let DisLikeCount = await this.Count ( arFields )
-
-            //выбираем коллекцию с объектом
-            collection = mongoClient.collection(fields.module)
-            //обновляем поля в объекте
-            await collection.updateOne({_id: fields.object_id}, {$set: {dislike: DisLikeCount, like: LikeCount}})
-
-            //ПОЛЬЗОВАТЕЛЬ
-            let arUser = [{}, {}]
-            let fieldsDefault = {
-                all: 0,
-                video: 0,
-                post: 0,
-                article: 0,
-                //topic: 0
-                comment_video: 0,
-                comment_post: 0,
-                comment_article: 0,
-                comment_topic: 0
-            }
-
-            arUser[0].count_like_in = {}
-            arUser[0].count_dislike_in = {}
-            arUser[1].count_like_out = {}
-            arUser[1].count_dislike_out = {}
-
-            for (let key in fieldsDefault)
-                arUser[0].count_like_in[key] = fieldsDefault[key]
-
-            for (let key in fieldsDefault)
-                arUser[0].count_dislike_in[key] = fieldsDefault[key]
-
-            for (let key in fieldsDefault)
-                arUser[1].count_like_out[key] = fieldsDefault[key]
-
-            for (let key in fieldsDefault)
-                arUser[1].count_dislike_out[key] = fieldsDefault[key]
-
-            //кого лайкнули / создатель объекта
-            //arUser[0].count_like_in = fieldsDefault
-            //arUser[0].count_dislike_in = fieldsDefault
-
-            //кто лайкнул
-            //arUser[1].count_like_out = fieldsDefault
-            //arUser[1].count_dislike_out = fieldsDefault
-            //console.log(arUser)
-            //let userLikeCount = 0 //при старте
-            //let userDisLikeCount = 0 //при старте
-            let arModules = ['video', 'post', 'article', 'comment_video', 'comment_post', 'comment_article', 'comment_topic']
-
-            for (let item of arModules) {
-
-                //кого лайкнули / создатель объекта
-                arFields = {
-                    module: item,
-                    to_user_id: object.from_id,
-                }
-
-                arUser[0].count_like_in[item] = await this.Count ( arFields )
-                arUser[0].count_like_in.all += arUser[0].count_like_in[item]
-
-                arFields.dislike = true
-                arUser[0].count_dislike_in[item] = await this.Count ( arFields )
-                arUser[0].count_dislike_in.all += arUser[0].count_dislike_in[item]
-
-                //кто лайкнул
-                arFields = {
-                    module: item,
-                    from_id: fields.from_id
-                }
-                arUser[1].count_like_out[item] = await this.Count ( arFields )
-                arUser[1].count_like_out.all += arUser[1].count_like_out[item]
-
-                arFields.dislike = true
-                arUser[1].count_dislike_out[item] = await this.Count ( arFields )
-                arUser[1].count_dislike_out.all += arUser[1].count_dislike_out[item]
-
-            }
-
-            //выбираем коллекцию с объектом
-            collection = mongoClient.collection('user')
-
-            await collection.updateOne({_id: object.from_id}, {$set: {
-                    count_like_in: arUser[0].count_like_in,
-                    count_dislike_in: arUser[0].count_dislike_in,
-                }})
-
-            await collection.updateOne({_id: fields.from_id}, {$set: {
-                    count_like_out: arUser[1].count_like_out,
-                    count_dislike_out: arUser[1].count_dislike_out,
-                }})
-
-            //УВЕДОМЛЕНИЯ
-            //если лайк будет установлен с нуля
-            if (newLike) {
-                arFields = {
-                    from_id: fields.from_id,
-                    to_id: object.from_id, //из объекта
-                    module: fields.module,
-                    action: fields.dislike ? 'dislike' : 'like',
-                    object_id: fields.object_id,
-                }
-                let notify = await CNotify.Add ( arFields )
-            }*/
+                to_user_id: object.to_user_id,
+                to_group_id: object.to_group_id,
+                collectionName: fields.module,
+                dislike: fields.dislike,
+            })
 
             return true
         } catch (err) {
@@ -581,39 +425,30 @@ export class CLike {
 
 async function count ({from_id, to_user_id, to_group_id, collectionName, dislike}) {
     let mongoClient = Store.GetMongoClient()
-
-    let collectionUser = mongoClient.collection('user')
-    let collectionGroup = mongoClient.collection('group')
     let collection = mongoClient.collection(`like_${collectionName}`)
 
     if (from_id) {
-        //let countFile = await CVideo.GetCount({from_id: from_id})
-        let countFile = await collection.count({from_id: from_id})
-        /*await CUser.Edit(from_id, {count: {
-                video_out: countFile
-            }})*/
+        let countLike = await collection.count({from_id: from_id, dislike: false})
+        let countDisLike = await collection.count({from_id: from_id, dislike: true})
         let fields = {}
-        fields[`count.${dislike ? 'dislike' : 'like'}_${collectionName}_out`] = Number(countFile)
+        fields[`count.like_${collectionName}_out`] = Number(countLike)
+        fields[`count.dislike_${collectionName}_out`] = Number(countDisLike)
         await CUser.Edit(from_id, fields)
     }
     if (to_user_id) {
-        //let countFile = await CVideo.GetCount({from_id: to_user_id})
-        let countFile = await collection.count({from_id: to_user_id})
-        /*await CUser.Edit(to_user_id, {count: {
-                video_in: countFile
-            }})*/
+        let countLike = await collection.count({to_user_id: to_user_id, dislike: false})
+        let countDisLike = await collection.count({to_user_id: to_user_id, dislike: true})
         let fields = {}
-        fields[`count.${dislike ? 'dislike' : 'like'}_${collectionName}_in`] = Number(countFile)
+        fields[`count.like_${collectionName}_in`] = Number(countLike)
+        fields[`count.dislike_${collectionName}_in`] = Number(countDisLike)
         await CUser.Edit(to_user_id, fields)
     }
     if (to_group_id) {
-        //let countFile = await CVideo.GetCount({to_group_id: to_group_id})
-        let countFile = await collection.count({to_group_id: to_group_id})
-        /*await CGroup.Edit(to_group_id, {count: {
-                video_in: countFile
-            }})*/
+        let countLike = await collection.count({to_group_id: to_group_id, dislike: false})
+        let countDisLike = await collection.count({to_group_id: to_group_id, dislike: true})
         let fields = {}
-        fields[`count.${dislike ? 'dislike' : 'like'}_${collectionName}_in`] = Number(countFile)
+        fields[`count.like_${collectionName}_in`] = Number(countLike)
+        fields[`count.dislike_${collectionName}_in`] = Number(countDisLike)
         await CGroup.Edit(to_group_id, fields)
     }
 }
