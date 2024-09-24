@@ -296,6 +296,7 @@ export class CAuth {
                     let arFields = {
                         login: 'tg_' + telegramUser.id,
                         tg_id: telegramUser.id,
+                        tg_username: telegramUser.username,
                         first_name: telegramUser.first_name,
                     }
 
