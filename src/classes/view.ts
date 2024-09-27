@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { DB } from "./db"
 import { Store } from "../store"
+import {CUser} from "./user";
+import {CGroup} from "./group";
 
 
 export class CView {
@@ -57,7 +59,15 @@ export class CView {
             let viewCount = await CView.Count ( arFields )
 
             //обновляем поля в объекте
-            await collectionObject.updateOne({_id: fields.object_id}, {$set: {count_view: viewCount+1}})
+            await collectionObject.updateOne({_id: fields.object_id}, {$set: {"count.view": viewCount+1}})
+
+            //ПОЛЬЗОВАТЕЛЬ / ГРУППА
+            await count({
+                from_id: fields.from_id,
+                to_user_id: object._id,
+                to_group_id: null,
+                collectionName: fields.module,
+            })
 
             return true
         } catch (err) {
@@ -108,4 +118,28 @@ export class CView {
     }
 
 
+}
+
+async function count ({from_id, to_user_id, to_group_id, collectionName, dislike}) {
+    let mongoClient = Store.GetMongoClient()
+    let collection = mongoClient.collection(`view_${collectionName}`)
+
+    if (from_id) {
+        let countView = await collection.count({from_id: from_id})
+        let fields = {}
+        fields[`count.view_${collectionName}_out`] = Number(countView)
+        await CUser.Edit(from_id, fields)
+    }
+    if (to_user_id) {
+        let countView = await collection.count({to_user_id: to_user_id})
+        let fields = {}
+        fields[`count.view_${collectionName}_in`] = Number(countView)
+        await CUser.Edit(to_user_id, fields)
+    }
+    if (to_group_id) {
+        let countLike = await collection.count({to_group_id: to_group_id})
+        let fields = {}
+        fields[`count.view_${collectionName}_in`] = Number(countLike)
+        await CGroup.Edit(to_group_id, fields)
+    }
 }
