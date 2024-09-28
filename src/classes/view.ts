@@ -64,8 +64,8 @@ export class CView {
             //ПОЛЬЗОВАТЕЛЬ / ГРУППА
             await count({
                 from_id: fields.from_id,
-                to_user_id: object._id,
-                to_group_id: null,
+                to_user_id: object.to_user_id,
+                to_group_id: object.to_group_id,
                 collectionName: fields.module,
             })
 
