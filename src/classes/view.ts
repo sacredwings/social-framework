@@ -64,7 +64,7 @@ export class CView {
             //ПОЛЬЗОВАТЕЛЬ / ГРУППА
             await count({
                 from_id: fields.from_id,
-                to_user_id: object.to_user_id,
+                to_user_id: object.to_user_id ? object.to_user_id : object.from_id,
                 to_group_id: object.to_group_id,
                 collectionName: fields.module,
             })
@@ -137,9 +137,14 @@ async function count ({from_id, to_user_id, to_group_id, collectionName, dislike
         await CUser.Edit(to_user_id, fields)
     }
     if (to_group_id) {
-        let countLike = await collection.count({to_group_id: to_group_id})
+        let countView = await collection.count({to_group_id: to_group_id})
         let fields = {}
-        fields[`count.view_${collectionName}_in`] = Number(countLike)
+        fields[`count.view_${collectionName}_in`] = Number(countView)
         await CGroup.Edit(to_group_id, fields)
+
+        countView = await collection.count({ $or: [ {to_user_id: to_user_id},  {to_user_id: null, whom_id: to_user_id}]})
+        fields = {}
+        fields[`count.view_${collectionName}_in`] = Number(countView)
+        await CUser.Edit(to_user_id, fields)
     }
 }

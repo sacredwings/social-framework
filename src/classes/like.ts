@@ -119,7 +119,7 @@ export class CLike {
             //ПОЛЬЗОВАТЕЛЬ / ГРУППА
             await count({
                 from_id: fields.from_id,
-                to_user_id: object.to_user_id,
+                to_user_id: object.to_user_id ? object.to_user_id : object.from_id,
                 to_group_id: object.to_group_id,
                 collectionName: fields.module,
                 dislike: fields.dislike,
@@ -450,5 +450,12 @@ async function count ({from_id, to_user_id, to_group_id, collectionName, dislike
         fields[`count.like_${collectionName}_in`] = Number(countLike)
         fields[`count.dislike_${collectionName}_in`] = Number(countDisLike)
         await CGroup.Edit(to_group_id, fields)
+
+        countLike = await collection.count({ $or: [ {to_user_id: to_user_id},  {to_user_id: null, whom_id: to_user_id}], dislike: false})
+        countDisLike = await collection.count({ $or: [ {to_user_id: to_user_id},  {to_user_id: null, whom_id: to_user_id}], dislike: true})
+        fields = {}
+        fields[`count.like_${collectionName}_in`] = Number(countLike)
+        fields[`count.dislike_${collectionName}_in`] = Number(countDisLike)
+        await CUser.Edit(to_user_id, fields)
     }
 }

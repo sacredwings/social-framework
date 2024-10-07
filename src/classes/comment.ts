@@ -116,7 +116,7 @@ export class CComment {
             //СЧЕТЧИК КОММЕНТАРИЙ у пользователя / группы
             await count({
                 from_id: fields.from_id,
-                to_user_id: object.to_user_id,
+                to_user_id: object.to_user_id ? object.to_user_id : object.from_id,
                 to_group_id: object.to_group_id,
                 collectionName: `comment_${fields.module}`
             })
@@ -953,21 +953,26 @@ async function count ({from_id, to_user_id, to_group_id, collectionName}) {
     let collection = mongoClient.collection(collectionName)
 
     if (from_id) {
-        let countFile = await collection.count({from_id: from_id})
+        let countComment = await collection.count({from_id: from_id})
         let fields = {}
-        fields[`count.${collectionName}_out`] = Number(countFile)
+        fields[`count.${collectionName}_out`] = Number(countComment)
         await CUser.Edit(from_id, fields)
     }
     if (to_user_id) {
-        let countFile = await collection.count({to_user_id: to_user_id})
+        let countComment = await collection.count({to_user_id: to_user_id})
         let fields = {}
-        fields[`count.${collectionName}_in`] = Number(countFile)
+        fields[`count.${collectionName}_in`] = Number(countComment)
         await CUser.Edit(to_user_id, fields)
     }
     if (to_group_id) {
-        let countFile = await collection.count({to_group_id: to_group_id})
+        let countComment = await collection.count({to_group_id: to_group_id})
         let fields = {}
-        fields[`count.${collectionName}_in`] = Number(countFile)
+        fields[`count.${collectionName}_in`] = Number(countComment)
         await CGroup.Edit(to_group_id, fields)
+
+        countComment = await collection.count({ $or: [ {to_user_id: to_user_id},  {to_user_id: null, whom_id: to_user_id}]})
+        fields = {}
+        fields[`count.${collectionName}_in`] = Number(countComment)
+        await CUser.Edit(to_user_id, fields)
     }
 }
