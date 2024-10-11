@@ -53,13 +53,14 @@ export class CView {
             //ОБНОВЛЕНИЕ СЧЕТЧИКОВ
 
             arFields = {
+                module: fields.module,
                 object_id: fields.object_id,
             }
             //количество просмотров
             let viewCount = await CView.Count ( arFields )
 
             //обновляем поля в объекте
-            await collectionObject.updateOne({_id: fields.object_id}, {$set: {"count.view": viewCount+1}})
+            await collectionObject.updateOne({_id: fields.object_id}, {$set: {"count.view": viewCount}})
 
             //ПОЛЬЗОВАТЕЛЬ / ГРУППА
             await count({
@@ -86,7 +87,7 @@ export class CView {
             if (fields.to_group_id) arFields.to_group_id = new DB().ObjectID(fields.to_group_id)
             if (fields.from_id) arFields.from_id = new DB().ObjectID(fields.from_id)
 
-            let collection = mongoClient.collection(`view_${fields.module}`)
+            let collection = mongoClient.collection(`view_${module}`)
 
             let result = await collection.count(arFields)
             return result
