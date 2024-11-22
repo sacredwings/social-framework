@@ -193,7 +193,7 @@ export class CTopic {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'album_article',
+                    from: 'album_topic',
                     localField: 'album_ids',
                     foreignField: '_id',
                     as: '_album_ids'
