@@ -32,6 +32,7 @@ export class CArticle {
             if (fields.to_group_id)
                 fields.to_group_id = new DB().ObjectID(fields.to_group_id)
 
+            fields.change_date = new Date()
             fields.create_date = new Date()
 
             const mongoClient = Store.GetMongoClient()
@@ -426,7 +427,7 @@ export class CArticle {
             else
                 arAggregate.push({
                     $sort: {
-                        _id: -1,
+                        change_date: -1,
                     }
                 })
 

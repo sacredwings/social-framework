@@ -449,11 +449,6 @@ export class CTopic {
                     preserveNullAndEmptyArrays: true
                 }
             })
-            arAggregate.push({
-                $sort: {
-                    _id: -1
-                }
-            })
 
             if (fields.q) arAggregate[0].$match.$text = {}
             if (fields.q) arAggregate[0].$match.$text.$search = fields.q
