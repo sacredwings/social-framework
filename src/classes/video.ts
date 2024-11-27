@@ -306,7 +306,7 @@ export class CVideo {
             else
                 arAggregate.push({
                     $sort: {
-                        change_date: -1,
+                        _id: -1,
                     }
                 })
 
