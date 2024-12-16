@@ -12,6 +12,7 @@ import { CVideo } from "./video"
 import { Store } from "../store"
 import path from "path";
 import { md5 } from 'js-md5';
+import { fileTypeFromBuffer } from 'file-type';
 
 export class CFile {
 
@@ -34,6 +35,8 @@ export class CFile {
         let fileSize = null
         let fileName = null
 
+        let fileTypeResult = null
+
         //ФОРМА
         if (file_form) {
             //файл в буфер
@@ -42,6 +45,8 @@ export class CFile {
             //свойства
             fileMime = file_form.type
             fileSize = file_form.size
+
+            fileTypeResult = await fileTypeFromBuffer(fileBuffer)
         }
 
         //URL
@@ -54,6 +59,8 @@ export class CFile {
             //результат запроса в буфер
             fileBuffer = Buffer.from(response.data, 'binary')
             fileMime = 'image/jpeg'
+
+            fileTypeResult = await fileTypeFromBuffer(fileBuffer)
         }
 
         //ХЕШ содержимого буфера
@@ -68,11 +75,11 @@ export class CFile {
         let mongoCollectionName = null
 
         //ВИДЕО
-        if ((fileMime === 'video/mp4') ||
-            (fileMime === 'video/mpeg')) {
+        if ((fileTypeResult.mime === 'video/mp4') ||
+            (fileTypeResult.mime === 'video/mpeg')) {
 
             newBucketName = `${bucket_name}video`
-            minioObjectName = `${fileHash}/original.${mimeExtension}`
+            minioObjectName = `${fileHash}/original.${fileTypeResult.ext}`
             mongoCollectionName = 'video'
 
             //minio хранилище
@@ -86,12 +93,12 @@ export class CFile {
         }
 
         //ИЗОБРАЖЕНИЕ
-        if ((fileMime === 'image/gif') ||
-            (fileMime === 'image/png') ||
-            (fileMime === 'image/jpeg')) {
+        if ((fileTypeResult.mime === 'image/gif') ||
+            (fileTypeResult.mime === 'image/png') ||
+            (fileTypeResult.mime === 'image/jpeg')) {
 
             newBucketName = `${bucket_name}img`
-            minioObjectName = `${fileHash}.${mimeExtension}`
+            minioObjectName = `${fileHash}.${fileTypeResult.ext}`
             mongoCollectionName = 'img'
 
             //minio хранилище
@@ -105,11 +112,11 @@ export class CFile {
         }
 
         //АУДИО
-        if ((fileMime === 'audio/mp4') ||
-            (fileMime === 'audio/mpeg')) {
+        if ((fileTypeResult.mime === 'audio/mp4') ||
+            (fileTypeResult.mime === 'audio/mpeg')) {
 
             newBucketName = `${bucket_name}audio`
-            minioObjectName = `${fileHash}.${mimeExtension}`
+            minioObjectName = `${fileHash}.${fileTypeResult.ext}`
             mongoCollectionName = 'audio'
 
             //minio хранилище
@@ -123,15 +130,15 @@ export class CFile {
         }
 
         //ДОКУМЕНТ
-        if ((fileMime === 'application/msword') ||
-            (fileMime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
-            (fileMime === 'application/vnd.ms-excel') ||
-            (fileMime === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
-            (fileMime === 'application/pdf') ||
-            (fileMime === 'text/plain')) {
+        if ((fileTypeResult.mime === 'application/msword') ||
+            (fileTypeResult.mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
+            (fileTypeResult.mime === 'application/vnd.ms-excel') ||
+            (fileTypeResult.mime === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+            (fileTypeResult.mime === 'application/pdf') ||
+            (fileTypeResult.mime === 'text/plain')) {
 
             newBucketName = `${bucket_name}doc`
-            minioObjectName = `${fileHash}.${mimeExtension}`
+            minioObjectName = `${fileHash}.${fileTypeResult.ext}`
             mongoCollectionName = 'doc'
 
             //minio хранилище
@@ -145,7 +152,8 @@ export class CFile {
         }
 
         //ПРОВЕРКА наличия дополнительных данных
-        if (!fileMime) return false
+        //if (!fileMime) return false
+        if (!fileTypeResult) return false
         if (!minioObjectName) return false
         if (!mongoCollectionName) return false
         if (!newBucketName) return false
@@ -230,8 +238,8 @@ export class CFile {
             status: 'upload',
 
             size: fileSize,
-            type: fileMime,
-            ext: mimeExtension,
+            type: fileTypeResult.mime,
+            ext: fileTypeResult.ext,
 
             object_name: fileHash,
 
@@ -254,7 +262,7 @@ export class CFile {
 
         //mime тип файла
         let metaData = {
-            'Content-Type': fileMime,
+            'Content-Type': fileTypeResult.mime,
             'User-Id': from_id,
         }
 
