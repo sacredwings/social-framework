@@ -19,6 +19,7 @@ import { CView } from './classes/view'
 import { CNotify } from "./classes/notify"
 import { CVisitor } from "./classes/visitor"
 import { CTopic } from "./classes/topic"
+import { CBlank } from "./classes/blank"
 import { Store } from "./store"
 
 export {
@@ -43,5 +44,6 @@ export {
     CNotify,
     CVisitor,
     CTopic,
+    CBlank,
     Store
 }
