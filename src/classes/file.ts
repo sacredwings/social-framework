@@ -219,7 +219,7 @@ export class CFile {
 
         if (getFile) {
             //файл уже был загружен этим пользователем
-            if (getFile.from_id.toString() === from_id.toString()) return getFile
+            //if (getFile.from_id.toString() === from_id.toString()) return getFile
 
             //создаем запись с теми же полями, меняем владельца
             let arFields = {
