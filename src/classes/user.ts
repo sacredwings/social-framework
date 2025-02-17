@@ -412,6 +412,88 @@ export class CUser {
             throw ({...{code: 8001000, msg: 'CUser Count'}, ...err})
         }
     }
+
+    static async Passport({user_id}) {
+        try {
+            user_id = new DB().ObjectID(user_id)
+
+            const mongoClient = Store.GetMongoClient()
+            let collectionVideo = mongoClient.collection('video')
+            let collectionArticle = mongoClient.collection('article')
+            let collectionBlank = mongoClient.collection('blank')
+            let collectionTopic = mongoClient.collection('topic')
+            let collectionPost = mongoClient.collection('post')
+
+            let arAggregate = []
+            arAggregate.push({
+                $match: {
+                    from_id: user_id
+                }
+            })
+            arAggregate.push({
+                $group: {
+                    _id: {
+                        to_user_id: "$to_user_id",
+                        to_group_id: "$to_group_id"
+                    },
+                    // Другие поля для агрегации (например, сумма, среднее и т.д.)
+                    count: { $sum: 1 }
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'user',  // Имя коллекции, к которой присоединяемся
+                    localField: '_id.to_user_id',  // Поле из текущей коллекции (после $group)
+                    foreignField: '_id', // Поле из коллекции 'user', которое нужно сопоставить с localField
+                    as: '_to_user_id' // Имя поля, в котором будет содержаться результат JOIN
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'group',  // Имя коллекции, к которой присоединяемся
+                    localField: '_id.to_group_id',  // Поле из текущей коллекции (после $group)
+                    foreignField: '_id', // Поле из коллекции 'user', которое нужно сопоставить с localField
+                    as: '_to_group_id' // Имя поля, в котором будет содержаться результат JOIN
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_to_user_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $unwind: {
+                    path: '$_to_group_id',
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+            arAggregate.push({
+                $sort: {
+                    count: -1 // -1 для сортировки по убыванию, 1 для сортировки по возрастанию
+                }
+            })
+            arAggregate.push({
+                $limit: 5
+            })
+
+            let video = await collectionVideo.aggregate(arAggregate).toArray()
+            let article = await collectionArticle.aggregate(arAggregate).toArray()
+            let blank = await collectionBlank.aggregate(arAggregate).toArray()
+            let topic = await collectionTopic.aggregate(arAggregate).toArray()
+
+            return {
+                video,
+                article,
+                blank,
+                topic
+            }
+
+        } catch (err) {
+            console.log(err)
+            throw ({...{code: 8001000, msg: 'CUser Passport'}, ...err})
+        }
+    }
 }
 
 function randomNumber(min, max) {
