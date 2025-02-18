@@ -481,12 +481,14 @@ export class CUser {
             let article = await collectionArticle.aggregate(arAggregate).toArray()
             let blank = await collectionBlank.aggregate(arAggregate).toArray()
             let topic = await collectionTopic.aggregate(arAggregate).toArray()
+            let post = await collectionPost.aggregate(arAggregate).toArray()
 
             return {
                 video,
                 article,
                 blank,
-                topic
+                topic,
+                post
             }
 
         } catch (err) {
