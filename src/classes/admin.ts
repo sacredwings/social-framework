@@ -106,6 +106,18 @@ export class CAdmin {
                 })
                 console.log(arIndexes)
 
+                console.log('blank')
+                collection = mongoClient.collection('blank')
+                arIndexes = await collection.indexes()
+                arIndexes.forEach((item)=>{
+                    if (item.name !== '_id_')
+                        collection.dropIndex(item.name)
+                })
+                indexUser = await collection.createIndex({
+                    "title":"text",
+                    //"json.text":"text",
+                })
+                console.log(arIndexes)
                 //-----------------------------------------------------------------------
                 console.log('album_article')
                 collection = mongoClient.collection('album_article')
@@ -146,6 +158,18 @@ export class CAdmin {
                 })
                 console.log(arIndexes)
 
+                console.log('album_blank')
+                collection = mongoClient.collection('album_blank')
+                arIndexes = await collection.indexes()
+                arIndexes.forEach((item)=>{
+                    if (item.name !== '_id_')
+                        collection.dropIndex(item.name)
+                })
+                indexUser = await collection.createIndex({
+                    "title":"text",
+                    //"text":"text",
+                })
+                console.log(arIndexes)
                 //-----------------------------------------------------------------------
                 console.log('post')
                 collection = mongoClient.collection('post')
