@@ -12,6 +12,11 @@ export class CBlank {
         try {
             fields.placeholders = extractPlaceholders(fields.template)
 
+            if (fields.image_id)
+                fields.image_id = new DB().ObjectID(fields.image_id)
+            if (fields.album_ids)
+                fields.album_ids = new DB().ObjectID(fields.album_ids)
+
             if (fields.from_id)
                 fields.from_id = new DB().ObjectID(fields.from_id)
             if (fields.to_user_id)
@@ -125,6 +130,22 @@ export class CBlank {
                                 }
                         }
                     ]
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'img',
+                    localField: 'image_id',
+                    foreignField: '_id',
+                    as: '_image_id'
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'album_blank',
+                    localField: 'album_ids',
+                    foreignField: '_id',
+                    as: '_album_ids'
                 }
             })
             arAggregate.push({
@@ -263,6 +284,22 @@ export class CBlank {
                 }
             })
             arAggregate.push({
+                $lookup: {
+                    from: 'img',
+                    localField: 'image_id',
+                    foreignField: '_id',
+                    as: '_image_id'
+                }
+            })
+            arAggregate.push({
+                $lookup: {
+                    from: 'album_blank',
+                    localField: 'album_ids',
+                    foreignField: '_id',
+                    as: '_album_ids'
+                }
+            })
+            arAggregate.push({
                 $unwind: {
                     path: '$_image_id',
                     preserveNullAndEmptyArrays: true
@@ -386,6 +423,11 @@ export class CBlank {
             id = new DB().ObjectID(id)
 
             fields.placeholders = extractPlaceholders(fields.template)
+
+            if (fields.image_id)
+                fields.image_id = new DB().ObjectID(fields.image_id)
+            if (fields.album_ids)
+                fields.album_ids = new DB().ObjectID(fields.album_ids)
 
             if (fields.from_id)
                 fields.from_id = new DB().ObjectID(fields.from_id)
