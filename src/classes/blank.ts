@@ -202,6 +202,9 @@ export class CBlank {
             if (fields.to_group_id)
                 fields.to_group_id = new DB().ObjectID(fields.to_group_id)
 
+            if (fields.album_id)
+                fields.album_id = new DB().ObjectID(fields.album_id)
+
             let arAggregate = []
             arAggregate.push({
                 $match: {
@@ -330,7 +333,7 @@ export class CBlank {
             if (fields.from_id) arAggregate[0].$match.from_id = fields.from_id
             if (fields.to_user_id) arAggregate[0].$match.to_user_id = fields.to_user_id
             if (fields.to_group_id) arAggregate[0].$match.to_group_id = fields.to_group_id
-            if (fields.album_ids) arAggregate[0].$match.album_ids = fields.album_ids
+            if (fields.album_id) arAggregate[0].$match.album_ids = fields.album_id
 
             //сортировка, если поиска нет
             if (fields.q)
@@ -371,6 +374,9 @@ export class CBlank {
                 fields.to_user_id = new DB().ObjectID(fields.to_user_id)
             if (fields.to_group_id)
                 fields.to_group_id = new DB().ObjectID(fields.to_group_id)
+
+            if (fields.album_id)
+                fields.album_id = new DB().ObjectID(fields.album_id)
 
             let arAggregate = []
             arAggregate.push({
