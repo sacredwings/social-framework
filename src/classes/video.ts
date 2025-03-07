@@ -125,7 +125,7 @@ export class CVideo {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'album_article',
+                    from: 'album_video',
                     localField: 'album_ids',
                     foreignField: '_id',
                     as: '_album_ids'
@@ -261,7 +261,7 @@ export class CVideo {
             })
             arAggregate.push({
                 $lookup: {
-                    from: 'album_article',
+                    from: 'album_video',
                     localField: 'album_ids',
                     foreignField: '_id',
                     as: '_album_ids'
